@@ -1,8 +1,9 @@
-import { StyleSheet } from "react-native";
-import { Button } from "react-native-paper";
 import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
 import { router } from "expo-router";
+import React from "react";
+import { StyleSheet } from "react-native";
+import { Button } from "react-native-paper";
 
 export default function TabOneScreen() {
   return (
@@ -13,9 +14,11 @@ export default function TabOneScreen() {
         lightColor="#eee"
         darkColor="rgba(255,255,255,0.1)"
       />
-      <Button mode="contained" onPress={() => router.push("/modal")}>
+      <Button mode="contained" onPress={() => router.push("/(tabs)/login")}>
         Go to Tab Two
       </Button>
+      <Text className="text-red-300"> Hello</Text>
+
       <EditScreenInfo path="app/(tabs)/index.tsx" />
     </View>
   );

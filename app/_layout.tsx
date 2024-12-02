@@ -1,4 +1,3 @@
-import { useColorScheme } from "@/components/useColorScheme";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
@@ -9,6 +8,8 @@ import {
   PaperProvider,
 } from "react-native-paper";
 import "react-native-reanimated";
+// Import your global CSS file
+import "../styles/global.css";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -56,8 +57,6 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
   return (
     <PaperProvider theme={DefaultTheme}>
       <Stack>
