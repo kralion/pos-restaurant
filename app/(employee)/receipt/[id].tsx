@@ -2,6 +2,8 @@ import { Image, ScrollView, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { Button, Divider, Text } from "react-native-paper";
+import { useState } from "react";
+import { Modal, Portal, RadioButton } from "react-native-paper";
 
 export default function HomeScreen() {
   const params = useLocalSearchParams<{ id: string }>();
@@ -39,6 +41,9 @@ export default function HomeScreen() {
     },
   ];
 
+  const [orderStatus, setOrderStatus] = useState<boolean | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
   const subTotal =
     order[0].entradas.reduce((acc, item) => {
       return acc + item.price * item.quantity;
@@ -62,6 +67,10 @@ export default function HomeScreen() {
             <Text>Mozo</Text>
             <Text>Jhon Doe</Text>
           </View>
+          <Divider />
+          <Text onPress={() => setModalVisible(true)}>
+            Estado del pedido
+          </Text>
         </View>
         <View className="flex flex-col gap-4">
           <Text variant="titleMedium">Orden</Text>
@@ -119,10 +128,31 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <Button mode="contained" onPress={() => alert("Conecte la impresora")}>
+        <Button
+          mode="contained"
+          onPress={() => alert("Conecte la impresora")}
+          disabled={orderStatus !== true}
+        >
           Imprimir Boleta
         </Button>
       </View>
+      <Portal>
+        <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)}>
+          <View className="p-4 bg-white mx-4 my-8 rounded-lg">
+            <Text variant="titleMedium">Estado del pedido</Text>
+            <RadioButton.Group
+              onValueChange={(value) => setOrderStatus(value === "paid")}
+              value={orderStatus ? "paid" : "unpaid"}
+            >
+              <RadioButton.Item label="Pagado" value="paid" style={{ marginVertical: 8 }} />
+              <RadioButton.Item label="No Pagado" value="unpaid" style={{ marginVertical: 8 }} />
+            </RadioButton.Group>
+            <Button mode="contained" onPress={() => setModalVisible(false)} style={{ marginTop: 16 }}>
+              Confirmar
+            </Button>
+          </View>
+        </Modal>
+      </Portal>
     </ScrollView>
   );
 }
