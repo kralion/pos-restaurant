@@ -1,14 +1,17 @@
 export interface IMeal {
   name: string;
+  id: string;
+  name: string;
   price: number;
   quantity: number;
 }
 
 export interface IOrder {
   id?: number;
-  table: string;
+  table: number;
   date: Date;
   waiter: string;
+  status: boolean;
   paid: boolean;
   entradas: IMeal[];
   bebidas: IMeal[];

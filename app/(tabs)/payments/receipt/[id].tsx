@@ -83,7 +83,7 @@ export default function HomeScreen() {
             >
               {paid ? "Pagado" : "Sin Pagar"}
             </Text>
-            <Switch value={paid} onValueChange={() => setModalVisible(true)} />
+            <Switch value={paid} onValueChange={() => setModalVisible(true)} />;
           </View>
         </View>
 
