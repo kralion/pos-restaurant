@@ -1,4 +1,4 @@
-import OrderCard from "@/components/employee/order-card";
+import OrderCard from "@/components/admin/order-card";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
@@ -30,8 +30,8 @@ export default function HomeScreen() {
       keyboardDismissMode="on-drag"
       className="min-h-screen p-4"
     >
-      <Text className=" text-4xl font-bold">Ordenes del Día</Text>
-      <Text className=" opacity-50">Listado de pedidos </Text>
+      <Text className=" text-4xl font-bold">Pagos</Text>
+      <Text className=" opacity-50">Listado de pedidos pagados</Text>
       <Divider style={{ marginVertical: 16 }} />
       <FlashList
         renderItem={({ item: order }) => <OrderCard order={order} />}
