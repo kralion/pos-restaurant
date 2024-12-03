@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import React from "react";
 export default function EmployeesLayout() {
   return (
@@ -15,6 +15,18 @@ export default function EmployeesLayout() {
             placeholder: "Buscar ...",
             hideWhenScrolling: false,
             cancelButtonText: "Cancelar",
+            onChangeText: (event) => {
+              const search = event.nativeEvent.text;
+              router.setParams({
+                search: search,
+              });
+            },
+
+            onCancelButtonPress: () => {
+              router.setParams({
+                search: undefined,
+              });
+            },
           },
 
           headerLargeTitleShadowVisible: false,

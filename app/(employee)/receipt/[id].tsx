@@ -59,8 +59,8 @@ export default function HomeScreen() {
           </View>
           <Divider />
           <View className="flex flex-row justify-between">
-            <Text>Fecha</Text>
-            <Text> {order[0].date}</Text>
+            <Text>Mozo</Text>
+            <Text>Jhon Doe</Text>
           </View>
         </View>
         <View className="flex flex-col gap-4">
