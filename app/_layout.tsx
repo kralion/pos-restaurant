@@ -1,3 +1,4 @@
+import { UserContextProvider } from "@/context";
 import "../styles/global.css";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
@@ -59,14 +60,16 @@ export default function RootLayout() {
 function RootLayoutNav() {
   return (
     <PaperProvider theme={DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="(employee)" options={{ headerShown: false }} />
-        <Stack.Screen name="(chef)" options={{ headerShown: false }} />
-        <Stack.Screen name="(waiter)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-      </Stack>
+      <UserContextProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(employee)" options={{ headerShown: false }} />
+          <Stack.Screen name="(chef)" options={{ headerShown: false }} />
+          <Stack.Screen name="(waiter)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+          <Stack.Screen name="login" options={{ headerShown: false }} />
+        </Stack>
+      </UserContextProvider>
     </PaperProvider>
   );
 }

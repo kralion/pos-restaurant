@@ -1,3 +1,4 @@
+import { IUser } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { router } from "expo-router";
 import { Info } from "lucide-react-native";
@@ -13,11 +14,6 @@ import {
 } from "react-native";
 import { Button, Dialog, Portal, TextInput } from "react-native-paper";
 
-type TLogin = {
-  username: string;
-  password: string;
-};
-
 export default function LogInScreen() {
   const [loading, setLoading] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
@@ -26,9 +22,9 @@ export default function LogInScreen() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<TLogin>();
+  } = useForm<IUser>();
 
-  const onSubmit = async (data: TLogin) => {
+  const onSubmit = async (data: IUser) => {
     setLoading(true);
     try {
       const { data: user, error } = await supabase
