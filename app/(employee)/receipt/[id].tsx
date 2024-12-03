@@ -89,10 +89,10 @@ export default function HomeScreen() {
 
         <Button
           mode="contained-tonal"
-          onPress={() => router.push("/(tabs)/tables")}
+          onPress={() => router.push("/(waiter)/")}
           className="mb-4"
         >
-          Volver a Mesas
+          Volver a Form
         </Button>
 
         <View className="flex flex-col gap-4">
