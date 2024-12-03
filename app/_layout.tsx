@@ -19,7 +19,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "(tabs)",
+  initialRouteName: "(auth)",
 };
 
 const theme = {
@@ -62,12 +62,10 @@ function RootLayoutNav() {
     <PaperProvider theme={DefaultTheme}>
       <UserContextProvider>
         <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="(admin)" options={{ headerShown: false }} />
           <Stack.Screen name="(chef)" options={{ headerShown: false }} />
           <Stack.Screen name="(waiter)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-          <Stack.Screen name="login" options={{ headerShown: false }} />
-          <Stack.Screen name="(employee)" options={{ headerShown: false }} />
         </Stack>
       </UserContextProvider>
     </PaperProvider>

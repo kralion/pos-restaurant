@@ -15,7 +15,7 @@ export default function PaymentsLayout() {
         name="receipt/[id]"
         options={{
           title: "Detalles",
-          headerBackTitle: "Pedidos",
+          headerBackTitle: "Pagos",
           headerLargeTitle: true,
           headerBackVisible: true,
           headerBlurEffect: "regular",

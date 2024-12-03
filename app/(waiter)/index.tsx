@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { SafeAreaView, ScrollView, Text, View } from "react-native";
 import { Button, IconButton, List, TextInput } from "react-native-paper";
+import { v4 as uuidv4 } from "uuid";
 
 export default function OrderScreen() {
   const [loading, setLoading] = useState(false);
@@ -23,7 +24,11 @@ export default function OrderScreen() {
     formState: { errors },
     reset,
     setValue,
-  } = useForm<IOrder>();
+  } = useForm<IOrder>({
+    defaultValues: {
+      table: 0,
+    },
+  });
 
   const getEntradasData = async () => {
     const { data: entradas, error } = await supabase
@@ -137,7 +142,7 @@ export default function OrderScreen() {
         served: true,
         id_waiter: "211777bc-f588-4779-b468-6dcde65a960d",
         date: new Date(),
-        id: "211777cf-f588-4779-b468-6dcde65a960d",
+        id: uuidv4(),
         paid: false,
         table: Number(data.table),
         entradas: selectedEntradas,
@@ -173,7 +178,6 @@ export default function OrderScreen() {
       <SafeAreaView className="flex flex-col justify-center align-middle m-4 items-center">
         <View className="flex flex-col gap-16 w-full items-center">
           <View className="flex flex-col justify-center align-middle w-full">
-            {/* Table Number Input */}
             <Controller
               control={control}
               name="table"

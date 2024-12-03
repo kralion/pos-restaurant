@@ -2,9 +2,12 @@ import * as React from "react";
 import { createContext, useContext } from "react";
 import { supabase } from "@/utils/supabase";
 import { IUser, IUserContextProvider } from "@/interfaces";
+import { router } from "expo-router";
 
 export const UserContext = createContext<IUserContextProvider>({
   getUserById: async (id: string): Promise<IUser> => ({} as IUser),
+  setUserLogout: () => {},
+  user: {} as IUser,
 });
 
 export const UserContextProvider = ({
@@ -12,7 +15,7 @@ export const UserContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  //DOCS: Use this with a state on the component that wants to consume Ex. [user, setUser]
+  const [user, setUser] = React.useState<IUser>({} as IUser);
   async function getUserById(id: string) {
     const { data, error } = await supabase
       .from("users")
@@ -20,12 +23,20 @@ export const UserContextProvider = ({
       .eq("id", id)
       .single();
     if (error) throw error;
+    setUser(data);
     return data;
+  }
+
+  async function setUserLogout() {
+    setUser({} as IUser);
+    router.push("/(auth)/login");
   }
   return (
     <UserContext.Provider
       value={{
         getUserById,
+        user,
+        setUserLogout,
       }}
     >
       {children}

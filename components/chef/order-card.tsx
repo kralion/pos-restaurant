@@ -17,7 +17,7 @@ export default function OrderCard({ order }: { order: TOrder }) {
         marginVertical: 8,
       }}
       onPress={() => {
-        router.push(`/(employee)/receipt/${order.id}`);
+        router.push(`/(chef)/order/${order.id}`);
       }}
     >
       <Card.Title

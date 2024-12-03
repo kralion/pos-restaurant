@@ -1,3 +1,4 @@
+import { useUserContext } from "@/context";
 import { IUser } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { router } from "expo-router";
@@ -17,12 +18,15 @@ import { Button, Dialog, Portal, TextInput } from "react-native-paper";
 export default function LogInScreen() {
   const [loading, setLoading] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
+  const [currentUser, setCurrentUser] = React.useState<IUser>({} as IUser);
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm<IUser>();
+
+  const { getUserById } = useUserContext();
 
   const onSubmit = async (data: IUser) => {
     setLoading(true);
@@ -42,7 +46,11 @@ export default function LogInScreen() {
       }
 
       reset();
-      router.push("/");
+      setCurrentUser(user);
+      await getUserById(user.id);
+
+      // @ts-ignore
+      router.push(`/(${user.role})`);
     } catch (err) {
       console.error("An error occurred:", err);
       alert("Algo sucedió mal, vuelve a intentarlo.");
@@ -62,7 +70,7 @@ export default function LogInScreen() {
                 width: 125,
                 height: 125,
               }}
-              source={require("../assets/images/logo.png")}
+              source={require("../../assets/images/logo.png")}
             />
             <View className="flex flex-col gap-1 items-center">
               <Text className="text-4xl font-bold"> Inicia Sesión</Text>
@@ -144,7 +152,7 @@ export default function LogInScreen() {
               </Text>
             </Text>
             <Text className="text-muted-foreground text-zinc-400   mx-auto text-sm">
-              Versión 0.0.12
+              Versión 1.0.12
             </Text>
           </View>
         </View>

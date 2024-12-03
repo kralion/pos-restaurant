@@ -1,12 +1,14 @@
+import { useUserContext } from "@/context";
 import { router, Stack } from "expo-router";
 import React from "react";
 import { Button } from "react-native";
 
-export default function EmployeesLayout() {
+export default function ChefLayout() {
+  const { setUserLogout } = useUserContext();
   return (
     <Stack>
       <Stack.Screen
-        name="orders"
+        name="index"
         options={{
           title: "Pedidos",
           headerLargeTitle: true,
@@ -18,32 +20,23 @@ export default function EmployeesLayout() {
             hideWhenScrolling: false,
             cancelButtonText: "Cancelar",
           },
-
+          headerRight: () => (
+            <Button title="Salir" onPress={() => setUserLogout()} color="red" />
+          ),
           headerLargeTitleShadowVisible: false,
         }}
       />
-
       <Stack.Screen
-        name="receipt"
+        name="order/[id]"
         options={{
           title: "Detalles",
           headerBackTitle: "Pedidos",
           headerLargeTitle: true,
-          headerBlurEffect: "regular",
           headerBackVisible: true,
+          headerBlurEffect: "regular",
           headerTransparent: true,
           headerShadowVisible: false,
           headerLargeTitleShadowVisible: false,
-        }}
-      />
-      <Stack.Screen
-        name="payment"
-        options={{
-          headerShown: false,
-          presentation: "modal",
-          headerRight: () => (
-            <Button title="Cerrar" onPress={() => router.back()} />
-          ),
         }}
       />
     </Stack>

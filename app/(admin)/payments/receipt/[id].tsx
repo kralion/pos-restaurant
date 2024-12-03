@@ -87,14 +87,6 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <Button
-          mode="contained-tonal"
-          onPress={() => router.push("/(waiter)/")}
-          className="mb-4"
-        >
-          Volver a Form
-        </Button>
-
         <View className="flex flex-col gap-4">
           <Text variant="titleMedium">Orden</Text>
           <Divider />

@@ -1,9 +1,8 @@
-import OrderCard from "@/components/employee/order-card";
+import OrderCard from "@/components/chef/order-card";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
-import { ScrollView, Text } from "react-native";
-import { Divider } from "react-native-paper";
+import { ScrollView } from "react-native";
 
 export default function HomeScreen() {
   const { search } = useLocalSearchParams<{ search?: string }>();
@@ -28,11 +27,8 @@ export default function HomeScreen() {
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       keyboardDismissMode="on-drag"
-      className="min-h-screen p-4"
+      className="min-h-screen"
     >
-      <Text className=" text-4xl font-bold">Ordenes del Día</Text>
-      <Text className=" opacity-50">Listado de pedidos </Text>
-      <Divider style={{ marginVertical: 16 }} />
       <FlashList
         renderItem={({ item: order }) => <OrderCard order={order} />}
         data={filteredOrders}
