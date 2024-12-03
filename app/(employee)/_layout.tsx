@@ -1,7 +1,5 @@
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import React from "react";
-import { Button } from "react-native";
-
 export default function EmployeesLayout() {
   return (
     <Stack>
@@ -24,26 +22,16 @@ export default function EmployeesLayout() {
       />
 
       <Stack.Screen
-        name="receipt"
+        name="receipt/[id]"
         options={{
           title: "Detalles",
           headerBackTitle: "Pedidos",
           headerLargeTitle: true,
-          headerBlurEffect: "regular",
           headerBackVisible: true,
+          headerBlurEffect: "regular",
           headerTransparent: true,
           headerShadowVisible: false,
           headerLargeTitleShadowVisible: false,
-        }}
-      />
-      <Stack.Screen
-        name="payment"
-        options={{
-          headerShown: false,
-          presentation: "modal",
-          headerRight: () => (
-            <Button title="Cerrar" onPress={() => router.back()} />
-          ),
         }}
       />
     </Stack>
