@@ -85,6 +85,15 @@ export default function HomeScreen() {
             <Switch value={paid} onValueChange={() => setModalVisible(true)} />;
           </View>
         </View>
+
+        <Button 
+          mode="contained-tonal" 
+          onPress={() => router.push('/(tabs)/tables')}
+          className="mb-4"
+        >
+          Volver a Mesas
+        </Button>
+
         <View className="flex flex-col gap-4">
           <Text variant="titleMedium">Orden</Text>
           <Divider />
