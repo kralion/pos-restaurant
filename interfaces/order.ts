@@ -6,9 +6,9 @@ export interface IMeal {
 
 export interface IOrder {
   id?: number;
-  name: string;
   table: string;
-  date: string;
+  date: Date;
+  waiter: string;
   paid: boolean;
   entradas: IMeal[];
   bebidas: IMeal[];
