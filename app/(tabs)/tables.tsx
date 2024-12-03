@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/utils/supabase';
-import { View, ScrollView, Pressable } from 'react-native';
+import { View, ScrollView, Pressable, SafeAreaView } from 'react-native';
 import { Surface, Text, Portal, Modal, Button } from 'react-native-paper';
 import { Svg, Rect, Circle, Text as SvgText } from 'react-native-svg';
+import { Divider } from "react-native-paper";
 
 interface TableProps {
     number: number;
@@ -13,15 +14,14 @@ interface TableProps {
 interface ITable {
     id: number;
     status: boolean;
-    number: number;
 }
 
 const TableSvg: React.FC<TableProps> = ({ number, status }) => {
     const getColor = () => {
         switch (status) {
-            case true: return '#4CAF50';
-            case false: return '#F44336';
-            default: return '#4CAF50';
+            case true: return '#4CAF50';  
+            case false: return '#F44336'; 
+            default: return '#4CAF50';   
         }
     };
 
@@ -114,10 +114,23 @@ const Tables = () => {
                 .eq('id', selectedTable);
 
             if (error) throw error;
+
+            // Actualizar el estado local inmediatamente
+            setTables(tables.map(table => 
+                table.id === selectedTable 
+                    ? { ...table, status }
+                    : table
+            ));
+            
             closeModal();
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error updating table');
         }
+    };
+
+    const getSelectedTableNumber = () => {
+        const selectedTableData = tables.find(table => table.id === selectedTable);
+        return selectedTableData?.id || '';
     };
 
     if (loading) return <Text>Loading...</Text>;
@@ -125,24 +138,33 @@ const Tables = () => {
     if (!tables.length) return <Text>No se encontraron</Text>;
 
     return (
-        <View className="flex-1 bg-gray-100">
-            <ScrollView className="p-4">
-                <View className="flex-row flex-wrap justify-center items-center gap-4">
-                    {tables.map((table) => (
-                        <Pressable
-                            key={table.id}
-                            onPress={() => handleTablePress(table.id)}
-                            className="p-2"
-                        >
-                            <Surface className="rounded-lg elevation-4 p-2">
-                                <TableSvg
-                                    number={table.number}
-                                    status={table.status}
-                                    onPress={() => handleTablePress(table.id)}
-                                />
-                            </Surface>
-                        </Pressable>
-                    ))}
+        <SafeAreaView style={{ flex: 1 }}>
+            <ScrollView 
+                style={{ flex: 1 }}
+                contentContainerStyle={{ paddingBottom: 20 }}
+            >
+                <View className="flex-1 bg-gray-100 p-4">
+                    <Text className="text-4xl" style={{ fontWeight: '700' }}>Mesas</Text>
+                    <Text className="opacity-50">Listado de mesas disponibles</Text>
+                    <Divider style={{ marginVertical: 16 }} />
+                    
+                    <View className="flex-row flex-wrap justify-center items-center gap-4">
+                        {tables.map((table) => (
+                            <Pressable
+                                key={table.id}
+                                onPress={() => handleTablePress(table.id)}
+                                className="p-2"
+                            >
+                                <Surface className="rounded-lg elevation-4 p-2">
+                                    <TableSvg
+                                        number={table.id}
+                                        status={table.status}
+                                        onPress={() => handleTablePress(table.id)}
+                                    />
+                                </Surface>
+                            </Pressable>
+                        ))}
+                    </View>
                 </View>
             </ScrollView>
 
@@ -153,7 +175,7 @@ const Tables = () => {
                 >
                     <View className="p-4 bg-white mx-4 my-8 rounded-lg">
                         <Text className="text-xl font-bold mb-4 text-center">
-                            Mesa N°{selectedTable}
+                            Mesa N°{getSelectedTableNumber()}
                         </Text>
                         <View className="gap-2">
                             <Button
@@ -172,7 +194,7 @@ const Tables = () => {
                     </View>
                 </Modal>
             </Portal>
-        </View>
+        </SafeAreaView>
     );
 };
 
