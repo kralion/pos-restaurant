@@ -1,9 +1,15 @@
-import { Image, ScrollView, View } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
 import { useHeaderHeight } from "@react-navigation/elements";
-import { Button, Divider, Text } from "react-native-paper";
+import { useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Modal, Portal, RadioButton, Switch } from "react-native-paper";
+import { Image, ScrollView, View } from "react-native";
+import {
+  Button,
+  Divider,
+  Modal,
+  Portal,
+  Switch,
+  Text,
+} from "react-native-paper";
 
 export default function HomeScreen() {
   const params = useLocalSearchParams<{ id: string }>();
