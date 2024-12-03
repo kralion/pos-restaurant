@@ -3,7 +3,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { Button, Divider, Text } from "react-native-paper";
 import { useState } from "react";
-import { Modal, Portal, RadioButton } from "react-native-paper";
+import { Modal, Portal, RadioButton, Switch } from "react-native-paper";
 
 export default function HomeScreen() {
   const params = useLocalSearchParams<{ id: string }>();
@@ -41,7 +41,7 @@ export default function HomeScreen() {
     },
   ];
 
-  const [orderStatus, setOrderStatus] = useState<boolean | null>(null);
+  const [paid, setPaid] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
 
   const subTotal =
@@ -68,9 +68,16 @@ export default function HomeScreen() {
             <Text>Jhon Doe</Text>
           </View>
           <Divider />
-          <Text onPress={() => setModalVisible(true)}>
-            Estado del pedido
-          </Text>
+          <View className="flex flex-row justify-between">
+            <Text
+              style={{
+                fontWeight: "bold",
+              }}
+            >
+              {paid ? "Pagado" : "Sin Pagar"}
+            </Text>
+            <Switch value={paid} onValueChange={() => setModalVisible(true)} />;
+          </View>
         </View>
 
         <Button 
@@ -136,27 +143,49 @@ export default function HomeScreen() {
             <Text variant="titleLarge">S/. {total}.00</Text>
           </View>
         </View>
-
-        <Button
-          mode="contained"
-          onPress={() => alert("Conecte la impresora")}
-          disabled={orderStatus !== true}
-        >
-          Imprimir Boleta
-        </Button>
+        {paid ? (
+          <Button
+            mode="contained"
+            onPress={() => alert("Conecte la impresora")}
+          >
+            Imprimir Boleta
+          </Button>
+        ) : (
+          <Button
+            mode="contained"
+            onPress={() => alert("Conecte la impresora")}
+            disabled
+          >
+            Imprimir Boleta
+          </Button>
+        )}
       </View>
       <Portal>
         <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)}>
-          <View className="p-4 bg-white mx-4 my-8 rounded-lg">
-            <Text variant="titleMedium">Estado del pedido</Text>
-            <RadioButton.Group
-              onValueChange={(value) => setOrderStatus(value === "paid")}
-              value={orderStatus ? "paid" : "unpaid"}
+          <View className="p-4 bg-white mx-4 rounded-lg flex flex-col gap-16">
+            <View className="flex flex-row gap-4 items-center">
+              <Image
+                style={{
+                  width: 50,
+                  height: 50,
+                }}
+                source={{
+                  uri: "https://img.icons8.com/?size=100&id=VQOfeAx5KWTK&format=png&color=000000",
+                }}
+              />
+              <View className="flex flex-col gap-1">
+                <Text variant="titleMedium">Estado del pedido</Text>
+                <Text>Estas seguro de cambiar el </Text>
+                <Text> estado de la orden ?</Text>
+              </View>
+            </View>
+            <Button
+              mode="contained"
+              onPress={() => {
+                setPaid(!paid);
+                setModalVisible(false);
+              }}
             >
-              <RadioButton.Item label="Pagado" value="paid" style={{ marginVertical: 8 }} />
-              <RadioButton.Item label="No Pagado" value="unpaid" style={{ marginVertical: 8 }} />
-            </RadioButton.Group>
-            <Button mode="contained" onPress={() => setModalVisible(false)} style={{ marginTop: 16 }}>
               Confirmar
             </Button>
           </View>
