@@ -1,4 +1,5 @@
 export interface IMeal {
+  name: string;
   id: string;
   name: string;
   price: number;
@@ -23,4 +24,15 @@ export interface IOrderContextProvider {
   order: IOrder;
   deleteOrder: (id: string) => Promise<void>;
   getOrders: () => Promise<IOrder[]>;
+}
+
+export interface IOrderPost {
+  table: number;
+  date: Date;
+  waiter: string;
+  paid: boolean;
+  status: boolean;
+  entradas: IMeal[];
+  bebidas: IMeal[];
+  fondos: IMeal[];
 }
