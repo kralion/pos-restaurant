@@ -14,10 +14,10 @@ export default function TabOneScreen() {
         lightColor="#eee"
         darkColor="rgba(255,255,255,0.1)"
       />
-      <Button mode="contained" onPress={() => router.push("/(tabs)/login")}>
+      <Button mode="contained" onPress={() => router.push("/login")}>
         Go to Tab Two
       </Button>
-      <Text className="text-red-300"> Hello</Text>
+      <Text className="text-red-500"> Hello</Text>
 
       <EditScreenInfo path="app/(tabs)/index.tsx" />
     </View>

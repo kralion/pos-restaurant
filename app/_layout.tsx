@@ -1,3 +1,4 @@
+import "../styles/global.css";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
@@ -9,7 +10,6 @@ import {
 } from "react-native-paper";
 import "react-native-reanimated";
 // Import your global CSS file
-import "../styles/global.css";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -18,7 +18,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "(tabs)",
+  initialRouteName: "(employee)",
 };
 
 const theme = {
@@ -61,7 +61,11 @@ function RootLayoutNav() {
     <PaperProvider theme={DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(employee)" options={{ headerShown: false }} />
+        <Stack.Screen name="(chef)" options={{ headerShown: false }} />
+        <Stack.Screen name="(waiter)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
       </Stack>
     </PaperProvider>
   );
