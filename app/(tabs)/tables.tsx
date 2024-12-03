@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/utils/supabase';
+import React, { useState } from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
 import { Surface, Text, Portal, Modal, Button } from 'react-native-paper';
-import { Svg, Rect, Circle, Text as SvgText } from 'react-native-svg';
+import { Svg, Rect, Circle } from 'react-native-svg';
 
 interface TableProps {
-    number: number;
-    status: boolean;
-    onPress: () => void;
+  number: number;
+  status: boolean;
+  onPress: () => void;
 }
 
 interface ITable {
@@ -17,16 +16,20 @@ interface ITable {
 }
 
 const TableSvg: React.FC<TableProps> = ({ number, status }) => {
-    const getColor = () => {
-        switch (status) {
-            case true: return '#4CAF50';
-            case false: return '#F44336';
-            default: return '#4CAF50';
-        }
-    };
+  const getColor = () => {
+    switch (status) {
+      case true:
+        return "#4CAF50";
+      case false:
+        return "#F44336";
+      default:
+        return "#4CAF50";
+    }
+  };
 
     return (
         <Svg height="120" width="120" viewBox="0 0 120 120">
+            {/* Mesa rectangular */}
             <Rect
                 x="20"
                 y="20"
@@ -37,92 +40,37 @@ const TableSvg: React.FC<TableProps> = ({ number, status }) => {
                 strokeWidth="3"
                 rx="10"
             />
+            {/* Sillas */}
             <Circle cx="60" cy="35" r="8" fill={getColor()} />
             <Circle cx="60" cy="85" r="8" fill={getColor()} />
             <Circle cx="35" cy="60" r="8" fill={getColor()} />
             <Circle cx="85" cy="60" r="8" fill={getColor()} />
-            <SvgText
-                x="60"
-                y="65"
-                fontSize="20"
-                textAnchor="middle"
-                fill={getColor()}
-            >
-                {number}
-            </SvgText>
+            {/* Número de mesa */}
         </Svg>
     );
 };
 
 const Tables = () => {
     const [selectedTable, setSelectedTable] = useState<number | null>(null);
-    const [tables, setTables] = useState<ITable[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [tables, setTables] = useState(
+        Array.from({ length: 7 }, (_, i) => ({
+            id: i + 1,
+            status: true,
+        }))
+    );
 
-    useEffect(() => {
-        const fetchTables = async () => {
-            try {
-                setLoading(true);
-                const { data, error } = await supabase
-                    .from('tables')
-                    .select('*')
-                    .order('id', { ascending: true });
+  const handleTablePress = (tableId: number) => {
+    setSelectedTable(tableId);
+  };
 
-                if (error) throw error;
-                setTables(data || []);
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'Error fetching tables');
-            } finally {
-                setLoading(false);
-            }
-        };
+  const closeModal = () => setSelectedTable(null);
 
-        fetchTables();
-        
-        const channel = supabase
-            .channel('table-changes')
-            .on(
-                'postgres_changes',
-                { 
-                    event: '*',
-                    schema: 'public', 
-                    table: 'tables' 
-                },
-                () => {
-                    fetchTables();
-                }
-            )
-            .subscribe();
-
-        return () => {
-            channel.unsubscribe();
-        };
-    }, []);
-
-    const handleTablePress = (tableId: number) => {
-        setSelectedTable(tableId);
+    const updateTableStatus = (status: boolean) => {
+        setTables(tables.map(table =>
+            table.id === selectedTable ? { ...table, status } : table
+        ));
+        closeModal();
     };
-
-    const closeModal = () => setSelectedTable(null);
-
-    const updateTableStatus = async (status: boolean) => {
-        try {
-            const { error } = await supabase
-                .from('tables')
-                .update({ status })
-                .eq('id', selectedTable);
-
-            if (error) throw error;
-            closeModal();
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Error updating table');
-        }
-    };
-
-    if (loading) return <Text>Loading...</Text>;
-    if (error) return <Text>Error: {error}</Text>;
-    if (!tables.length) return <Text>No se encontraron mesas disponibles</Text>;
 
     return (
         <View className="flex-1 bg-gray-100">
@@ -136,7 +84,7 @@ const Tables = () => {
                         >
                             <Surface className="rounded-lg elevation-4 p-2">
                                 <TableSvg
-                                    number={table.number}
+                                    number={table.id}
                                     status={table.status}
                                     onPress={() => handleTablePress(table.id)}
                                 />
@@ -152,6 +100,7 @@ const Tables = () => {
                     onDismiss={closeModal}
                 >
                     <View className="p-4 bg-white mx-4 my-8 rounded-lg">
+
                         <Text className="text-xl font-bold mb-4 text-center">
                             Mesa N°{selectedTable}
                         </Text>
@@ -160,13 +109,13 @@ const Tables = () => {
                                 mode="outlined"
                                 onPress={() => updateTableStatus(true)}
                             >
-                                <Text>Disponible</Text>
+                                Disponible
                             </Button>
                             <Button
                                 mode="outlined"
                                 onPress={() => updateTableStatus(false)}
                             >
-                                <Text>Ocupado</Text>
+                                Ocupado
                             </Button>
                         </View>
                     </View>
