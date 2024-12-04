@@ -1,3 +1,4 @@
+import MenuCard from "@/components/menu-card";
 import OrderCard from "@/components/order-card";
 import { useOrderContext } from "@/context";
 import { supabase } from "@/utils/supabase";
@@ -72,7 +73,7 @@ export default function HomeScreen() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        renderItem={({ item: order }) => <OrderCard order={order} />}
+        renderItem={({ item: menu }) => <MenuCard menu={menu} />}
         data={filteredOrders}
         estimatedItemSize={200}
         horizontal={false}

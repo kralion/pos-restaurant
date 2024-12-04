@@ -1,31 +1,26 @@
-import { IMeal, IOrder } from "@/interfaces";
+import { useOrderContext, useUserContext } from "@/context";
+import { IMeal } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
+import { useHeaderHeight } from "@react-navigation/elements";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, Text, View } from "react-native";
-import { useHeaderHeight } from "@react-navigation/elements";
-import uuidRandom from "uuid-random";
 import {
   Button,
   Divider,
   IconButton,
   List,
-  TextInput,
   Surface,
+  TextInput,
 } from "react-native-paper";
-import { useOrderContext, useUserContext } from "@/context";
 
 interface MealWithQuantity extends IMeal {
   quantity: number;
 }
 
-export default function OrderScreen() {
+export default function MenuScreen() {
   const [loading, setLoading] = useState(false);
-  const [expandedEntradas, setExpandedEntradas] = useState(false);
-  const [expandedFondos, setExpandedFondos] = useState(false);
   const [expandedBebidas, setExpandedBebidas] = useState(false);
-  const [entradasData, setEntradasData] = useState<IMeal[]>([]);
-  const [fondosData, setFondosData] = useState<IMeal[]>([]);
   const [bebidasData, setBebidasData] = useState<IMeal[]>([]);
   const [selectedEntradas, setSelectedEntradas] = useState<MealWithQuantity[]>(
     []
@@ -44,39 +39,7 @@ export default function OrderScreen() {
     formState: { errors },
     reset,
     setValue,
-  } = useForm<IOrder>({
-    defaultValues: {
-      table: 0,
-    },
-  });
-
-  const getEntradasData = async () => {
-    const { data: entradas, error } = await supabase
-      .from("meals")
-      .select("*")
-      .eq("category", "entradas");
-
-    if (error || !entradas) {
-      console.error("An error occurred:", error);
-      alert("Algo sucedió mal, vuelve a intentarlo.");
-    } else {
-      setEntradasData(entradas);
-    }
-  };
-
-  const getFondosData = async () => {
-    const { data: fondos, error } = await supabase
-      .from("meals")
-      .select("*")
-      .eq("category", "fondos");
-
-    if (error || !fondos) {
-      console.error("An error occurred:", error);
-      alert("Algo sucedió mal, vuelve a intentarlo.");
-    } else {
-      setFondosData(fondos);
-    }
-  };
+  } = useForm<IMeal>({});
 
   const getBebidasData = async () => {
     const { data: bebidas, error } = await supabase
@@ -93,8 +56,6 @@ export default function OrderScreen() {
   };
 
   useEffect(() => {
-    getEntradasData();
-    getFondosData();
     getBebidasData();
   }, []);
 
@@ -190,19 +151,9 @@ export default function OrderScreen() {
       const newMealWithQuantity = { ...meal, quantity };
       setSelectedMeals([...selectedMeals, newMealWithQuantity]);
     }
-
-    // Update form values
-    setValue(
-      category,
-      category === "entradas"
-        ? selectedEntradas
-        : category === "fondos"
-        ? selectedFondos
-        : selectedBebidas
-    );
   };
 
-  const onSubmit = async (data: IOrder) => {
+  const onSubmit = async (data: IMeal) => {
     setLoading(true);
 
     try {
@@ -219,21 +170,7 @@ export default function OrderScreen() {
         0
       );
 
-      // Prepare order data
-      const orderData: IOrder = {
-        ...data,
-        served: false,
-        id_waiter: user.id ? user.id : "211777bc-f588-4779-b468-6dcde65a960d",
-        date: new Date(),
-        id: uuidRandom(),
-        paid: false,
-        table: Number(data.table),
-        entradas: selectedEntradas,
-        fondos: selectedFondos,
-        bebidas: selectedBebidas,
-      };
-
-      addOrder(orderData);
+      // addOrder(orderData);
       alert("Pedido registrado");
       setSelectedBebidas([]);
       setSelectedFondos([]);
@@ -319,6 +256,89 @@ export default function OrderScreen() {
         <View className="flex flex-col justify-center align-middle w-full">
           <Controller
             control={control}
+            name="name"
+            rules={{
+              required: "Número de mesa es requerido",
+              pattern: {
+                value: /^[0-9]+$/,
+                message: "Ingrese un número de mesa válido",
+              },
+            }}
+            render={({ field: { onChange, value } }) => (
+              <View className="mb-4">
+                <TextInput
+                  label="Entrada"
+                  value={value}
+                  onChangeText={onChange}
+                  mode="outlined"
+                  error={!!errors.name}
+                />
+                {errors.name && (
+                  <Text className="text-red-500 ml-4">
+                    {errors.name.message}
+                  </Text>
+                )}
+              </View>
+            )}
+          />
+          <Controller
+            control={control}
+            name="price"
+            rules={{
+              required: "Número de mesa es requerido",
+              pattern: {
+                value: /^[0-9]+$/,
+                message: "Ingrese un número de mesa válido",
+              },
+            }}
+            render={({ field: { onChange, value } }) => (
+              <View className="mb-4">
+                <TextInput
+                  label="Precio"
+                  value={String(value)}
+                  onChangeText={onChange}
+                  mode="outlined"
+                  keyboardType="numeric"
+                  error={!!errors.name}
+                />
+                {errors.quantity && (
+                  <Text className="text-red-500 ml-4">
+                    {errors.quantity.message}
+                  </Text>
+                )}
+              </View>
+            )}
+          />
+          <Controller
+            control={control}
+            name="quantity"
+            rules={{
+              required: "Número de mesa es requerido",
+              pattern: {
+                value: /^[0-9]+$/,
+                message: "Ingrese un número de mesa válido",
+              },
+            }}
+            render={({ field: { onChange, value } }) => (
+              <View className="mb-4">
+                <TextInput
+                  label="Cantidad"
+                  value={String(value)}
+                  onChangeText={onChange}
+                  mode="outlined"
+                  keyboardType="numeric"
+                  error={!!errors.quantity}
+                />
+                {errors.quantity && (
+                  <Text className="text-red-500 ml-4">
+                    {errors.quantity.message}
+                  </Text>
+                )}
+              </View>
+            )}
+          />
+          <Controller
+            control={control}
             name="table"
             rules={{
               required: "Número de mesa es requerido",
@@ -346,33 +366,9 @@ export default function OrderScreen() {
             )}
           />
 
-          <List.Section title="Entradas">
+          <List.Section title="Categoría">
             <List.Accordion
-              title="Seleccionar Entradas"
-              expanded={expandedEntradas}
-              onPress={() => setExpandedEntradas(!expandedEntradas)}
-            >
-              {entradasData.map((item) =>
-                renderMealItem(item, "entradas", selectedEntradas)
-              )}
-            </List.Accordion>
-          </List.Section>
-
-          <List.Section title="Fondos">
-            <List.Accordion
-              title="Seleccionar Fondos"
-              expanded={expandedFondos}
-              onPress={() => setExpandedFondos(!expandedFondos)}
-            >
-              {fondosData.map((item) =>
-                renderMealItem(item, "fondos", selectedFondos)
-              )}
-            </List.Accordion>
-          </List.Section>
-
-          <List.Section title="Bebidas">
-            <List.Accordion
-              title="Seleccionar Bebidas"
+              title="Seleccionar Categoría"
               expanded={expandedBebidas}
               onPress={() => setExpandedBebidas(!expandedBebidas)}
             >

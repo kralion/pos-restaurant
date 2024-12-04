@@ -66,9 +66,7 @@ export const OrderContextProvider = ({
   };
 
   const deleteOrder = async (id: string) => {
-    const { error } = await supabase.from("orders").delete().eq("id", id);
-    if (error) throw error;
-    console.log("Order deleted", error);
+    await supabase.from("orders").delete().eq("id", id);
   };
 
   async function getOrderById(id: string) {

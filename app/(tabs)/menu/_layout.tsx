@@ -1,34 +1,14 @@
-import { useOrderContext } from "@/context";
 import { router, Stack } from "expo-router";
 import React from "react";
-import { Alert, Button } from "react-native";
+import { Button } from "react-native";
 
-export default function WaiterLayout() {
-  const { deleteOrder } = useOrderContext();
-  const onDelete = (id: string) => {
-    Alert.alert("Eliminar", "¿Estás seguro?", [
-      {
-        text: "Sí",
-        onPress: () => {
-          deleteOrder(id).then(() => {
-            alert("Pedido eliminado");
-            router.back();
-          });
-        },
-      },
-      {
-        text: "No",
-        style: "cancel",
-      },
-    ]);
-  };
-
+export default function MenuLayout() {
   return (
     <Stack>
       <Stack.Screen
         name="index"
         options={{
-          title: "Pedidos",
+          title: "Menú",
           headerLargeTitle: true,
           headerShadowVisible: false,
           headerSearchBarOptions: {
@@ -56,19 +36,38 @@ export default function WaiterLayout() {
           const { id } = route.params as { id: string };
           return {
             title: "Detalles",
-            headerBackTitle: "Pedidos",
+            headerBackTitle: "Menú",
             headerLargeTitle: true,
             headerBackVisible: true,
             headerShadowVisible: false,
             headerLargeTitleShadowVisible: false,
             headerRight: () => (
               <Button
-                title="Eliminar"
+                title="Cancelar"
                 color="red"
-                onPress={() => onDelete(id)}
+                onPress={() => router.back()}
               />
             ),
           };
+        }}
+      />
+      <Stack.Screen
+        name="add-meal"
+        options={{
+          title: "Detalles",
+          headerBackTitle: "Menú",
+          headerLargeTitle: true,
+          presentation: "modal",
+          headerBackVisible: true,
+          headerShadowVisible: false,
+          headerLargeTitleShadowVisible: false,
+          headerRight: () => (
+            <Button
+              title="Cancelar"
+              color="red"
+              onPress={() => router.back()}
+            />
+          ),
         }}
       />
     </Stack>

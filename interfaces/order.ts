@@ -4,6 +4,7 @@ export interface IMeal {
   id: string;
   name: string;
   price: number;
+  category: "entradas" | "fondos" | "bebidas";
   quantity: number;
 }
 

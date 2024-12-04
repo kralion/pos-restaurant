@@ -39,6 +39,23 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="menu"
+        options={{
+          title: "Menú",
+          tabBarIcon: ({ color, focused }) => (
+            <Image
+              style={{ width: 28, height: 28, tintColor: color }}
+              source={{
+                uri: focused
+                  ? "https://api.iconify.design/mingcute:hamburger-fill.svg"
+                  : "https://api.iconify.design/mingcute:hamburger-line.svg",
+              }}
+              alt="google"
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="order"
         options={{
           title: "Orden",
@@ -152,6 +169,23 @@ export default function TabLayout() {
                 uri: focused
                   ? "https://api.iconify.design/mingcute:album-2-fill.svg"
                   : "https://api.iconify.design/mingcute:album-2-line.svg",
+              }}
+              alt="google"
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="menu"
+        options={{
+          title: "Menú",
+          tabBarIcon: ({ color, focused }) => (
+            <Image
+              style={{ width: 28, height: 28, tintColor: color }}
+              source={{
+                uri: focused
+                  ? "https://api.iconify.design/mingcute:hamburger-fill.svg"
+                  : "https://api.iconify.design/mingcute:hamburger-line.svg",
               }}
               alt="google"
             />
