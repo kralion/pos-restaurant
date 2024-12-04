@@ -1,41 +1,21 @@
+import { useOrderContext } from "@/context";
 import { IOrder } from "@/interfaces";
-import { supabase } from "@/utils/supabase";
-import { useHeaderHeight } from "@react-navigation/elements";
+import { Image } from "expo-image";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
-import { Image, ScrollView, View } from "react-native";
-import {
-  Button,
-  Divider,
-  Modal,
-  Portal,
-  Switch,
-  Text,
-} from "react-native-paper";
+import { ScrollView, View } from "react-native";
+import { Button, Divider, Modal, Portal, Text } from "react-native-paper";
 
 export default function ReceiptScreen() {
   const params = useLocalSearchParams<{ id: string }>();
   const [order, setOrder] = useState<IOrder>();
-  const headerHeight = useHeaderHeight();
-  async function getOrderById(id: string) {
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("id", id)
-      .single();
-    if (error) throw error;
-    setOrder(data);
-    return data;
-  }
-  React.useEffect(() => {
-    getOrderById(params.id);
-  }, [params.id]);
-
-  if (!order) return <Text>Loading...</Text>;
-
+  const { getOrderById } = useOrderContext();
   const [paid, setPaid] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
-
+  React.useEffect(() => {
+    getOrderById(params.id).then((order) => setOrder(order));
+  }, [params.id]);
+  if (!order) return <Text>Loading...</Text>;
   const subTotal =
     order.entradas.reduce((acc, item) => {
       return acc + item.price * item.quantity;
@@ -49,6 +29,13 @@ export default function ReceiptScreen() {
   return (
     <ScrollView className="p-4" contentInsetAdjustmentBehavior="automatic">
       <View className="flex flex-col gap-12">
+        <Image
+          style={{
+            width: 125,
+            height: 125,
+          }}
+          source={require("../../../../assets/images/sucess.png")}
+        />
         <View className="flex flex-col gap-3">
           <View className="flex flex-row justify-between">
             <Text>Mesa</Text>
@@ -60,16 +47,6 @@ export default function ReceiptScreen() {
             <Text>Jhon Doe</Text>
           </View>
           <Divider />
-          <View className="flex flex-row justify-between">
-            <Text
-              style={{
-                fontWeight: "bold",
-              }}
-            >
-              {paid ? "Pagado" : "Sin Pagar"}
-            </Text>
-            <Switch value={paid} onValueChange={() => setModalVisible(true)} />
-          </View>
         </View>
 
         <View className="flex flex-col gap-4">
@@ -127,22 +104,6 @@ export default function ReceiptScreen() {
             <Text variant="titleLarge">S/. {total}</Text>
           </View>
         </View>
-        {paid ? (
-          <Button
-            mode="contained"
-            onPress={() => alert("Conecte la impresora")}
-          >
-            Imprimir Boleta
-          </Button>
-        ) : (
-          <Button
-            mode="contained"
-            onPress={() => alert("Conecte la impresora")}
-            disabled
-          >
-            Imprimir Boleta
-          </Button>
-        )}
       </View>
       <Portal>
         <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)}>

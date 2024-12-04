@@ -61,29 +61,19 @@ const TableSvg: React.FC<TableProps> = ({ number, status }) => {
 export default function TablesScreen() {
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
   const [tables, setTables] = useState<ITable[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  async function getTables() {
+    const { data, error } = await supabase
+      .from("tables")
+      .select("*")
+      .order("id", { ascending: true });
+
+    if (error) throw error;
+    setTables(data || []);
+  }
 
   useEffect(() => {
-    const fetchTables = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from("tables")
-          .select("*")
-          .order("id", { ascending: true });
-
-        if (error) throw error;
-        setTables(data || []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Error fetching tables");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTables();
-
+    getTables();
     const channel = supabase
       .channel("table-changes")
       .on(
@@ -94,7 +84,7 @@ export default function TablesScreen() {
           table: "tables",
         },
         () => {
-          fetchTables();
+          getTables();
         }
       )
       .subscribe();
@@ -128,7 +118,7 @@ export default function TablesScreen() {
 
       closeModal();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error updating table");
+      alert("Error al actualizar estado");
     }
   };
 
@@ -138,10 +128,6 @@ export default function TablesScreen() {
     );
     return selectedTableData?.id || "";
   };
-
-  if (loading) return <Text>Loading...</Text>;
-  if (error) return <Text>Error: {error}</Text>;
-  if (!tables.length) return <Text>No se encontraron</Text>;
 
   return (
     <SafeAreaView className="p-4 ">

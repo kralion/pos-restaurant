@@ -1,28 +1,20 @@
-import OrderCard from "@/components/waiter/order-card";
+import OrderCard from "@/components/order-card";
 import { useOrderContext } from "@/context";
-import { IOrder } from "@/interfaces";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import { ScrollView } from "react-native";
-import { supabase } from "@/utils/supabase";
+import { ActivityIndicator } from "react-native-paper";
 
 export default function HomeScreen() {
   const { search } = useLocalSearchParams<{ search?: string }>();
-  const [orders, setOrders] = React.useState<IOrder[]>([]);
-  async function getOrders() {
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*")
-      .eq("paid", false)
-      .limit(15);
-    if (error) throw error;
-    return data;
-  }
+  const { orders, getOrders } = useOrderContext();
+  React.useEffect(() => {
+    getOrders();
+  }, []);
 
   const filteredOrders = React.useMemo(() => {
     if (!search) return orders;
-
     const lowercasedSearch = search.toLowerCase();
     return orders.filter(
       (order) =>
@@ -31,11 +23,7 @@ export default function HomeScreen() {
     );
   }, [search, orders]);
 
-  React.useEffect(() => {
-    getOrders().then((orders) => {
-      setOrders(orders);
-    });
-  }, []);
+  if (!orders) return <ActivityIndicator />;
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"

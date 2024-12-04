@@ -5,6 +5,7 @@ import { IOrder, IOrderContextProvider } from "@/interfaces";
 
 export const OrderContext = createContext<IOrderContextProvider>({
   addOrder: async () => {},
+  getUnservedOrders: async () => [],
   getOrderById: async (id: string): Promise<IOrder> => ({} as IOrder),
   orders: [],
   order: {} as IOrder,
@@ -12,6 +13,7 @@ export const OrderContext = createContext<IOrderContextProvider>({
   deleteOrder: async () => {},
   getOrders: async () => [],
   updateOrderServedStatus: async () => {},
+  paidOrders: [],
 });
 
 export const OrderContextProvider = ({
@@ -21,6 +23,7 @@ export const OrderContextProvider = ({
 }) => {
   const [orders, setOrders] = React.useState<IOrder[]>([]);
   const [order, setOrder] = React.useState<IOrder>({} as IOrder);
+  const [paidOrders, setPaidOrders] = React.useState<IOrder[]>([]);
 
   const addOrder = async (order: IOrder) => {
     await supabase.from("orders").insert(order);
@@ -33,6 +36,16 @@ export const OrderContextProvider = ({
     return data;
   };
 
+  async function getUnservedOrders() {
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("served", false)
+      .limit(15);
+    if (error) throw error;
+    return data;
+  }
+
   async function getPaidOrders() {
     const { data, error } = await supabase
       .from("orders")
@@ -40,6 +53,7 @@ export const OrderContextProvider = ({
       .eq("paid", true)
       .limit(15);
     if (error) throw error;
+    setPaidOrders(data);
     return data;
   }
   const updateOrderServedStatus = async (id: string) => {
@@ -59,8 +73,8 @@ export const OrderContextProvider = ({
 
   async function getOrderById(id: string) {
     const { data, error } = await supabase
-      .from("Orders")
-      .select("*")
+      .from("orders")
+      .select("*, users:id_waiter(name)")
       .eq("id", id)
       .single();
     if (error) throw error;
@@ -74,7 +88,9 @@ export const OrderContextProvider = ({
         getOrders,
         deleteOrder,
         getOrderById,
+        paidOrders,
         getPaidOrders,
+        getUnservedOrders,
         addOrder,
         updateOrderServedStatus,
         order,

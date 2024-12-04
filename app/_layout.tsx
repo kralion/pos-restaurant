@@ -1,4 +1,8 @@
-import { UserContextProvider, useUserContext } from "@/context";
+import {
+  OrderContextProvider,
+  UserContextProvider,
+  useUserContext,
+} from "@/context";
 import "../styles/global.css";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
@@ -68,11 +72,13 @@ function RootLayoutNav() {
   return (
     <PaperProvider theme={theme}>
       <UserContextProvider>
-        <Stack>
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-        </Stack>
+        <OrderContextProvider>
+          <Stack>
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+          </Stack>
+        </OrderContextProvider>
       </UserContextProvider>
     </PaperProvider>
   );

@@ -1,9 +1,10 @@
-import { IOrder, IUser } from "@/interfaces";
-import { supabase } from "@/utils/supabase";
+import { useOrderContext } from "@/context";
+import { IOrder } from "@/interfaces";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { Image, ScrollView, View } from "react-native";
 import {
+  ActivityIndicator,
   Button,
   Divider,
   Modal,
@@ -17,24 +18,11 @@ export default function OrderDetailsScreen() {
   const [order, setOrder] = useState<IOrder>();
   const [paid, setPaid] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
-
-  async function getOrderById(id: string) {
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*, users:id_waiter(name)")
-      .eq("id", id)
-      .single();
-
-    if (error) throw error;
-    setOrder(data);
-    return data;
-  }
-
+  const { getOrderById } = useOrderContext();
   React.useEffect(() => {
-    getOrderById(params.id);
+    getOrderById(params.id).then((order) => setOrder(order));
   }, [params.id]);
-
-  if (!order) return <Text>Loading...</Text>;
+  if (!order) return <ActivityIndicator />;
 
   const subTotal =
     order.entradas.reduce((acc, item) => {

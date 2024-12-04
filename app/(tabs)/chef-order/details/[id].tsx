@@ -1,21 +1,24 @@
 import { useOrderContext } from "@/context";
+import { IOrder } from "@/interfaces";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { Image, ScrollView, View } from "react-native";
 import { Button, Divider, Modal, Portal, Text } from "react-native-paper";
 
-export default function HomeScreen() {
+export default function OrderDetailsScreen() {
   const params = useLocalSearchParams<{ id: string }>();
-  const { updateOrderServedStatus, order, getOrderById } = useOrderContext();
+  const { updateOrderServedStatus, getOrderById } = useOrderContext();
   const [modalVisible, setModalVisible] = useState(false);
-
+  const [order, setOrder] = useState<IOrder>();
   React.useEffect(() => {
-    getOrderById(params.id);
+    getOrderById(params.id).then((order) => setOrder(order));
   }, [params.id]);
+
+  if (!order) return <Text>Loading...</Text>;
 
   return (
     <ScrollView className="p-4" contentInsetAdjustmentBehavior="automatic">
-      <View className="flex flex-col gap-12">
+      <View className="flex flex-col gap-12 mb-10">
         <View className="flex flex-col gap-3">
           <Divider className="border-dashed border-2" />
           <View className="flex flex-row justify-between">
@@ -64,7 +67,7 @@ export default function HomeScreen() {
       <Button
         mode="contained"
         onPress={() => {
-          setModalVisible(false);
+          setModalVisible(true);
         }}
       >
         Preparado
@@ -93,7 +96,7 @@ export default function HomeScreen() {
               onPress={() => {
                 updateOrderServedStatus(order.id ? order.id : "");
                 setModalVisible(false);
-                router.push("/(chef)");
+                router.push("/(tabs)/chef-order");
               }}
             >
               Aceptar

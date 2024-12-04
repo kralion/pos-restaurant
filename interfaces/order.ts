@@ -23,10 +23,12 @@ export interface IOrder {
 export interface IOrderContextProvider {
   addOrder: (Order: IOrder) => Promise<void>;
   updateOrderServedStatus: (id: string) => Promise<void>;
+  getUnservedOrders: () => Promise<IOrder[]>;
   getPaidOrders: () => Promise<IOrder[]>;
   getOrderById: (id: string) => Promise<IOrder>;
   orders: IOrder[];
   order: IOrder;
+  paidOrders: IOrder[];
   deleteOrder: (id: string) => Promise<void>;
   getOrders: () => Promise<IOrder[]>;
 }

@@ -385,17 +385,11 @@ export default function OrderScreen() {
               )}
             </List.Accordion>
           </List.Section>
-
           <Button
             mode="contained"
             style={{ marginTop: 50 }}
             onPress={handleSubmit(onSubmit)}
             loading={loading}
-            disabled={
-              selectedEntradas.length === 0 &&
-              selectedFondos.length === 0 &&
-              selectedBebidas.length === 0
-            }
           >
             Registrar Orden
           </Button>

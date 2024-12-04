@@ -5,7 +5,8 @@ import { router } from "expo-router";
 import { Info } from "lucide-react-native";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Image, Linking, ScrollView, Text, View } from "react-native";
+import { Image } from "expo-image";
+import { Linking, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button, Dialog, Portal, TextInput } from "react-native-paper";

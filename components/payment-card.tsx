@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import React from "react";
 import { Avatar, Card, IconButton } from "react-native-paper";
 
-export default function OrderCard({ order }: { order: IOrder }) {
+export default function PaymentCard({ order }: { order: IOrder }) {
   return (
     <Card
       style={{
@@ -11,7 +11,7 @@ export default function OrderCard({ order }: { order: IOrder }) {
         marginVertical: 8,
       }}
       onPress={() => {
-        router.push(`/(tabs)/chef-order/details/${order.id}`);
+        router.push(`/(tabs)/payments/receipt/${order.id}`);
       }}
     >
       <Card.Title
