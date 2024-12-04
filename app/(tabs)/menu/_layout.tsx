@@ -11,6 +11,12 @@ export default function MenuLayout() {
           title: "Menú",
           headerLargeTitle: true,
           headerShadowVisible: false,
+          headerRight: () => (
+            <Button
+              title="Agregar"
+              onPress={() => router.push("/(tabs)/menu/add-meal")}
+            />
+          ),
           headerSearchBarOptions: {
             placeholder: "Buscar ...",
             hideWhenScrolling: false,
@@ -43,7 +49,7 @@ export default function MenuLayout() {
             headerLargeTitleShadowVisible: false,
             headerRight: () => (
               <Button
-                title="Cancelar"
+                title="Eliminar"
                 color="red"
                 onPress={() => router.back()}
               />

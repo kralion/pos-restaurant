@@ -30,8 +30,6 @@ export default function MenuScreen() {
     []
   );
   const headerHeight = useHeaderHeight();
-  const { user } = useUserContext();
-  const { addOrder } = useOrderContext();
 
   const {
     control,
@@ -39,7 +37,14 @@ export default function MenuScreen() {
     formState: { errors },
     reset,
     setValue,
-  } = useForm<IMeal>({});
+  } = useForm<IMeal>({
+    defaultValues: {
+      name: "",
+      price: 0,
+      category: "entradas",
+      quantity: 0,
+    },
+  });
 
   const getBebidasData = async () => {
     const { data: bebidas, error } = await supabase
@@ -246,13 +251,6 @@ export default function MenuScreen() {
       contentInsetAdjustmentBehavior="automatic"
     >
       <View className="flex flex-col gap-16 w-full items-center p-4">
-        <View className="w-full flex flex-col items-center">
-          <Text className="text-4xl" style={{ fontWeight: "700" }}>
-            Tomar Orden
-          </Text>
-          <Text className="opacity-50">Selecciona los items para la orden</Text>
-          <Divider />
-        </View>
         <View className="flex flex-col justify-center align-middle w-full">
           <Controller
             control={control}
@@ -267,7 +265,7 @@ export default function MenuScreen() {
             render={({ field: { onChange, value } }) => (
               <View className="mb-4">
                 <TextInput
-                  label="Entrada"
+                  label="Nombre"
                   value={value}
                   onChangeText={onChange}
                   mode="outlined"
@@ -337,44 +335,12 @@ export default function MenuScreen() {
               </View>
             )}
           />
-          <Controller
-            control={control}
-            name="table"
-            rules={{
-              required: "Número de mesa es requerido",
-              pattern: {
-                value: /^[0-9]+$/,
-                message: "Ingrese un número de mesa válido",
-              },
-            }}
-            render={({ field: { onChange, value } }) => (
-              <View className="mb-4">
-                <TextInput
-                  label="Número de Mesa"
-                  value={String(value)}
-                  onChangeText={onChange}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  error={!!errors.table}
-                />
-                {errors.table && (
-                  <Text className="text-red-500 ml-4">
-                    {errors.table.message}
-                  </Text>
-                )}
-              </View>
-            )}
-          />
 
-          <List.Section title="Categoría">
-            <List.Accordion
-              title="Seleccionar Categoría"
-              expanded={expandedBebidas}
-              onPress={() => setExpandedBebidas(!expandedBebidas)}
-            >
-              {bebidasData.map((item) =>
-                renderMealItem(item, "bebidas", selectedBebidas)
-              )}
+          <List.Section>
+            <List.Accordion title="Categoría">
+              <List.Item title="Entradas" />
+              <List.Item title="Fondos" />
+              <List.Item title="Bebidas" />
             </List.Accordion>
           </List.Section>
           <Button
