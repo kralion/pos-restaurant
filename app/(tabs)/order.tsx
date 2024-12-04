@@ -11,8 +11,14 @@ import {
   IconButton,
   List,
   TextInput,
+  Surface,
 } from "react-native-paper";
 import { useUserContext } from "@/context";
+
+// Extended interface to include quantity
+interface MealWithQuantity extends IMeal {
+  quantity: number;
+}
 
 export default function OrderScreen() {
   const [loading, setLoading] = useState(false);
@@ -22,9 +28,13 @@ export default function OrderScreen() {
   const [entradasData, setEntradasData] = useState<IMeal[]>([]);
   const [fondosData, setFondosData] = useState<IMeal[]>([]);
   const [bebidasData, setBebidasData] = useState<IMeal[]>([]);
-  const [selectedEntradas, setSelectedEntradas] = useState<IMeal[]>([]);
-  const [selectedFondos, setSelectedFondos] = useState<IMeal[]>([]);
-  const [selectedBebidas, setSelectedBebidas] = useState<IMeal[]>([]);
+  const [selectedEntradas, setSelectedEntradas] = useState<MealWithQuantity[]>(
+    []
+  );
+  const [selectedFondos, setSelectedFondos] = useState<MealWithQuantity[]>([]);
+  const [selectedBebidas, setSelectedBebidas] = useState<MealWithQuantity[]>(
+    []
+  );
   const headerHeight = useHeaderHeight();
   const { user } = useUserContext();
 
@@ -92,8 +102,10 @@ export default function OrderScreen() {
     meal: IMeal,
     category: "entradas" | "fondos" | "bebidas"
   ) => {
-    let selectedMeals: IMeal[];
-    let setSelectedMeals: React.Dispatch<React.SetStateAction<IMeal[]>>;
+    let selectedMeals: MealWithQuantity[];
+    let setSelectedMeals: React.Dispatch<
+      React.SetStateAction<MealWithQuantity[]>
+    >;
 
     switch (category) {
       case "entradas":
@@ -110,22 +122,84 @@ export default function OrderScreen() {
         break;
     }
 
-    const isSelected = selectedMeals.some((m) => m.id === meal.id);
+    const existingMealIndex = selectedMeals.findIndex((m) => m.id === meal.id);
 
-    if (isSelected) {
-      // Remove meal if already selected
-      setSelectedMeals(selectedMeals.filter((m) => m.id !== meal.id));
+    if (existingMealIndex !== -1) {
+      // Remove meal if quantity is 1, otherwise decrease quantity
+      const updatedMeals = [...selectedMeals];
+      if (updatedMeals[existingMealIndex].quantity > 1) {
+        updatedMeals[existingMealIndex].quantity -= 1;
+        setSelectedMeals(updatedMeals);
+      } else {
+        setSelectedMeals(selectedMeals.filter((m) => m.id !== meal.id));
+      }
     } else {
-      // Add meal if not selected
-      setSelectedMeals([...selectedMeals, meal]);
+      // Add meal with quantity 1
+      const newMealWithQuantity = { ...meal, quantity: 1 };
+      setSelectedMeals([...selectedMeals, newMealWithQuantity]);
     }
 
     // Update form values
     setValue(
       category,
-      isSelected
-        ? selectedMeals.filter((m) => m.id !== meal.id)
-        : [...selectedMeals, meal]
+      category === "entradas"
+        ? selectedEntradas
+        : category === "fondos"
+        ? selectedFondos
+        : selectedBebidas
+    );
+  };
+
+  const updateMealQuantity = (
+    meal: IMeal,
+    quantity: number,
+    category: "entradas" | "fondos" | "bebidas"
+  ) => {
+    let selectedMeals: MealWithQuantity[];
+    let setSelectedMeals: React.Dispatch<
+      React.SetStateAction<MealWithQuantity[]>
+    >;
+
+    switch (category) {
+      case "entradas":
+        selectedMeals = selectedEntradas;
+        setSelectedMeals = setSelectedEntradas;
+        break;
+      case "fondos":
+        selectedMeals = selectedFondos;
+        setSelectedMeals = setSelectedFondos;
+        break;
+      case "bebidas":
+        selectedMeals = selectedBebidas;
+        setSelectedMeals = setSelectedBebidas;
+        break;
+    }
+
+    const existingMealIndex = selectedMeals.findIndex((m) => m.id === meal.id);
+
+    if (existingMealIndex !== -1) {
+      const updatedMeals = [...selectedMeals];
+      if (quantity > 0) {
+        updatedMeals[existingMealIndex].quantity = quantity;
+        setSelectedMeals(updatedMeals);
+      } else {
+        // Remove meal if quantity is 0
+        setSelectedMeals(selectedMeals.filter((m) => m.id !== meal.id));
+      }
+    } else if (quantity > 0) {
+      // Add meal with specified quantity
+      const newMealWithQuantity = { ...meal, quantity };
+      setSelectedMeals([...selectedMeals, newMealWithQuantity]);
+    }
+
+    // Update form values
+    setValue(
+      category,
+      category === "entradas"
+        ? selectedEntradas
+        : category === "fondos"
+        ? selectedFondos
+        : selectedBebidas
     );
   };
 
@@ -142,7 +216,7 @@ export default function OrderScreen() {
 
       // Calculate total price
       const totalPrice = allSelectedMeals.reduce(
-        (sum, meal) => sum + meal.price,
+        (sum, meal) => sum + meal.price * meal.quantity,
         0
       );
 
@@ -170,12 +244,67 @@ export default function OrderScreen() {
         return;
       }
       reset();
+      // Reset selected meals
+      setSelectedEntradas([]);
+      setSelectedFondos([]);
+      setSelectedBebidas([]);
     } catch (err) {
       console.error("An error occurred:", err);
       alert("Algo sucedió mal, vuelve a intentarlo.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderMealItem = (
+    item: IMeal,
+    category: "entradas" | "fondos" | "bebidas",
+    selectedMeals: MealWithQuantity[]
+  ) => {
+    const selectedMeal = selectedMeals.find((m) => m.id === item.id);
+    const currentQuantity = selectedMeal ? selectedMeal.quantity : 0;
+
+    return (
+      <Surface
+        key={item.id}
+        className="flex-row items-center justify-between p-2 mb-2 rounded"
+        elevation={1}
+      >
+        <View className="flex-1 mr-2">
+          <Text className="text-base">{item.name}</Text>
+          <Text className="text-sm opacity-60">
+            S/. {item.price.toString()}
+          </Text>
+        </View>
+
+        <View className="flex-row items-center">
+          <IconButton
+            icon="minus"
+            size={20}
+            disabled={currentQuantity <= 0}
+            onPress={() =>
+              updateMealQuantity(
+                item,
+                Math.max(0, currentQuantity - 1),
+                category
+              )
+            }
+          />
+
+          <Text className="mx-2 min-w-[30px] text-center">
+            {currentQuantity}
+          </Text>
+
+          <IconButton
+            icon="plus"
+            size={20}
+            onPress={() =>
+              updateMealQuantity(item, currentQuantity + 1, category)
+            }
+          />
+        </View>
+      </Surface>
+    );
   };
 
   return (
@@ -227,91 +356,33 @@ export default function OrderScreen() {
               expanded={expandedEntradas}
               onPress={() => setExpandedEntradas(!expandedEntradas)}
             >
-              {entradasData.map((item) => (
-                <List.Item
-                  title={item.name}
-                  onPress={() => toggleMealSelection(item, "entradas")}
-                  right={() => (
-                    <View className="flex-row items-center">
-                      <Text className="text-sm mr-2">
-                        S/. {item.price.toString()}.00
-                      </Text>
-                      <IconButton
-                        icon="check"
-                        size={15}
-                        mode={
-                          selectedEntradas.some((m) => m.id === item.id)
-                            ? "contained"
-                            : "outlined"
-                        }
-                      />
-                    </View>
-                  )}
-                  key={item.id}
-                />
-              ))}
+              {entradasData.map((item) =>
+                renderMealItem(item, "entradas", selectedEntradas)
+              )}
             </List.Accordion>
           </List.Section>
+
           <List.Section title="Fondos">
             <List.Accordion
               title="Seleccionar Fondos"
               expanded={expandedFondos}
               onPress={() => setExpandedFondos(!expandedFondos)}
             >
-              {fondosData.map((item) => (
-                <List.Item
-                  title={item.name}
-                  onPress={() => toggleMealSelection(item, "fondos")}
-                  right={() => (
-                    <View className="flex-row items-center">
-                      <Text className="text-sm mr-2">
-                        S/. {item.price.toString()}.00
-                      </Text>
-                      <IconButton
-                        icon="check"
-                        size={15}
-                        mode={
-                          selectedFondos.some((m) => m.id === item.id)
-                            ? "contained"
-                            : "outlined"
-                        }
-                      />
-                    </View>
-                  )}
-                  key={item.id}
-                />
-              ))}
+              {fondosData.map((item) =>
+                renderMealItem(item, "fondos", selectedFondos)
+              )}
             </List.Accordion>
           </List.Section>
+
           <List.Section title="Bebidas">
             <List.Accordion
               title="Seleccionar Bebidas"
               expanded={expandedBebidas}
               onPress={() => setExpandedBebidas(!expandedBebidas)}
             >
-              {bebidasData.map((item) => (
-                <List.Item
-                  title={item.name}
-                  onPress={() => toggleMealSelection(item, "bebidas")}
-                  right={() => (
-                    <View className="flex-row items-center">
-                      <Text className="text-sm mr-2">
-                        S/. {item.price.toString()}.00
-                      </Text>
-                      <IconButton
-                        icon="check"
-                        size={15}
-                        mode={
-                          selectedBebidas.some((m) => m.id === item.id)
-                            ? "contained"
-                            : "outlined"
-                        }
-                      />
-                    </View>
-                  )}
-                  key={item.id}
-                />
-              ))}
+              {bebidasData.map((item) =>
+                renderMealItem(item, "bebidas", selectedBebidas)
+              )}
             </List.Accordion>
           </List.Section>
 
@@ -320,6 +391,11 @@ export default function OrderScreen() {
             style={{ marginTop: 50 }}
             onPress={handleSubmit(onSubmit)}
             loading={loading}
+            disabled={
+              selectedEntradas.length === 0 &&
+              selectedFondos.length === 0 &&
+              selectedBebidas.length === 0
+            }
           >
             Registrar Orden
           </Button>

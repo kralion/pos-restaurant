@@ -1,4 +1,4 @@
-import { IOrder } from "@/interfaces";
+import { IOrder, IUser } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
@@ -21,13 +21,15 @@ export default function OrderDetailsScreen() {
   async function getOrderById(id: string) {
     const { data, error } = await supabase
       .from("orders")
-      .select("*")
+      .select("*, users:id_waiter(name)")
       .eq("id", id)
       .single();
+
     if (error) throw error;
     setOrder(data);
     return data;
   }
+
   React.useEffect(() => {
     getOrderById(params.id);
   }, [params.id]);
@@ -55,7 +57,7 @@ export default function OrderDetailsScreen() {
           <Divider />
           <View className="flex flex-row justify-between">
             <Text>Mozo</Text>
-            <Text>Jhon Doe</Text>
+            <Text>{order?.users?.name}</Text>
           </View>
           <Divider />
           <View className="flex flex-row justify-between">
@@ -84,7 +86,7 @@ export default function OrderDetailsScreen() {
             {order.entradas.map((item, index) => (
               <View key={index} className="flex flex-row justify-between">
                 <Text className="w-36">{item.name}</Text>
-                <Text>S/. {item.price}.00</Text>
+                <Text>S/. {item.price}</Text>
                 <Text>{item.quantity}</Text>
               </View>
             ))}
@@ -101,7 +103,7 @@ export default function OrderDetailsScreen() {
                 className="flex flex-row w-full justify-between"
               >
                 <Text className="w-36">{item.name}</Text>
-                <Text>S/. {item.price}.00</Text>
+                <Text>S/. {item.price}</Text>
                 <Text>{item.quantity}</Text>
               </View>
             ))}
@@ -113,30 +115,22 @@ export default function OrderDetailsScreen() {
         <View className="flex flex-col gap-3">
           <View className="flex flex-row justify-between">
             <Text>SubTotal</Text>
-            <Text>S/. {subTotal}.00</Text>
+            <Text>S/. {subTotal}</Text>
           </View>
           <View className="flex flex-row justify-between">
             <Text>Impuestos</Text>
-            <Text>S/. {subTotal * 0.18}.00</Text>
+            <Text>S/. {subTotal * 0.18}</Text>
           </View>
           <Divider />
           <View className="flex flex-row justify-between">
             <Text>Total</Text>
-            <Text variant="titleLarge">S/. {total}.00</Text>
+            <Text variant="titleLarge">S/. {total}</Text>
           </View>
         </View>
-        {paid ? (
+        {paid && (
           <Button
             mode="contained"
             onPress={() => alert("Conecte la impresora")}
-          >
-            Imprimir Boleta
-          </Button>
-        ) : (
-          <Button
-            mode="contained"
-            onPress={() => alert("Conecte la impresora")}
-            disabled
           >
             Imprimir Boleta
           </Button>

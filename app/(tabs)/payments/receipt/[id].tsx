@@ -86,7 +86,7 @@ export default function ReceiptScreen() {
             {order.entradas.map((item, index) => (
               <View key={index} className="flex flex-row justify-between">
                 <Text className="w-36">{item.name}</Text>
-                <Text>S/. {item.price}.00</Text>
+                <Text>S/. {item.price}</Text>
                 <Text>{item.quantity}</Text>
               </View>
             ))}
@@ -103,7 +103,7 @@ export default function ReceiptScreen() {
                 className="flex flex-row w-full justify-between"
               >
                 <Text className="w-36">{item.name}</Text>
-                <Text>S/. {item.price}.00</Text>
+                <Text>S/. {item.price}</Text>
                 <Text>{item.quantity}</Text>
               </View>
             ))}
@@ -115,16 +115,16 @@ export default function ReceiptScreen() {
         <View className="flex flex-col gap-3">
           <View className="flex flex-row justify-between">
             <Text>SubTotal</Text>
-            <Text>S/. {subTotal}.00</Text>
+            <Text>S/. {subTotal}</Text>
           </View>
           <View className="flex flex-row justify-between">
             <Text>Impuestos</Text>
-            <Text>S/. {subTotal * 0.18}.00</Text>
+            <Text>S/. {subTotal * 0.18}</Text>
           </View>
           <Divider />
           <View className="flex flex-row justify-between">
             <Text>Total</Text>
-            <Text variant="titleLarge">S/. {total}.00</Text>
+            <Text variant="titleLarge">S/. {total}</Text>
           </View>
         </View>
         {paid ? (

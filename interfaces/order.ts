@@ -1,3 +1,5 @@
+import { IUser } from "./user";
+
 export interface IMeal {
   id: string;
   name: string;
@@ -9,6 +11,7 @@ export interface IOrder {
   id?: string;
   table: number;
   date: Date;
+  users?: IUser;
   id_waiter: string;
   served: boolean;
   paid: boolean;

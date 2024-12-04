@@ -13,7 +13,6 @@ import { Button, Dialog, Portal, TextInput } from "react-native-paper";
 export default function LogInScreen() {
   const [loading, setLoading] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
-  const [currentUser, setCurrentUser] = React.useState<IUser>({} as IUser);
   const {
     control,
     handleSubmit,
@@ -41,7 +40,6 @@ export default function LogInScreen() {
       }
 
       reset();
-      setCurrentUser(user);
       await getUserById(user.id);
       router.push("/(tabs)");
     } catch (err) {
@@ -80,6 +78,7 @@ export default function LogInScreen() {
                 <View className="flex flex-col gap-2">
                   <TextInput
                     label="Usuario"
+                    mode="outlined"
                     error={errors.username ? true : false}
                     onChangeText={onChange}
                     value={value}
@@ -106,6 +105,7 @@ export default function LogInScreen() {
                   <TextInput
                     label="Contraseña"
                     secureTextEntry
+                    mode="outlined"
                     error={errors.password ? true : false}
                     onChangeText={onChange}
                     value={value}
@@ -145,7 +145,7 @@ export default function LogInScreen() {
               </Text>
             </Text>
             <Text className="text-muted-foreground text-zinc-400   mx-auto text-sm">
-              Versión 1.0.12
+              Versión 1.2.1
             </Text>
           </View>
         </View>
