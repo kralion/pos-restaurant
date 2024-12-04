@@ -42,7 +42,7 @@ export default function LogInScreen() {
 
       reset();
       await getUserById(user.id);
-      router.push("/(tabs)");
+      router.replace("/(tabs)");
     } catch (err) {
       console.error("An error occurred:", err);
       alert("Algo sucedió mal, vuelve a intentarlo.");

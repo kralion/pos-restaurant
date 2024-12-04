@@ -66,7 +66,7 @@ function RootLayoutNav() {
 
   React.useEffect(() => {
     if (user) {
-      router.push("/(auth)/login");
+      router.replace("/(tabs)");
     }
   }, [user]);
   return (

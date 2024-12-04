@@ -77,7 +77,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="chef-order"
         options={{
-          title: "Chef",
+          title: "Ordenes",
           tabBarIcon: ({ color, focused }) => (
             <Image
               style={{ width: 28, height: 28, tintColor: color }}
@@ -96,6 +96,7 @@ export default function TabLayout() {
         name="orders"
         options={{
           title: "Ordenes",
+          href: null,
           tabBarIcon: ({ color, focused }) => (
             <Image
               style={{ width: 28, height: 28, tintColor: color }}
