@@ -12,8 +12,6 @@ export default function ChefLayout() {
         options={{
           title: "Pedidos",
           headerLargeTitle: true,
-          headerTransparent: true,
-          headerBlurEffect: "regular",
           headerShadowVisible: false,
           headerSearchBarOptions: {
             placeholder: "Buscar ...",
@@ -33,8 +31,6 @@ export default function ChefLayout() {
           headerBackTitle: "Pedidos",
           headerLargeTitle: true,
           headerBackVisible: true,
-          headerBlurEffect: "regular",
-          headerTransparent: true,
           headerShadowVisible: false,
           headerLargeTitleShadowVisible: false,
         }}

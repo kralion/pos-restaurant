@@ -1,10 +1,10 @@
-import { UserContextProvider } from "@/context";
+import { UserContextProvider, useUserContext } from "@/context";
 import "../styles/global.css";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   MD3LightTheme as DefaultTheme,
   PaperProvider,
@@ -58,8 +58,15 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
+  const { user } = useUserContext();
+
+  React.useEffect(() => {
+    if (user) {
+      router.push("/(auth)/login");
+    }
+  }, [user]);
   return (
-    <PaperProvider theme={DefaultTheme}>
+    <PaperProvider theme={theme}>
       <UserContextProvider>
         <Stack>
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />

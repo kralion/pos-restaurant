@@ -12,8 +12,6 @@ export default function EmployeesLayout() {
         options={{
           title: "Tomar Orden",
           headerLargeTitle: true,
-          headerTransparent: true,
-          headerBlurEffect: "regular",
           headerShadowVisible: false,
           headerLargeTitleShadowVisible: false,
           headerRight: () => (

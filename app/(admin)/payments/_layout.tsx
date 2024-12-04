@@ -18,8 +18,6 @@ export default function PaymentsLayout() {
           headerBackTitle: "Pagos",
           headerLargeTitle: true,
           headerBackVisible: true,
-          headerBlurEffect: "regular",
-          headerTransparent: true,
           headerShadowVisible: false,
           headerLargeTitleShadowVisible: false,
         }}

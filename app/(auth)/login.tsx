@@ -5,14 +5,9 @@ import { router } from "expo-router";
 import { Info } from "lucide-react-native";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import {
-  Image,
-  Linking,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { Image, Linking, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import { Button, Dialog, Portal, TextInput } from "react-native-paper";
 
 export default function LogInScreen() {
@@ -144,7 +139,7 @@ export default function LogInScreen() {
             <Text className="text-muted-foreground text-zinc-400   mx-auto">
               Desarrollado por
               <Text
-                className="font-bold text-purple-800"
+                className="font-bold text-orange-500"
                 onPress={() => Linking.openURL("https://grobles.netlify.app")}
               >
                 {" "}

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/utils/supabase";
-import { View, ScrollView, Pressable, SafeAreaView } from "react-native";
+import { View, ScrollView, Pressable } from "react-native";
 import { Surface, Text, Portal, Modal, Button } from "react-native-paper";
 import { Svg, Rect, Circle, Text as SvgText } from "react-native-svg";
 import { Divider } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface TableProps {
   number: number;

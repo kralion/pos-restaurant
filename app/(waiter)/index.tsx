@@ -2,9 +2,11 @@ import { IMeal, IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { SafeAreaView, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
+import { useHeaderHeight } from "@react-navigation/elements";
+import uuidRandom from "uuid-random";
 import { Button, IconButton, List, TextInput } from "react-native-paper";
-import { v4 as uuidv4 } from "uuid";
+import { useUserContext } from "@/context";
 
 export default function OrderScreen() {
   const [loading, setLoading] = useState(false);
@@ -17,6 +19,8 @@ export default function OrderScreen() {
   const [selectedEntradas, setSelectedEntradas] = useState<IMeal[]>([]);
   const [selectedFondos, setSelectedFondos] = useState<IMeal[]>([]);
   const [selectedBebidas, setSelectedBebidas] = useState<IMeal[]>([]);
+  const headerHeight = useHeaderHeight();
+  const { user } = useUserContext();
 
   const {
     control,
@@ -139,10 +143,10 @@ export default function OrderScreen() {
       // Prepare order data
       const orderData: IOrder = {
         ...data,
-        served: true,
-        id_waiter: "211777bc-f588-4779-b468-6dcde65a960d",
+        served: false,
+        id_waiter: user.id ? user.id : "211777bc-f588-4779-b468-6dcde65a960d",
         date: new Date(),
-        id: uuidv4(),
+        id: uuidRandom(),
         paid: false,
         table: Number(data.table),
         entradas: selectedEntradas,
@@ -174,144 +178,145 @@ export default function OrderScreen() {
   };
 
   return (
-    <ScrollView>
-      <SafeAreaView className="flex flex-col justify-center align-middle m-4 items-center">
-        <View className="flex flex-col gap-16 w-full items-center">
-          <View className="flex flex-col justify-center align-middle w-full">
-            <Controller
-              control={control}
-              name="table"
-              rules={{
-                required: "Número de mesa es requerido",
-                pattern: {
-                  value: /^[0-9]+$/,
-                  message: "Ingrese un número de mesa válido",
-                },
-              }}
-              render={({ field: { onChange, value } }) => (
-                <View className="mb-4">
-                  <TextInput
-                    label="Número de Mesa"
-                    value={String(value)}
-                    onChangeText={onChange}
-                    mode="outlined"
-                    keyboardType="numeric"
-                    error={!!errors.table}
-                  />
-                  {errors.table && (
-                    <Text className="text-red-500 ml-4">
-                      {errors.table.message}
-                    </Text>
-                  )}
-                </View>
-              )}
-            />
+    <ScrollView
+      style={{ marginTop: headerHeight }}
+      contentInsetAdjustmentBehavior="automatic"
+    >
+      <View className="flex flex-col gap-16 w-full items-center p-4">
+        <View className="flex flex-col justify-center align-middle w-full">
+          <Controller
+            control={control}
+            name="table"
+            rules={{
+              required: "Número de mesa es requerido",
+              pattern: {
+                value: /^[0-9]+$/,
+                message: "Ingrese un número de mesa válido",
+              },
+            }}
+            render={({ field: { onChange, value } }) => (
+              <View className="mb-4">
+                <TextInput
+                  label="Número de Mesa"
+                  value={String(value)}
+                  onChangeText={onChange}
+                  mode="outlined"
+                  keyboardType="numeric"
+                  error={!!errors.table}
+                />
+                {errors.table && (
+                  <Text className="text-red-500 ml-4">
+                    {errors.table.message}
+                  </Text>
+                )}
+              </View>
+            )}
+          />
 
-            <List.Section title="Entradas">
-              <List.Accordion
-                title="Seleccionar Entradas"
-                expanded={expandedEntradas}
-                onPress={() => setExpandedEntradas(!expandedEntradas)}
-              >
-                {entradasData.map((item) => (
-                  <List.Item
-                    title={item.name}
-                    onPress={() => toggleMealSelection(item, "entradas")}
-                    right={() => (
-                      <View className="flex-row items-center">
-                        <Text className="text-sm mr-2">
-                          S/. {item.price.toString()}.00
-                        </Text>
-                        <IconButton
-                          icon="check"
-                          size={15}
-                          mode={
-                            selectedEntradas.some((m) => m.id === item.id)
-                              ? "contained"
-                              : "outlined"
-                          }
-                        />
-                      </View>
-                    )}
-                    key={item.id}
-                  />
-                ))}
-              </List.Accordion>
-            </List.Section>
-            <List.Section title="Fondos">
-              <List.Accordion
-                title="Seleccionar Fondos"
-                expanded={expandedFondos}
-                onPress={() => setExpandedFondos(!expandedFondos)}
-              >
-                {fondosData.map((item) => (
-                  <List.Item
-                    title={item.name}
-                    onPress={() => toggleMealSelection(item, "fondos")}
-                    right={() => (
-                      <View className="flex-row items-center">
-                        <Text className="text-sm mr-2">
-                          S/. {item.price.toString()}.00
-                        </Text>
-                        <IconButton
-                          icon="check"
-                          size={15}
-                          mode={
-                            selectedFondos.some((m) => m.id === item.id)
-                              ? "contained"
-                              : "outlined"
-                          }
-                        />
-                      </View>
-                    )}
-                    key={item.id}
-                  />
-                ))}
-              </List.Accordion>
-            </List.Section>
-            <List.Section title="Bebidas">
-              <List.Accordion
-                title="Seleccionar Bebidas"
-                expanded={expandedBebidas}
-                onPress={() => setExpandedBebidas(!expandedBebidas)}
-              >
-                {bebidasData.map((item) => (
-                  <List.Item
-                    title={item.name}
-                    onPress={() => toggleMealSelection(item, "bebidas")}
-                    right={() => (
-                      <View className="flex-row items-center">
-                        <Text className="text-sm mr-2">
-                          S/. {item.price.toString()}.00
-                        </Text>
-                        <IconButton
-                          icon="check"
-                          size={15}
-                          mode={
-                            selectedBebidas.some((m) => m.id === item.id)
-                              ? "contained"
-                              : "outlined"
-                          }
-                        />
-                      </View>
-                    )}
-                    key={item.id}
-                  />
-                ))}
-              </List.Accordion>
-            </List.Section>
-
-            <Button
-              mode="contained"
-              style={{ marginTop: 50 }}
-              onPress={handleSubmit(onSubmit)}
-              loading={loading}
+          <List.Section title="Entradas">
+            <List.Accordion
+              title="Seleccionar Entradas"
+              expanded={expandedEntradas}
+              onPress={() => setExpandedEntradas(!expandedEntradas)}
             >
-              Continuar
-            </Button>
-          </View>
+              {entradasData.map((item) => (
+                <List.Item
+                  title={item.name}
+                  onPress={() => toggleMealSelection(item, "entradas")}
+                  right={() => (
+                    <View className="flex-row items-center">
+                      <Text className="text-sm mr-2">
+                        S/. {item.price.toString()}.00
+                      </Text>
+                      <IconButton
+                        icon="check"
+                        size={15}
+                        mode={
+                          selectedEntradas.some((m) => m.id === item.id)
+                            ? "contained"
+                            : "outlined"
+                        }
+                      />
+                    </View>
+                  )}
+                  key={item.id}
+                />
+              ))}
+            </List.Accordion>
+          </List.Section>
+          <List.Section title="Fondos">
+            <List.Accordion
+              title="Seleccionar Fondos"
+              expanded={expandedFondos}
+              onPress={() => setExpandedFondos(!expandedFondos)}
+            >
+              {fondosData.map((item) => (
+                <List.Item
+                  title={item.name}
+                  onPress={() => toggleMealSelection(item, "fondos")}
+                  right={() => (
+                    <View className="flex-row items-center">
+                      <Text className="text-sm mr-2">
+                        S/. {item.price.toString()}.00
+                      </Text>
+                      <IconButton
+                        icon="check"
+                        size={15}
+                        mode={
+                          selectedFondos.some((m) => m.id === item.id)
+                            ? "contained"
+                            : "outlined"
+                        }
+                      />
+                    </View>
+                  )}
+                  key={item.id}
+                />
+              ))}
+            </List.Accordion>
+          </List.Section>
+          <List.Section title="Bebidas">
+            <List.Accordion
+              title="Seleccionar Bebidas"
+              expanded={expandedBebidas}
+              onPress={() => setExpandedBebidas(!expandedBebidas)}
+            >
+              {bebidasData.map((item) => (
+                <List.Item
+                  title={item.name}
+                  onPress={() => toggleMealSelection(item, "bebidas")}
+                  right={() => (
+                    <View className="flex-row items-center">
+                      <Text className="text-sm mr-2">
+                        S/. {item.price.toString()}.00
+                      </Text>
+                      <IconButton
+                        icon="check"
+                        size={15}
+                        mode={
+                          selectedBebidas.some((m) => m.id === item.id)
+                            ? "contained"
+                            : "outlined"
+                        }
+                      />
+                    </View>
+                  )}
+                  key={item.id}
+                />
+              ))}
+            </List.Accordion>
+          </List.Section>
+
+          <Button
+            mode="contained"
+            style={{ marginTop: 50 }}
+            onPress={handleSubmit(onSubmit)}
+            loading={loading}
+          >
+            Continuar
+          </Button>
         </View>
-      </SafeAreaView>
+      </View>
     </ScrollView>
   );
 }

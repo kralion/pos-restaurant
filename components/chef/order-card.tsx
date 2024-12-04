@@ -22,7 +22,7 @@ export default function OrderCard({ order }: { order: TOrder }) {
     >
       <Card.Title
         title={order.name}
-        subtitle={order.people + " Personas"}
+        subtitle={order.people + "Personas"}
         left={(props) => <Avatar.Icon {...props} icon="food" />}
         right={(props) => <IconButton {...props} icon="chevron-right" />}
       />
