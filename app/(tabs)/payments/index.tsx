@@ -1,10 +1,9 @@
 import OrderCard from "@/components/payment-card";
 import { useOrderContext } from "@/context";
-import { IOrder } from "@/interfaces";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
-import { ScrollView, Text } from "react-native";
+import { ScrollView } from "react-native";
 import { Divider } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
