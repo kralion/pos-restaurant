@@ -30,6 +30,9 @@ export default function OrderDetailsScreen() {
     }, 0) +
     order.bebidas.reduce((acc, item) => {
       return acc + item.price * item.quantity;
+    }, 0) +
+    order.fondos.reduce((acc, item) => {
+      return acc + item.price * item.quantity;
     }, 0);
 
   const total = subTotal + subTotal * 0.18;
@@ -82,9 +85,21 @@ export default function OrderDetailsScreen() {
           <Divider />
           <View className="flex flex-col gap-4">
             <Text variant="bodySmall" className="w-48 ">
+              Fondos
+            </Text>
+            {order.fondos.map((item, index) => (
+              <View key={index} className="flex flex-row w-full justify-between">
+                <Text className="w-36">{item.name}</Text>
+                <Text>S/. {item.price}</Text>
+                <Text>{item.quantity}</Text>
+              </View>
+            ))}
+          </View>
+          <Divider />
+          <View className="flex flex-col gap-4">
+            <Text variant="bodySmall" className="w-48 ">
               Bebidas
             </Text>
-
             {order.bebidas.map((item, index) => (
               <View
                 key={index}
@@ -103,16 +118,16 @@ export default function OrderDetailsScreen() {
         <View className="flex flex-col gap-3">
           <View className="flex flex-row justify-between">
             <Text>SubTotal</Text>
-            <Text>S/. {subTotal}</Text>
+            <Text>S/. {subTotal.toFixed(2)}</Text>
           </View>
           <View className="flex flex-row justify-between">
             <Text>Impuestos</Text>
-            <Text>S/. {subTotal * 0.18}</Text>
+            <Text>S/. {(subTotal * 0.18).toFixed(2)}</Text>
           </View>
           <Divider />
           <View className="flex flex-row justify-between">
             <Text>Total</Text>
-            <Text variant="titleLarge">S/. {total}</Text>
+            <Text variant="titleLarge">S/. {total.toFixed(2)}</Text>
           </View>
         </View>
         {paid && (
