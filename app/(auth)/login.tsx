@@ -43,9 +43,7 @@ export default function LogInScreen() {
       reset();
       setCurrentUser(user);
       await getUserById(user.id);
-
-      // @ts-ignore
-      router.push(`/(${user.role})`);
+      router.push("/(tabs)");
     } catch (err) {
       console.error("An error occurred:", err);
       alert("Algo sucedió mal, vuelve a intentarlo.");

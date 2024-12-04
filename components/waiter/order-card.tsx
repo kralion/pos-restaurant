@@ -11,13 +11,19 @@ export default function OrderCard({ order }: { order: IOrder }) {
         marginVertical: 8,
       }}
       onPress={() => {
-        router.push(`/(tabs)/chef-order/details/${order.id}`);
+        router.push(`/(tabs)/orders/details/${order.id}`);
       }}
     >
       <Card.Title
         title={"Mesa #" + order.table}
-        subtitle={"Status" + order.served}
-        left={(props) => <Avatar.Icon {...props} icon="food" />}
+        subtitle={order.served ? "Servido" : "No Servido"}
+        left={(props) => (
+          <Avatar.Icon
+            color="white"
+            {...props}
+            icon={order.served ? "food" : "alert-decagram-outline"}
+          />
+        )}
         right={(props) => <IconButton {...props} icon="chevron-right" />}
       />
     </Card>

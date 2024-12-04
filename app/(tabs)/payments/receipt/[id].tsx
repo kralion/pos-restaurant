@@ -1,7 +1,8 @@
+import { IOrder } from "@/interfaces";
+import { supabase } from "@/utils/supabase";
 import { useHeaderHeight } from "@react-navigation/elements";
-import { router } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Image, ScrollView, View } from "react-native";
 import {
   Button,
@@ -12,50 +13,34 @@ import {
   Text,
 } from "react-native-paper";
 
-export default function HomeScreen() {
+export default function ReceiptScreen() {
   const params = useLocalSearchParams<{ id: string }>();
+  const [order, setOrder] = useState<IOrder>();
   const headerHeight = useHeaderHeight();
-  const order = [
-    {
-      id: 1,
-      name: "Pepe",
-      table: "2",
-      date: "2023-01-01",
-      entradas: [
-        {
-          meal: "Tacos",
-          price: 10,
-          quantity: 2,
-        },
-        {
-          meal: "Quesadilla",
-          price: 10,
-          quantity: 1,
-        },
-      ],
-      bebidas: [
-        {
-          meal: "Agua",
-          price: 10,
-          quantity: 1,
-        },
-        {
-          meal: "Limonada",
-          price: 10,
-          quantity: 1,
-        },
-      ],
-    },
-  ];
+  async function getOrderById(id: string) {
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", id)
+      .single();
+    if (error) throw error;
+    setOrder(data);
+    return data;
+  }
+  React.useEffect(() => {
+    getOrderById(params.id);
+  }, [params.id]);
+
+  if (!order) return <Text>Loading...</Text>;
 
   const [paid, setPaid] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
 
   const subTotal =
-    order[0].entradas.reduce((acc, item) => {
+    order.entradas.reduce((acc, item) => {
       return acc + item.price * item.quantity;
     }, 0) +
-    order[0].bebidas.reduce((acc, item) => {
+    order.bebidas.reduce((acc, item) => {
       return acc + item.price * item.quantity;
     }, 0);
 
@@ -67,7 +52,7 @@ export default function HomeScreen() {
         <View className="flex flex-col gap-3">
           <View className="flex flex-row justify-between">
             <Text>Mesa</Text>
-            <Text> {order[0].table}</Text>
+            <Text> {order.table}</Text>
           </View>
           <Divider />
           <View className="flex flex-row justify-between">
@@ -98,9 +83,9 @@ export default function HomeScreen() {
               <Text variant="bodySmall">Precio</Text>
               <Text variant="bodySmall">Cantidad</Text>
             </View>
-            {order[0].entradas.map((item, index) => (
+            {order.entradas.map((item, index) => (
               <View key={index} className="flex flex-row justify-between">
-                <Text className="w-36">{item.meal}</Text>
+                <Text className="w-36">{item.name}</Text>
                 <Text>S/. {item.price}.00</Text>
                 <Text>{item.quantity}</Text>
               </View>
@@ -112,12 +97,12 @@ export default function HomeScreen() {
               Bebidas
             </Text>
 
-            {order[0].bebidas.map((item, index) => (
+            {order.bebidas.map((item, index) => (
               <View
                 key={index}
                 className="flex flex-row w-full justify-between"
               >
-                <Text className="w-36">{item.meal}</Text>
+                <Text className="w-36">{item.name}</Text>
                 <Text>S/. {item.price}.00</Text>
                 <Text>{item.quantity}</Text>
               </View>

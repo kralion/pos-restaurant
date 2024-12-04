@@ -1,10 +1,7 @@
-import { useUserContext } from "@/context";
 import { router, Stack } from "expo-router";
 import React from "react";
-import { Button } from "react-native";
 
 export default function ChefLayout() {
-  const { setUserLogout } = useUserContext();
   return (
     <Stack>
       <Stack.Screen
@@ -17,15 +14,24 @@ export default function ChefLayout() {
             placeholder: "Buscar ...",
             hideWhenScrolling: false,
             cancelButtonText: "Cancelar",
+            onChangeText: (event) => {
+              const search = event.nativeEvent.text;
+              router.setParams({
+                search: search,
+              });
+            },
+
+            onCancelButtonPress: () => {
+              router.setParams({
+                search: undefined,
+              });
+            },
           },
-          headerRight: () => (
-            <Button title="Salir" onPress={() => setUserLogout()} color="red" />
-          ),
           headerLargeTitleShadowVisible: false,
         }}
       />
       <Stack.Screen
-        name="order/[id]"
+        name="details/[id]"
         options={{
           title: "Detalles",
           headerBackTitle: "Pedidos",

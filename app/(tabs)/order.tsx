@@ -5,7 +5,13 @@ import { Controller, useForm } from "react-hook-form";
 import { ScrollView, Text, View } from "react-native";
 import { useHeaderHeight } from "@react-navigation/elements";
 import uuidRandom from "uuid-random";
-import { Button, IconButton, List, TextInput } from "react-native-paper";
+import {
+  Button,
+  Divider,
+  IconButton,
+  List,
+  TextInput,
+} from "react-native-paper";
 import { useUserContext } from "@/context";
 
 export default function OrderScreen() {
@@ -163,12 +169,7 @@ export default function OrderScreen() {
         console.error("An error occurred:", errors);
         return;
       }
-
       reset();
-      // DOCS: Sending data through params
-      // router.push("/(waiter)/order/price", {
-      //   orderData: JSON.stringify(orderData),
-      // });
     } catch (err) {
       console.error("An error occurred:", err);
       alert("Algo sucedió mal, vuelve a intentarlo.");
@@ -183,6 +184,13 @@ export default function OrderScreen() {
       contentInsetAdjustmentBehavior="automatic"
     >
       <View className="flex flex-col gap-16 w-full items-center p-4">
+        <View className="w-full flex flex-col items-center">
+          <Text className="text-4xl" style={{ fontWeight: "700" }}>
+            Tomar Orden
+          </Text>
+          <Text className="opacity-50">Selecciona los items para la orden</Text>
+          <Divider />
+        </View>
         <View className="flex flex-col justify-center align-middle w-full">
           <Controller
             control={control}
@@ -313,7 +321,7 @@ export default function OrderScreen() {
             onPress={handleSubmit(onSubmit)}
             loading={loading}
           >
-            Continuar
+            Registrar Orden
           </Button>
         </View>
       </View>

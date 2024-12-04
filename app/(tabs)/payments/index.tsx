@@ -1,4 +1,6 @@
-import OrderCard from "@/components/admin/order-card";
+import OrderCard from "@/components/waiter/order-card";
+import { useOrderContext } from "@/context";
+import { IOrder } from "@/interfaces";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
@@ -7,12 +9,16 @@ import { Divider } from "react-native-paper";
 
 export default function HomeScreen() {
   const { search } = useLocalSearchParams<{ search?: string }>();
-  const orders = [
-    { id: 1, name: "Mesa #1", people: 2, price: 100 },
-    { id: 2, name: "Silla #2", people: 2, price: 100 },
-    { id: 3, name: "Mesa #3", people: 2, price: 100 },
-    { id: 4, name: "Mesa #4", people: 2, price: 100 },
-  ];
+  const { getPaidOrders } = useOrderContext();
+  const [orders, setOrders] = React.useState<IOrder[]>([]);
+
+  React.useEffect(() => {
+    getPaidOrders().then((orders) => {
+      setOrders(orders);
+    });
+  }, []);
+
+  console.log(JSON.stringify(orders));
 
   const filteredOrders = React.useMemo(() => {
     if (!search) return orders;
@@ -20,8 +26,8 @@ export default function HomeScreen() {
     const lowercasedSearch = search.toLowerCase();
     return orders.filter(
       (order) =>
-        order.name.toLowerCase().includes(lowercasedSearch) ||
-        order.id.toString().includes(lowercasedSearch)
+        order.table.toString().includes(lowercasedSearch) ||
+        order.entradas.toString().includes(lowercasedSearch)
     );
   }, [search, orders]);
   return (

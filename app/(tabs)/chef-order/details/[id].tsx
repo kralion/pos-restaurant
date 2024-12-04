@@ -1,65 +1,17 @@
-import { useHeaderHeight } from "@react-navigation/elements";
-import { router } from "expo-router";
-import { useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useOrderContext } from "@/context";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useState } from "react";
 import { Image, ScrollView, View } from "react-native";
-import {
-  Button,
-  Divider,
-  Modal,
-  Portal,
-  Switch,
-  Text,
-} from "react-native-paper";
+import { Button, Divider, Modal, Portal, Text } from "react-native-paper";
 
 export default function HomeScreen() {
   const params = useLocalSearchParams<{ id: string }>();
-  const headerHeight = useHeaderHeight();
-  const order = [
-    {
-      id: 1,
-      name: "Pepe",
-      table: "2",
-      date: "2023-01-01",
-      entradas: [
-        {
-          meal: "Tacos",
-          price: 10,
-          quantity: 2,
-        },
-        {
-          meal: "Quesadilla",
-          price: 10,
-          quantity: 1,
-        },
-      ],
-      bebidas: [
-        {
-          meal: "Agua",
-          price: 10,
-          quantity: 1,
-        },
-        {
-          meal: "Limonada",
-          price: 10,
-          quantity: 1,
-        },
-      ],
-    },
-  ];
-
-  const [paid, setPaid] = useState<boolean>(false);
+  const { updateOrderServedStatus, order, getOrderById } = useOrderContext();
   const [modalVisible, setModalVisible] = useState(false);
 
-  const subTotal =
-    order[0].entradas.reduce((acc, item) => {
-      return acc + item.price * item.quantity;
-    }, 0) +
-    order[0].bebidas.reduce((acc, item) => {
-      return acc + item.price * item.quantity;
-    }, 0);
-
-  const total = subTotal + subTotal * 0.18;
+  React.useEffect(() => {
+    getOrderById(params.id);
+  }, [params.id]);
 
   return (
     <ScrollView className="p-4" contentInsetAdjustmentBehavior="automatic">
@@ -68,7 +20,7 @@ export default function HomeScreen() {
           <Divider className="border-dashed border-2" />
           <View className="flex flex-row justify-between">
             <Text variant="titleLarge">Mesa</Text>
-            <Text variant="titleLarge"> {order[0].table}</Text>
+            <Text variant="titleLarge"> {order.table}</Text>
           </View>
           <Divider />
         </View>
@@ -83,9 +35,9 @@ export default function HomeScreen() {
               </Text>
               <Text variant="bodySmall">Cantidad</Text>
             </View>
-            {order[0].entradas.map((item, index) => (
+            {order.entradas.map((item, index) => (
               <View key={index} className="flex flex-row justify-between">
-                <Text className="w-36">{item.meal}</Text>
+                <Text className="w-36">{item.name}</Text>
                 <Text>{item.quantity}</Text>
               </View>
             ))}
@@ -96,12 +48,12 @@ export default function HomeScreen() {
               Bebidas
             </Text>
 
-            {order[0].bebidas.map((item, index) => (
+            {order.bebidas.map((item, index) => (
               <View
                 key={index}
                 className="flex flex-row w-full justify-between"
               >
-                <Text className="w-36">{item.meal}</Text>
+                <Text className="w-36">{item.name}</Text>
                 <Text>{item.quantity}</Text>
               </View>
             ))}
@@ -109,6 +61,14 @@ export default function HomeScreen() {
         </View>
         <Divider className="border-dashed border-2" />
       </View>
+      <Button
+        mode="contained"
+        onPress={() => {
+          setModalVisible(false);
+        }}
+      >
+        Preparado
+      </Button>
       <Portal>
         <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)}>
           <View className="p-4 bg-white mx-4 rounded-lg flex flex-col gap-16">
@@ -124,18 +84,19 @@ export default function HomeScreen() {
               />
               <View className="flex flex-col gap-1">
                 <Text variant="titleMedium">Estado del pedido</Text>
-                <Text>Estas seguro de cambiar el </Text>
-                <Text> estado de la orden ?</Text>
+                <Text>El estado cambiará a </Text>
+                <Text> servido, estás seguro ?</Text>
               </View>
             </View>
             <Button
               mode="contained"
               onPress={() => {
-                setPaid(!paid);
+                updateOrderServedStatus(order.id ? order.id : "");
                 setModalVisible(false);
+                router.push("/(chef)");
               }}
             >
-              Confirmar
+              Aceptar
             </Button>
           </View>
         </Modal>

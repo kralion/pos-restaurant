@@ -19,6 +19,8 @@ export interface IOrder {
 
 export interface IOrderContextProvider {
   addOrder: (Order: IOrder) => Promise<void>;
+  updateOrderServedStatus: (id: string) => Promise<void>;
+  getPaidOrders: () => Promise<IOrder[]>;
   getOrderById: (id: string) => Promise<IOrder>;
   orders: IOrder[];
   order: IOrder;

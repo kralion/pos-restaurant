@@ -8,8 +8,10 @@ export const OrderContext = createContext<IOrderContextProvider>({
   getOrderById: async (id: string): Promise<IOrder> => ({} as IOrder),
   orders: [],
   order: {} as IOrder,
+  getPaidOrders: async () => [],
   deleteOrder: async () => {},
   getOrders: async () => [],
+  updateOrderServedStatus: async () => {},
 });
 
 export const OrderContextProvider = ({
@@ -29,6 +31,24 @@ export const OrderContextProvider = ({
     if (error) throw error;
     setOrders(data);
     return data;
+  };
+
+  async function getPaidOrders() {
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("paid", true)
+      .limit(15);
+    if (error) throw error;
+    return data;
+  }
+  const updateOrderServedStatus = async (id: string) => {
+    const { error } = await supabase
+      .from("orders")
+      .update({ served: true })
+      .eq("id", id);
+    if (error) throw error;
+    console.log("Order updated", error);
   };
 
   const deleteOrder = async (id: string) => {
@@ -54,7 +74,9 @@ export const OrderContextProvider = ({
         getOrders,
         deleteOrder,
         getOrderById,
+        getPaidOrders,
         addOrder,
+        updateOrderServedStatus,
         order,
       }}
     >

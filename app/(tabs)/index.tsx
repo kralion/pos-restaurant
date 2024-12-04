@@ -58,7 +58,7 @@ const TableSvg: React.FC<TableProps> = ({ number, status }) => {
   );
 };
 
-const Tables = () => {
+export default function TablesScreen() {
   const [selectedTable, setSelectedTable] = useState<number | null>(null);
   const [tables, setTables] = useState<ITable[]>([]);
   const [loading, setLoading] = useState(true);
@@ -144,35 +144,30 @@ const Tables = () => {
   if (!tables.length) return <Text>No se encontraron</Text>;
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      >
-        <View className="flex-1 bg-gray-100 p-4">
-          <Text className="text-4xl" style={{ fontWeight: "700" }}>
-            Mesas
-          </Text>
-          <Text className="opacity-50">Listado de mesas del restaurant</Text>
-          <Divider style={{ marginVertical: 16 }} />
+    <SafeAreaView className="p-4 ">
+      <Text className="text-4xl" style={{ fontWeight: "700" }}>
+        Mesas
+      </Text>
+      <Text className="opacity-50">Listado de mesas del restaurant</Text>
+      <Divider style={{ marginTop: 16 }} />
 
-          <View className="flex-row flex-wrap justify-center items-center gap-4">
-            {tables.map((table) => (
-              <Pressable
-                key={table.id}
-                onPress={() => handleTablePress(table.id)}
-                className="p-2"
-              >
-                <Surface className="rounded-lg elevation-4 p-2">
-                  <TableSvg
-                    number={table.id}
-                    status={table.status}
-                    onPress={() => handleTablePress(table.id)}
-                  />
-                </Surface>
-              </Pressable>
-            ))}
-          </View>
+      <ScrollView contentContainerStyle={{ paddingVertical: 40 }}>
+        <View className="flex-row flex-wrap justify-between items-center gap-4">
+          {tables.map((table) => (
+            <Pressable
+              key={table.id}
+              onPress={() => handleTablePress(table.id)}
+              className="p-2"
+            >
+              <Surface className="rounded-lg elevation-4 p-2">
+                <TableSvg
+                  number={table.id}
+                  status={table.status}
+                  onPress={() => handleTablePress(table.id)}
+                />
+              </Surface>
+            </Pressable>
+          ))}
         </View>
       </ScrollView>
 
@@ -195,6 +190,4 @@ const Tables = () => {
       </Portal>
     </SafeAreaView>
   );
-};
-
-export default Tables;
+}
