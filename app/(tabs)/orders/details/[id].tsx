@@ -1,10 +1,9 @@
 import { useOrderContext } from "@/context";
 import { IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
-import { router } from "expo-router";
-import { useLocalSearchParams } from "expo-router";
+import * as Print from "expo-print";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
-import { set } from "react-hook-form";
 import { Image, ScrollView, View } from "react-native";
 import {
   ActivityIndicator,
@@ -84,6 +83,57 @@ export default function OrderDetailsScreen() {
     }
     setModalVisible(false);
   };
+  const generateHTML = () => {
+    return `
+      <html>
+        <body>
+          <h2>Detalles de la Orden</h2>
+          <p>Mesa: ${order.table}</p>
+          <p>Mozo: ${order?.users?.name}</p>
+          <p>Status: ${order.paid ? "Orden Pagada" : "Orden sin pagar"}</p>
+          <h3>Entradas</h3>
+          <ul>
+            ${order.entradas
+              .map(
+                (item) => `
+              <li>${item.name} - S/. ${item.price} x ${item.quantity}</li>
+            `
+              )
+              .join("")}
+          </ul>
+          <h3>Fondos</h3>
+          <ul>
+            ${order.fondos
+              .map(
+                (item) => `
+              <li>${item.name} - S/. ${item.price} x ${item.quantity}</li>
+            `
+              )
+              .join("")}
+          </ul>
+          <h3>Bebidas</h3>
+          <ul>
+            ${order.bebidas
+              .map(
+                (item) => `
+              <li>${item.name} - S/. ${item.price} x ${item.quantity}</li>
+            `
+              )
+              .join("")}
+          </ul>
+          <p>SubTotal: S/. ${subTotal.toFixed(2)}</p>
+          <p>Impuestos (18%): S/. ${(subTotal * 0.18).toFixed(2)}</p>
+          <p>Total: S/. ${total.toFixed(2)}</p>
+        </body>
+      </html>
+    `;
+  };
+  const printOrder = async () => {
+    const html = generateHTML();
+    await Print.printAsync({
+      html,
+    });
+  };
   return (
     <ScrollView className="p-4" contentInsetAdjustmentBehavior="automatic">
       <View className="flex flex-col gap-12">
@@ -152,10 +202,7 @@ export default function OrderDetailsScreen() {
           </View>
         </View>
         {order.paid && (
-          <Button
-            mode="contained"
-            onPress={() => alert("Conecte la impresora")}
-          >
+          <Button mode="contained" onPress={() => printOrder()}>
             Imprimir Boleta
           </Button>
         )}
