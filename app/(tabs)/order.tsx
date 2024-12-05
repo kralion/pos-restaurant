@@ -16,12 +16,14 @@ import {
   Switch,
 } from "react-native-paper";
 import { useOrderContext, useUserContext } from "@/context";
+import { useLocalSearchParams } from "expo-router";
 
 interface MealWithQuantity extends IMeal {
   quantity: number;
 }
 
 export default function OrderScreen() {
+  const { number } = useLocalSearchParams<{ number: string }>();
   const [loading, setLoading] = useState(false);
   const [expandedEntradas, setExpandedEntradas] = useState(false);
   const [expandedFondos, setExpandedFondos] = useState(false);
@@ -257,7 +259,7 @@ export default function OrderScreen() {
       <View className="flex flex-col gap-16 w-full items-center p-4">
         <View className="w-full flex flex-col items-center gap-4">
           <Text className="text-xl" style={{ fontWeight: "700" }}>
-            Tomar Orden
+            Orden Mesa #{number}
           </Text>
           <Controller
             control={control}
@@ -281,35 +283,6 @@ export default function OrderScreen() {
           <Divider />
         </View>
         <View className="flex flex-col justify-center align-middle w-full">
-          <Controller
-            control={control}
-            name="table"
-            rules={{
-              required: "Número de mesa es requerido",
-              pattern: {
-                value: /^[0-9]+$/,
-                message: "Ingrese un número de mesa válido",
-              },
-            }}
-            render={({ field: { onChange, value } }) => (
-              <View className="mb-4">
-                <TextInput
-                  label="Número de Mesa"
-                  value={String(value)}
-                  onChangeText={onChange}
-                  mode="outlined"
-                  keyboardType="numeric"
-                  error={!!errors.table}
-                />
-                {errors.table && (
-                  <Text className="text-red-500 ml-4">
-                    {errors.table.message}
-                  </Text>
-                )}
-              </View>
-            )}
-          />
-
           <List.Section title="Entradas">
             <List.Accordion
               title="Seleccionar Entradas"

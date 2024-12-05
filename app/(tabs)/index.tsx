@@ -1,23 +1,18 @@
-import React, { useState, useEffect } from "react";
 import { supabase } from "@/utils/supabase";
-import { View, ScrollView, Pressable } from "react-native";
-import { Surface, Text, Portal, Modal, Button } from "react-native-paper";
-import { Svg, Rect, Circle, Text as SvgText } from "react-native-svg";
-import { Divider } from "react-native-paper";
+import { router } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Pressable, ScrollView, View } from "react-native";
+import { Divider, Surface, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-interface TableProps {
-  number: number;
-  status: boolean;
-  onPress: () => void;
-}
+import { Circle, Rect, Svg, Text as SvgText } from "react-native-svg";
 
 interface ITable {
   id: number;
+  number: number;
   status: boolean;
 }
 
-const TableSvg: React.FC<TableProps> = ({ number, status }) => {
+const TableSvg: React.FC<ITable> = ({ number, status }) => {
   const getColor = () => {
     switch (status) {
       case true:
@@ -59,7 +54,6 @@ const TableSvg: React.FC<TableProps> = ({ number, status }) => {
 };
 
 export default function TablesScreen() {
-  const [selectedTable, setSelectedTable] = useState<number | null>(null);
   const [tables, setTables] = useState<ITable[]>([]);
 
   async function getTables() {
@@ -69,7 +63,7 @@ export default function TablesScreen() {
       .order("id", { ascending: true });
 
     if (error) throw error;
-    setTables(data || []);
+    setTables(data);
   }
 
   useEffect(() => {
@@ -94,41 +88,6 @@ export default function TablesScreen() {
     };
   }, []);
 
-  const handleTablePress = (tableId: number) => {
-    setSelectedTable(tableId);
-  };
-
-  const closeModal = () => setSelectedTable(null);
-
-  const updateTableStatus = async (status: boolean) => {
-    try {
-      const { error } = await supabase
-        .from("tables")
-        .update({ status })
-        .eq("id", selectedTable);
-
-      if (error) throw error;
-
-      // Actualizar el estado local inmediatamente
-      setTables(
-        tables.map((table) =>
-          table.id === selectedTable ? { ...table, status } : table
-        )
-      );
-
-      closeModal();
-    } catch (err) {
-      alert("Error al actualizar estado");
-    }
-  };
-
-  const getSelectedTableNumber = () => {
-    const selectedTableData = tables.find(
-      (table) => table.id === selectedTable
-    );
-    return selectedTableData?.id || "";
-  };
-
   return (
     <SafeAreaView className="p-4 ">
       <Text className="text-4xl" style={{ fontWeight: "700" }}>
@@ -142,38 +101,29 @@ export default function TablesScreen() {
           {tables.map((table) => (
             <Pressable
               key={table.id}
-              onPress={() => handleTablePress(table.id)}
+              onPress={() => {
+                if (table.status) {
+                  router.push({
+                    pathname: "/(tabs)/order",
+                    params: { number: table.number },
+                  });
+                } else {
+                  alert("La mesa está ocupada");
+                }
+              }}
               className="p-2"
             >
               <Surface className="rounded-lg elevation-4 p-2">
                 <TableSvg
                   number={table.id}
                   status={table.status}
-                  onPress={() => handleTablePress(table.id)}
+                  id={table.id}
                 />
               </Surface>
             </Pressable>
           ))}
         </View>
       </ScrollView>
-
-      <Portal>
-        <Modal visible={selectedTable !== null} onDismiss={closeModal}>
-          <View className="p-4 bg-white mx-4 my-8 rounded-lg">
-            <Text className="text-xl font-bold mb-4 text-center">
-              Mesa N°{getSelectedTableNumber()}
-            </Text>
-            <View className="gap-2">
-              <Button mode="outlined" onPress={() => updateTableStatus(true)}>
-                <Text>Disponible</Text>
-              </Button>
-              <Button mode="outlined" onPress={() => updateTableStatus(false)}>
-                <Text>Ocupado</Text>
-              </Button>
-            </View>
-          </View>
-        </Modal>
-      </Portal>
     </SafeAreaView>
   );
 }
