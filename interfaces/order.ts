@@ -4,7 +4,6 @@ export interface IMeal {
   id: string;
   name: string;
   price: number;
-  category: "entradas" | "fondos" | "bebidas";
   quantity: number;
 }
 
@@ -32,4 +31,5 @@ export interface IOrderContextProvider {
   paidOrders: IOrder[];
   deleteOrder: (id: string) => Promise<void>;
   getOrders: () => Promise<IOrder[]>;
+  addOrderAndUpdateTable: (order: IOrder, selectedTable: string) => Promise<{ success: boolean; error?: any }>;
 }

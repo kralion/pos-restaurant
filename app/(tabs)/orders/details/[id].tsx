@@ -1,7 +1,9 @@
 import { useOrderContext } from "@/context";
 import { IOrder } from "@/interfaces";
+import { supabase } from "@/utils/supabase";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
+import { set } from "react-hook-form";
 import { Image, ScrollView, View } from "react-native";
 import {
   ActivityIndicator,
@@ -17,12 +19,43 @@ export default function OrderDetailsScreen() {
   const params = useLocalSearchParams<{ id: string }>();
   const [order, setOrder] = useState<IOrder>();
   const [paid, setPaid] = useState<boolean>(false);
+
   const [modalVisible, setModalVisible] = useState(false);
   const { getOrderById } = useOrderContext();
   React.useEffect(() => {
-    getOrderById(params.id).then((order) => setOrder(order));
+    getOrderById(params.id).then((order) => {
+      setOrder(order);
+      if (order) {
+        setPaid(order.paid);
+      }
+    });
   }, [params.id]);
+  React.useEffect(() => {
+    
+    const channel = supabase
+      .channel("table-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "orders",
+        },
+        async () => {
+          const { data, error } = await supabase
+            .from("orders")
+            .select("*")
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, []);
   if (!order) return <ActivityIndicator />;
+
+
 
   const subTotal =
     order.entradas.reduce((acc, item) => {
@@ -36,7 +69,25 @@ export default function OrderDetailsScreen() {
     }, 0);
 
   const total = subTotal + subTotal * 0.18;
+  const updatePaidStatus = async (id: string, paid: boolean) => {
+    const { data, error } = await supabase
+      .from('orders')
+      .update({ paid })
+      .eq('id', id)
+      .select();
+  };
+  const handleSwitchChange = () => {
+    setModalVisible(!modalVisible);
+    setPaid(!paid);
+    console.log("changepid 2", paid);
+  };
 
+  const confirmUpdate = () => {
+    if (order?.id) {
+      updatePaidStatus(order.id, paid);
+    }
+    setModalVisible(false);
+  };
   return (
     <ScrollView className="p-4" contentInsetAdjustmentBehavior="automatic">
       <View className="flex flex-col gap-12">
@@ -57,9 +108,9 @@ export default function OrderDetailsScreen() {
                 fontWeight: "bold",
               }}
             >
-              {paid ? "Pagado" : "Sin Pagar"}
+              {order.paid ? "Orden Pagada" : "Orden sin pagar"}
             </Text>
-            <Switch value={paid} onValueChange={() => setModalVisible(true)} />
+            <Switch value={paid} onValueChange={handleSwitchChange} />
           </View>
         </View>
 
@@ -130,7 +181,7 @@ export default function OrderDetailsScreen() {
             <Text variant="titleLarge">S/. {total.toFixed(2)}</Text>
           </View>
         </View>
-        {paid && (
+        {order.paid && (
           <Button
             mode="contained"
             onPress={() => alert("Conecte la impresora")}
@@ -138,6 +189,9 @@ export default function OrderDetailsScreen() {
             Imprimir Boleta
           </Button>
         )}
+        <Text>
+          {order.paid ? "Orden Pagada" : "Orden sin pagar"}
+        </Text>
       </View>
       <Portal>
         <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)}>
@@ -160,10 +214,7 @@ export default function OrderDetailsScreen() {
             </View>
             <Button
               mode="contained"
-              onPress={() => {
-                setPaid(!paid);
-                setModalVisible(false);
-              }}
+              onPress={confirmUpdate}
             >
               Confirmar
             </Button>

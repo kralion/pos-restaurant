@@ -34,9 +34,11 @@ export default function OrderScreen() {
   const [selectedBebidas, setSelectedBebidas] = useState<MealWithQuantity[]>(
     []
   );
+  
   const headerHeight = useHeaderHeight();
   const { user } = useUserContext();
   const { addOrder } = useOrderContext();
+  const {addOrderAndUpdateTable} = useOrderContext();
 
   const {
     control,
@@ -49,7 +51,12 @@ export default function OrderScreen() {
       table: 0,
     },
   });
+  const updateTablesStatus = async () => {
+    // Update table status
+    const { data: tables, error } = await supabase.from("tables").select("*");
 
+    
+  };
   const getEntradasData = async () => {
     const { data: entradas, error } = await supabase
       .from("meals")
@@ -233,7 +240,7 @@ export default function OrderScreen() {
         bebidas: selectedBebidas,
       };
 
-      addOrder(orderData);
+      addOrderAndUpdateTable(orderData, orderData.table.toString());
       alert("Pedido registrado");
       setSelectedBebidas([]);
       setSelectedFondos([]);
