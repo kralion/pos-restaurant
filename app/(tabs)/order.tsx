@@ -2,7 +2,7 @@ import { IMeal, IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { useHeaderHeight } from "@react-navigation/elements";
 import uuidRandom from "uuid-random";
 import {
@@ -12,6 +12,8 @@ import {
   List,
   TextInput,
   Surface,
+  Text,
+  Switch,
 } from "react-native-paper";
 import { useOrderContext, useUserContext } from "@/context";
 
@@ -34,12 +36,9 @@ export default function OrderScreen() {
   const [selectedBebidas, setSelectedBebidas] = useState<MealWithQuantity[]>(
     []
   );
-  
   const headerHeight = useHeaderHeight();
   const { user } = useUserContext();
-  const { addOrder } = useOrderContext();
-  const {addOrderAndUpdateTable} = useOrderContext();
-
+  const { addOrderAndUpdateTable } = useOrderContext();
   const {
     control,
     handleSubmit,
@@ -49,14 +48,10 @@ export default function OrderScreen() {
   } = useForm<IOrder>({
     defaultValues: {
       table: 0,
+      to_go: false,
     },
   });
-  const updateTablesStatus = async () => {
-    // Update table status
-    const { data: tables, error } = await supabase.from("tables").select("*");
 
-    
-  };
   const getEntradasData = async () => {
     const { data: entradas, error } = await supabase
       .from("meals")
@@ -104,57 +99,6 @@ export default function OrderScreen() {
     getFondosData();
     getBebidasData();
   }, []);
-
-  //   meal: IMeal,
-  //   category: "entradas" | "fondos" | "bebidas"
-  // ) => {
-  //   let selectedMeals: MealWithQuantity[];
-  //   let setSelectedMeals: React.Dispatch<
-  //     React.SetStateAction<MealWithQuantity[]>
-  //   >;
-
-  //   switch (category) {
-  //     case "entradas":
-  //       selectedMeals = selectedEntradas;
-  //       setSelectedMeals = setSelectedEntradas;
-  //       break;
-  //     case "fondos":
-  //       selectedMeals = selectedFondos;
-  //       setSelectedMeals = setSelectedFondos;
-  //       break;
-  //     case "bebidas":
-  //       selectedMeals = selectedBebidas;
-  //       setSelectedMeals = setSelectedBebidas;
-  //       break;
-  //   }
-
-  //   const existingMealIndex = selectedMeals.findIndex((m) => m.id === meal.id);
-
-  //   if (existingMealIndex !== -1) {
-  //     // Remove meal if quantity is 1, otherwise decrease quantity
-  //     const updatedMeals = [...selectedMeals];
-  //     if (updatedMeals[existingMealIndex].quantity > 1) {
-  //       updatedMeals[existingMealIndex].quantity -= 1;
-  //       setSelectedMeals(updatedMeals);
-  //     } else {
-  //       setSelectedMeals(selectedMeals.filter((m) => m.id !== meal.id));
-  //     }
-  //   } else {
-  //     // Add meal with quantity 1
-  //     const newMealWithQuantity = { ...meal, quantity: 1 };
-  //     setSelectedMeals([...selectedMeals, newMealWithQuantity]);
-  //   }
-
-  //   // Update form values
-  //   setValue(
-  //     category,
-  //     category === "entradas"
-  //       ? selectedEntradas
-  //       : category === "fondos"
-  //       ? selectedFondos
-  //       : selectedBebidas
-  //   );
-  // };
 
   const updateMealQuantity = (
     meal: IMeal,
@@ -270,20 +214,18 @@ export default function OrderScreen() {
     return (
       <Surface
         key={item.id}
-        className="flex-row items-center justify-between p-2 mb-2 rounded"
-        elevation={1}
+        className="flex-row items-center justify-between p-2  border-b border-gray-200 rounded-t-lg"
       >
-        <View className="flex-1 mr-2">
-          <Text className="text-base">{item.name}</Text>
-          <Text className="text-sm opacity-60">
+        <View className="flex-1 ">
+          <Text variant="titleMedium">{item.name}</Text>
+          <Text variant="labelSmall" className="opacity-50">
             S/. {item.price.toString()}
           </Text>
         </View>
 
-        <View className="flex-row items-center">
+        <View className="flex-row items-center gap-2">
           <IconButton
             icon="minus"
-            size={20}
             disabled={currentQuantity <= 0}
             onPress={() =>
               updateMealQuantity(
@@ -294,13 +236,10 @@ export default function OrderScreen() {
             }
           />
 
-          <Text className="mx-2 min-w-[30px] text-center">
-            {currentQuantity}
-          </Text>
+          <Text variant="bodyMedium">{currentQuantity}</Text>
 
           <IconButton
             icon="plus"
-            size={20}
             onPress={() =>
               updateMealQuantity(item, currentQuantity + 1, category)
             }
@@ -316,11 +255,29 @@ export default function OrderScreen() {
       contentInsetAdjustmentBehavior="automatic"
     >
       <View className="flex flex-col gap-16 w-full items-center p-4">
-        <View className="w-full flex flex-col items-center">
-          <Text className="text-4xl" style={{ fontWeight: "700" }}>
+        <View className="w-full flex flex-col items-center gap-4">
+          <Text className="text-xl" style={{ fontWeight: "700" }}>
             Tomar Orden
           </Text>
-          <Text className="opacity-50">Selecciona los items para la orden</Text>
+          <Controller
+            control={control}
+            name="to_go"
+            rules={{
+              required: "Número de mesa es requerido",
+              pattern: {
+                value: /^[0-9]+$/,
+                message: "Ingrese un número de mesa válido",
+              },
+            }}
+            render={({ field: { onChange, value } }) => (
+              <View className="flex flex-row gap-2">
+                <Text variant="bodyLarge">
+                  {value ? "Para llevar" : "Para comer"}
+                </Text>
+                <Switch value={value} onValueChange={onChange} />
+              </View>
+            )}
+          />
           <Divider />
         </View>
         <View className="flex flex-col justify-center align-middle w-full">
@@ -388,6 +345,7 @@ export default function OrderScreen() {
               )}
             </List.Accordion>
           </List.Section>
+
           <Button
             mode="contained"
             style={{ marginTop: 50 }}
@@ -395,6 +353,14 @@ export default function OrderScreen() {
             loading={loading}
           >
             Registrar Orden
+          </Button>
+          <Button
+            mode="outlined"
+            style={{ marginTop: 10 }}
+            onPress={() => reset()}
+            loading={loading}
+          >
+            Cancelar
           </Button>
         </View>
       </View>

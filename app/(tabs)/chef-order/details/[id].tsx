@@ -19,44 +19,40 @@ export default function OrderDetailsScreen() {
   return (
     <ScrollView className="p-4" contentInsetAdjustmentBehavior="automatic">
       <View className="flex flex-col gap-12 mb-10">
-        <View className="flex flex-col gap-3">
-          <Divider className="border-dashed border-2" />
-          <View className="flex flex-row justify-between">
-            <Text variant="titleLarge">Mesa</Text>
-            <Text variant="titleLarge"> {order.table}</Text>
-          </View>
-          <Divider />
-        </View>
-
         <View className="flex flex-col gap-4">
-          <Text variant="titleMedium">Orden</Text>
-          <Divider />
           <View className="flex flex-col gap-4">
             <View className="flex flex-row justify-between">
-              <Text variant="bodySmall" className="w-48">
-                Entradas
+              <Text variant="titleSmall" className="w-48">
+                Item
               </Text>
-              <Text variant="bodySmall">Cantidad</Text>
+              <Text variant="titleSmall">Precio</Text>
+              <Text variant="titleSmall">Cantidad</Text>
             </View>
+            <Divider />
             {order.entradas.map((item, index) => (
               <View key={index} className="flex flex-row justify-between">
                 <Text className="w-36">{item.name}</Text>
+                <Text>S/. {item.price}</Text>
                 <Text>{item.quantity}</Text>
               </View>
             ))}
-          </View>
-          <Divider />
-          <View className="flex flex-col gap-4">
-            <Text variant="bodySmall" className="w-48 ">
-              Bebidas
-            </Text>
-
+            {order.fondos.map((item, index) => (
+              <View
+                key={index}
+                className="flex flex-row w-full justify-between"
+              >
+                <Text className="w-36">{item.name}</Text>
+                <Text>S/. {item.price}</Text>
+                <Text>{item.quantity}</Text>
+              </View>
+            ))}
             {order.bebidas.map((item, index) => (
               <View
                 key={index}
                 className="flex flex-row w-full justify-between"
               >
                 <Text className="w-36">{item.name}</Text>
+                <Text>S/. {item.price}</Text>
                 <Text>{item.quantity}</Text>
               </View>
             ))}

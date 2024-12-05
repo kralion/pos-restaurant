@@ -7,6 +7,7 @@ export interface IOrder {
   users?: IUser;
   id_waiter: string;
   served: boolean;
+  to_go: boolean;
   paid: boolean;
   entradas: IMeal[];
   fondos: IMeal[];
@@ -24,5 +25,8 @@ export interface IOrderContextProvider {
   paidOrders: IOrder[];
   deleteOrder: (id: string) => Promise<void>;
   getOrders: () => Promise<IOrder[]>;
-  addOrderAndUpdateTable: (order: IOrder, selectedTable: string) => Promise<{ success: boolean; error?: any }>;
+  addOrderAndUpdateTable: (
+    order: IOrder,
+    selectedTable: string
+  ) => Promise<{ success: boolean; error?: any }>;
 }

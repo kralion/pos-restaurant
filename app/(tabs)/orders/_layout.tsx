@@ -4,7 +4,7 @@ import React from "react";
 import { Alert, Button } from "react-native";
 
 export default function WaiterLayout() {
-  const { deleteOrder } = useOrderContext();
+  const { deleteOrder, order } = useOrderContext();
   const onDelete = (id: string) => {
     Alert.alert("Eliminar", "¿Estás seguro?", [
       {
@@ -55,12 +55,7 @@ export default function WaiterLayout() {
         options={({ route }) => {
           const { id } = route.params as { id: string };
           return {
-            title: "Detalles",
-            headerBackTitle: "Pedidos",
-            headerLargeTitle: true,
-            headerBackVisible: true,
-            headerShadowVisible: false,
-            headerLargeTitleShadowVisible: false,
+            title: "Mesa " + order.table,
             headerRight: () => (
               <Button
                 title="Eliminar"

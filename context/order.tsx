@@ -30,29 +30,29 @@ export const OrderContextProvider = ({
     await supabase.from("orders").insert(order);
   };
 
-  const addOrderAndUpdateTable = async (order: IOrder, selectedTable: string) => {
-    // Inserta el pedido
+  const addOrderAndUpdateTable = async (
+    order: IOrder,
+    selectedTable: string
+  ) => {
     const { error: orderError } = await supabase.from("orders").insert(order);
-  
+
     if (orderError) {
       console.error("Error al insertar el pedido:", orderError);
       return { success: false, error: orderError };
     }
-  
-    // Actualiza el estado de la mesa
+
     const { error: tableError } = await supabase
       .from("tables")
       .update({ status: false })
       .eq("id", selectedTable);
-  
+
     if (tableError) {
       console.error("Error al actualizar el estado de la mesa:", tableError);
       return { success: false, error: tableError };
     }
-  
+
     return { success: true };
   };
-  
 
   const getOrders = async () => {
     const { data, error } = await supabase.from("orders").select("*");

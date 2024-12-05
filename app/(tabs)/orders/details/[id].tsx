@@ -1,6 +1,7 @@
 import { useOrderContext } from "@/context";
 import { IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
+import { router } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { set } from "react-hook-form";
@@ -69,6 +70,7 @@ export default function OrderDetailsScreen() {
       .update({ paid })
       .eq("id", id)
       .select();
+    router.back();
   };
   const handleSwitchChange = () => {
     setModalVisible(!modalVisible);
@@ -85,40 +87,24 @@ export default function OrderDetailsScreen() {
   return (
     <ScrollView className="p-4" contentInsetAdjustmentBehavior="automatic">
       <View className="flex flex-col gap-12">
-        <View className="flex flex-col gap-3">
-          <View className="flex flex-row justify-between">
-            <Text>Mesa</Text>
-            <Text> {order.table}</Text>
-          </View>
-          <Divider />
-          <View className="flex flex-row justify-between">
-            <Text>Mozo</Text>
-            <Text>{order?.users?.name}</Text>
-          </View>
-          <Divider />
-          <View className="flex flex-row justify-between">
-            <Text
-              style={{
-                fontWeight: "bold",
-              }}
-            >
-              {order.paid ? "Orden Pagada" : "Orden sin pagar"}
-            </Text>
-            <Switch value={paid} onValueChange={handleSwitchChange} />
-          </View>
+        <View className="flex flex-row justify-between">
+          <Text variant="titleLarge">
+            {order.paid ? "Orden Pagada" : "Orden sin pagar"}
+          </Text>
+          <Switch value={paid} onValueChange={handleSwitchChange} />
         </View>
 
+        <Divider className="border-dashed border-2" />
         <View className="flex flex-col gap-4">
-          <Text variant="titleMedium">Orden</Text>
-          <Divider />
           <View className="flex flex-col gap-4">
             <View className="flex flex-row justify-between">
-              <Text variant="bodySmall" className="w-48">
-                Entradas
+              <Text variant="titleSmall" className="w-48">
+                Item
               </Text>
-              <Text variant="bodySmall">Precio</Text>
-              <Text variant="bodySmall">Cantidad</Text>
+              <Text variant="titleSmall">Precio</Text>
+              <Text variant="titleSmall">Cantidad</Text>
             </View>
+            <Divider />
             {order.entradas.map((item, index) => (
               <View key={index} className="flex flex-row justify-between">
                 <Text className="w-36">{item.name}</Text>
@@ -126,12 +112,6 @@ export default function OrderDetailsScreen() {
                 <Text>{item.quantity}</Text>
               </View>
             ))}
-          </View>
-          <Divider />
-          <View className="flex flex-col gap-4">
-            <Text variant="bodySmall" className="w-48 ">
-              Fondos
-            </Text>
             {order.fondos.map((item, index) => (
               <View
                 key={index}
@@ -142,12 +122,6 @@ export default function OrderDetailsScreen() {
                 <Text>{item.quantity}</Text>
               </View>
             ))}
-          </View>
-          <Divider />
-          <View className="flex flex-col gap-4">
-            <Text variant="bodySmall" className="w-48 ">
-              Bebidas
-            </Text>
             {order.bebidas.map((item, index) => (
               <View
                 key={index}
@@ -159,7 +133,6 @@ export default function OrderDetailsScreen() {
               </View>
             ))}
           </View>
-          <Divider />
         </View>
 
         <Divider className="border-dashed border-2" />
@@ -174,7 +147,7 @@ export default function OrderDetailsScreen() {
           </View>
           <Divider />
           <View className="flex flex-row justify-between">
-            <Text>Total</Text>
+            <Text variant="titleLarge">Total</Text>
             <Text variant="titleLarge">S/. {total.toFixed(2)}</Text>
           </View>
         </View>
