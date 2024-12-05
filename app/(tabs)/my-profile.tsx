@@ -1,12 +1,9 @@
-import { useUserContext } from "@/context";
-import { useRouter } from "expo-router";
-import { LogOut, User } from "lucide-react-native";
+import { useAuth } from "@/context";
 import { View } from "react-native";
 import { Avatar, Button, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function ProfileScreen() {
-  const { user, setUserLogout } = useUserContext();
-  const router = useRouter();
+  const { user, signOut, session } = useAuth();
 
   return (
     <SafeAreaView style={{ paddingTop: 16, height: "100%" }}>
@@ -20,7 +17,9 @@ export default function ProfileScreen() {
         />
 
         <View className="flex flex-col gap-1">
-          <Text className="font-bold text-2xl">{`${user.name}`}</Text>
+          <Text className="font-bold text-2xl">{`${
+            user.name || "Jhons"
+          }`}</Text>
           <Button
             mode={
               user.role === "chef"
@@ -30,24 +29,17 @@ export default function ProfileScreen() {
                 : "outlined"
             }
           >
-            <Text className="text-md">{user.role}</Text>
+            <Text className="text-md">{user.role || "Chef"}</Text>
           </Button>
         </View>
-        <Button
-          onPress={() => {
-            setUserLogout();
-            router.replace("/(auth)/login");
-          }}
-          icon="logout"
-          mode="contained"
-        >
+        <Button onPress={signOut} icon="logout" mode="contained">
           Salir
         </Button>
       </View>
 
       <Text className="text-muted-foreground opacity-40  mt-44 mx-auto text-sm">
         Logueado con
-        {/* {user?.emailAddresses[0].emailAddress} */}
+        {session.user.email || "email"}
       </Text>
       <Text className="text-muted-foreground opacity-40   mx-auto text-sm">
         Versión 2.15.1

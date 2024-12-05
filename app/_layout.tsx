@@ -1,8 +1,4 @@
-import {
-  OrderContextProvider,
-  UserContextProvider,
-  useUserContext,
-} from "@/context";
+import { OrderContextProvider, AuthContextProvider, useAuth } from "@/context";
 import "../styles/global.css";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
@@ -59,30 +55,30 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <AuthContextProvider>
+      <RootLayoutNav />
+    </AuthContextProvider>
+  );
 }
 
 function RootLayoutNav() {
-  const { user } = useUserContext();
-
+  const { user } = useAuth();
   React.useEffect(() => {
     if (user) {
-      router.replace("/(tabs)");
+      router.push("/(tabs)");
     }
   }, [user]);
   return (
     <PaperProvider theme={theme}>
-      <UserContextProvider>
-        <OrderContextProvider>
-          <MealContextProvider>
-            <Stack>
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-            </Stack>
-          </MealContextProvider>
-        </OrderContextProvider>
-      </UserContextProvider>
+      <OrderContextProvider>
+        <MealContextProvider>
+          <Stack>
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          </Stack>
+        </MealContextProvider>
+      </OrderContextProvider>
     </PaperProvider>
   );
 }

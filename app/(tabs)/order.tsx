@@ -15,7 +15,7 @@ import {
   Text,
   Switch,
 } from "react-native-paper";
-import { useOrderContext, useUserContext } from "@/context";
+import { useOrderContext, useAuth } from "@/context";
 import { useLocalSearchParams } from "expo-router";
 
 interface MealWithQuantity extends IMeal {
@@ -39,7 +39,7 @@ export default function OrderScreen() {
     []
   );
   const headerHeight = useHeaderHeight();
-  const { user } = useUserContext();
+  const { user } = useAuth();
   const { addOrderAndUpdateTable } = useOrderContext();
   const {
     control,
