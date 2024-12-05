@@ -1,5 +1,4 @@
 import { useUserContext } from "@/context";
-import { IUser } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { router } from "expo-router";
 import { Info } from "lucide-react-native";
@@ -10,7 +9,10 @@ import { Linking, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button, Dialog, Portal, TextInput } from "react-native-paper";
-
+type TLogin = {
+  email: string;
+  password: string;
+}
 export default function LogInScreen() {
   const [loading, setLoading] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
@@ -19,29 +21,23 @@ export default function LogInScreen() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<IUser>();
+  } = useForm<TLogin>();
 
   const { getUserById } = useUserContext();
 
-  const onSubmit = async (data: IUser) => {
+
+
+  const onSubmit = async (data: TLogin) => {
     setLoading(true);
     try {
-      const { data: user, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("username", data.username)
-        .eq("password", data.password)
-        // TODO: Store passwords securely, e.g., hashing.
-        .single();
 
-      if (error || !user) {
-        setVisible(true);
-        setLoading(false);
-        return;
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
 
       reset();
-      await getUserById(user.id);
       router.replace("/(tabs)");
     } catch (err) {
       console.error("An error occurred:", err);
@@ -67,28 +63,28 @@ export default function LogInScreen() {
             <View className="flex flex-col gap-1 items-center">
               <Text className="text-4xl font-bold"> Inicia Sesión</Text>
               <Text className="text-center ">
-                Ingresa las credenciales de tu cuenta
+                Ingresa las credenciales de tu cuenta :V
               </Text>
             </View>
           </View>
           <View className="flex flex-col gap-6 justify-center align-middle w-full">
             <Controller
               control={control}
-              name="username"
+              name="email"
               render={({ field: { onChange, value } }) => (
                 <View className="flex flex-col gap-2">
                   <TextInput
                     label="Usuario"
                     mode="outlined"
-                    error={errors.username ? true : false}
+                    error={errors.email ? true : false}
                     onChangeText={onChange}
                     value={value}
                   />
-                  {errors.username && (
+                  {errors.email && (
                     <View className="flex flex-row gap-1">
                       <Info color="red" size={20} />
                       <Text className="text-red-500">
-                        {errors.username.message}
+                        {errors.email.message}
                       </Text>
                     </View>
                   )}
