@@ -1,10 +1,10 @@
-import { IOrder } from "@/interfaces";
+import { IMeal, IOrder } from "@/interfaces";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React from "react";
 import { Card, IconButton } from "react-native-paper";
 
-export default function MenuCard({ menu }: { menu: IOrder }) {
+export default function MealCard({ meal }: { meal: IMeal }) {
   return (
     <Card
       style={{
@@ -12,7 +12,7 @@ export default function MenuCard({ menu }: { menu: IOrder }) {
         marginVertical: 8,
       }}
       onPress={() => {
-        router.push(`/(tabs)/menu/details/${menu.id}`);
+        router.push(`/(tabs)/menu/details/${meal.id}`);
       }}
     >
       <Card.Title
