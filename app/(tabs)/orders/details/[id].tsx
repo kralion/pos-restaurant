@@ -84,46 +84,143 @@ export default function OrderDetailsScreen() {
     setModalVisible(false);
   };
   const generateHTML = () => {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString();
+    const timeStr = now.toLocaleTimeString();
+
     return `
       <html>
+        <head>
+          <style>
+            @page {
+              size: 80mm auto;
+              margin: 0;
+            }
+            
+            body {
+              font-family: 'Courier New', monospace; 
+              width: 80mm; 
+              margin: 0;
+              padding: 5mm;
+              box-sizing: border-box;
+            }
+            
+            /* Para impresión */
+            @media print {
+              body {
+                width: 80mm;
+              }
+              .page-break {
+                page-break-after: always;
+              }
+            }
+            .logo {
+              text-align: center;
+              font-size: 24px;
+              margin-bottom: 20px;
+            }
+            .logo img {
+              max-width: 150px;
+              height: auto;
+              margin: 0 auto;
+              display: block;
+            }
+            .header-info {
+              font-size: 12px;
+              text-align: center;
+              margin-bottom: 20px;
+            }
+            .table-info {
+              margin-bottom: 15px;
+              border-bottom: 1px solid #ccc;
+              padding-bottom: 5px;
+            }
+            .items {
+              width: 100%;
+              margin-bottom: 15px;
+            }
+            .items td {
+              padding: 3px 0;
+            }
+            .price-col {
+              text-align: right;
+            }
+            .total-section {
+              border-top: 1px solid #ccc;
+              padding-top: 10px;
+              margin-top: 10px;
+            }
+            .datetime {
+              text-align: center;
+              font-size: 12px;
+              margin-top: 10px;
+            }
+            .footer {
+              text-align: center;
+              font-size: 12px;
+              margin-top: 20px;
+            }
+          </style>
+        </head>
         <body>
-          <h2>Detalles de la Orden</h2>
-          <p>Mesa: ${order.table}</p>
-          <p>Mozo: ${order?.users?.name}</p>
-          <p>Status: ${order.paid ? "Orden Pagada" : "Orden sin pagar"}</p>
-          <h3>Entradas</h3>
-          <ul>
-            ${order.entradas
-              .map(
-                (item) => `
-              <li>${item.name} - S/. ${item.price} x ${item.quantity}</li>
-            `
-              )
-              .join("")}
-          </ul>
-          <h3>Fondos</h3>
-          <ul>
-            ${order.fondos
-              .map(
-                (item) => `
-              <li>${item.name} - S/. ${item.price} x ${item.quantity}</li>
-            `
-              )
-              .join("")}
-          </ul>
-          <h3>Bebidas</h3>
-          <ul>
-            ${order.bebidas
-              .map(
-                (item) => `
-              <li>${item.name} - S/. ${item.price} x ${item.quantity}</li>
-            `
-              )
-              .join("")}
-          </ul>
-          <p>SubTotal: S/. ${subTotal.toFixed(2)}</p>
-          <p>Impuestos (18%): S/. ${(subTotal * 0.18).toFixed(2)}</p>
-          <p>Total: S/. ${total.toFixed(2)}</p>
+          <div class="logo">
+            <img src="https://imagizer.imageshack.com/v2/709x709q70/922/GRG4IC.jpg" alt="Logo Restaurante"/>
+          </div>
+          
+          <div class="header-info">
+            Rinconcinto Surcubambino<br> 
+            Av.Huancavelica N°380<br>
+            Tel: 906 424 929
+          </div>
+
+          <div class="table-info">
+            Mesa: ${order.table}<br>
+            Atendido por: ${order?.users?.name}
+          </div>
+
+          <table class="items">
+            <tr>
+              <th align="left">Ítem</th>
+              <th align="center">Uds.</th>
+              <th align="right">Precio</th>
+              <th align="right">Total</th>
+            </tr>
+            ${[...order.entradas, ...order.fondos, ...order.bebidas].map(item => `
+              <tr>
+                <td>${item.name}</td>
+                <td align="center">${item.quantity}</td>
+                <td class="price-col">${item.price.toFixed(2)}</td>
+                <td class="price-col">${(item.price * item.quantity).toFixed(2)}</td>
+              </tr>
+            `).join('')}
+          </table>
+
+          <div class="total-section">
+            <table width="100%">
+              <tr>
+                <td>Base ${(0.18 * 100)}%</td>
+                <td align="right">${subTotal.toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td>IVA</td>
+                <td align="right">${(subTotal * 0.18).toFixed(2)}</td>
+              </tr>
+              <tr>
+                <td><strong>Total:</strong></td>
+                <td align="right"><strong>S/. ${total.toFixed(2)}</strong></td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="datetime">
+            Fecha: ${dateStr}<br>
+            Hora: ${timeStr}
+          </div>
+
+          <div class="footer">
+            RESTAURANTE / GRACIAS POR SU VISITA<br>
+            ** IVA INCLUIDO EN PRECIOS **
+          </div>
         </body>
       </html>
     `;
