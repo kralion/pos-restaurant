@@ -14,6 +14,7 @@ import {
   PaperProvider,
 } from "react-native-paper";
 import "react-native-reanimated";
+import { MealContextProvider } from "@/context/meals";
 // Import your global CSS file
 
 export {
@@ -73,11 +74,13 @@ function RootLayoutNav() {
     <PaperProvider theme={theme}>
       <UserContextProvider>
         <OrderContextProvider>
-          <Stack>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: "modal" }} />
-          </Stack>
+          <MealContextProvider>
+            <Stack>
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="modal" options={{ presentation: "modal" }} />
+            </Stack>
+          </MealContextProvider>
         </OrderContextProvider>
       </UserContextProvider>
     </PaperProvider>

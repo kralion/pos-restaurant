@@ -1,12 +1,4 @@
-import { IUser } from "./user";
-
-export interface IMeal {
-  id: string;
-  name: string;
-  price: number;
-  category: "entradas" | "fondos" | "bebidas";
-  quantity: number;
-}
+import { IMeal, IUser } from "@/interfaces";
 
 export interface IOrder {
   id?: string;

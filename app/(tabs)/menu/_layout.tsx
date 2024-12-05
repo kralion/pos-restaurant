@@ -14,6 +14,7 @@ export default function MenuLayout() {
           headerRight: () => (
             <Button
               title="Agregar"
+              color="#FF6247"
               onPress={() => router.push("/(tabs)/menu/add-meal")}
             />
           ),
@@ -60,7 +61,7 @@ export default function MenuLayout() {
       <Stack.Screen
         name="add-meal"
         options={{
-          title: "Detalles",
+          title: "Agregar Item",
           headerBackTitle: "Menú",
           headerLargeTitle: true,
           presentation: "modal",
