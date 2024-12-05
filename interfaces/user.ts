@@ -1,3 +1,4 @@
+import { Session } from "@supabase/supabase-js";
 export interface IUser {
   id?: string;
   name?: string;
@@ -6,8 +7,10 @@ export interface IUser {
   role: "waiter" | "chef" | "admin";
 }
 
-export interface IUserContextProvider {
-  getUserById: (id: string) => Promise<IUser>;
+export interface IAuthContextProvider {
+  session: Session;
   user: IUser;
-  setUserLogout: () => void;
+  loading: boolean;
+  signOut: () => Promise<void>;
+  updateProfile: (userData: Partial<IUser>) => Promise<void>;
 }

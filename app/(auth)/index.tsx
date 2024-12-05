@@ -1,18 +1,16 @@
-import { useUserContext } from "@/context";
 import { supabase } from "@/utils/supabase";
+import { Image } from "expo-image";
 import { router } from "expo-router";
 import { Info } from "lucide-react-native";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Image } from "expo-image";
 import { Linking, ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-
 import { Button, Dialog, Portal, TextInput } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 type TLogin = {
   email: string;
   password: string;
-}
+};
 export default function LogInScreen() {
   const [loading, setLoading] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
@@ -23,19 +21,13 @@ export default function LogInScreen() {
     reset,
   } = useForm<TLogin>();
 
-  const { getUserById } = useUserContext();
-
-
-
   const onSubmit = async (data: TLogin) => {
     setLoading(true);
     try {
-
       const { error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
-
 
       reset();
       router.replace("/(tabs)");
@@ -74,7 +66,7 @@ export default function LogInScreen() {
               render={({ field: { onChange, value } }) => (
                 <View className="flex flex-col gap-2">
                   <TextInput
-                    label="Usuario"
+                    label="Email"
                     mode="outlined"
                     error={errors.email ? true : false}
                     onChangeText={onChange}
@@ -91,7 +83,7 @@ export default function LogInScreen() {
                 </View>
               )}
               rules={{
-                required: { value: true, message: "Ingrese el usuario" },
+                required: { value: true, message: "Ingrese el email" },
               }}
             />
             <Controller

@@ -3,10 +3,10 @@ import React from "react";
 import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { Image } from "expo-image";
-import { useUserContext } from "@/context";
+import { useAuth } from "@/context";
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { user } = useUserContext();
+  const { user } = useAuth();
 
   return user.role === "chef" ? (
     <Tabs

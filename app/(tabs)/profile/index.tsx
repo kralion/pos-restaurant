@@ -1,12 +1,11 @@
-import { useUserContext } from "@/context";
+import { useAuth } from "@/context";
+import { useHeaderHeight } from "@react-navigation/elements";
 import { useRouter } from "expo-router";
-import { LogOut, User } from "lucide-react-native";
 import { View } from "react-native";
 import { Avatar, Button, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useHeaderHeight } from "@react-navigation/elements";
 export default function ProfileScreen() {
-  const { user, setUserLogout } = useUserContext();
+  const { user, signOut, session } = useAuth();
   const headerHeight = useHeaderHeight();
   const router = useRouter();
 
@@ -53,21 +52,14 @@ export default function ProfileScreen() {
           Reporte Diario
         </Button>
 
-        <Button
-          onPress={() => {
-            setUserLogout();
-            router.replace("/(auth)/login");
-          }}
-          icon="logout"
-          mode="text"
-        >
+        <Button onPress={signOut} icon="logout" mode="text">
           Salir
         </Button>
       </View>
 
       <Text className="text-muted-foreground opacity-40  mt-44 mx-auto text-sm">
         Logueado con
-        {/* {user?.emailAddresses[0].emailAddress} */}
+        {session.user.email}
       </Text>
       <Text className="text-muted-foreground opacity-40   mx-auto text-sm">
         Versión 2.15.1
