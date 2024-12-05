@@ -1,33 +1,38 @@
-import { IMeal, IOrder } from "@/interfaces";
-import { Image } from "expo-image";
-import { router } from "expo-router";
+import { useMealContext } from "@/context/meals";
+import { IMeal } from "@/interfaces";
 import React from "react";
-import { Card, IconButton } from "react-native-paper";
+import { Button, Card } from "react-native-paper";
 
 export default function MealCard({ meal }: { meal: IMeal }) {
+  const { deleteMeal } = useMealContext();
   return (
     <Card
       style={{
         marginHorizontal: 10,
         marginVertical: 8,
       }}
-      onPress={() => {
-        router.push(`/(tabs)/menu/details/${meal.id}`);
-      }}
     >
-      <Card.Title
-        title="Arroz con Pollo"
-        subtitle="S/. 12.00"
-        left={(props) => (
-          <Image
-            source={{
-              uri: "https://img.freepik.com/free-photo/chicken-fajita-chicken-fillet-fried-with-bell-pepper-lavash-with-bread-slices-white-plate_114579-174.jpg?ga=GA1.1.492447503.1733309013&semt=ais_tags_boosted",
-            }}
-            style={{ width: 50, height: 50, borderRadius: 10 }}
-          />
-        )}
-        right={(props) => <IconButton {...props} icon="chevron-right" />}
+      <Card.Cover
+        source={{
+          uri: meal.image_url,
+        }}
       />
+      <Card.Title
+        title={meal.name}
+        subtitle={` ${meal.quantity} porciones`}
+        subtitleStyle={{ fontSize: 16 }}
+        right={(props) => <Button mode="text">{`S/. ${meal.price}`}</Button>}
+      />
+      <Card.Actions>
+        <Button
+          onPress={() => {
+            deleteMeal(meal.id);
+            alert("Eliminado");
+          }}
+        >
+          Eliminar
+        </Button>
+      </Card.Actions>
     </Card>
   );
 }

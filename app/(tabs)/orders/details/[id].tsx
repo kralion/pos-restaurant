@@ -19,7 +19,6 @@ export default function OrderDetailsScreen() {
   const params = useLocalSearchParams<{ id: string }>();
   const [order, setOrder] = useState<IOrder>();
   const [paid, setPaid] = useState<boolean>(false);
-
   const [modalVisible, setModalVisible] = useState(false);
   const { getOrderById } = useOrderContext();
   React.useEffect(() => {
@@ -31,7 +30,6 @@ export default function OrderDetailsScreen() {
     });
   }, [params.id]);
   React.useEffect(() => {
-    
     const channel = supabase
       .channel("table-changes")
       .on(
@@ -42,9 +40,7 @@ export default function OrderDetailsScreen() {
           table: "orders",
         },
         async () => {
-          const { data, error } = await supabase
-            .from("orders")
-            .select("*")
+          const { data, error } = await supabase.from("orders").select("*");
         }
       )
       .subscribe();
@@ -54,8 +50,6 @@ export default function OrderDetailsScreen() {
     };
   }, []);
   if (!order) return <ActivityIndicator />;
-
-
 
   const subTotal =
     order.entradas.reduce((acc, item) => {
@@ -71,9 +65,9 @@ export default function OrderDetailsScreen() {
   const total = subTotal + subTotal * 0.18;
   const updatePaidStatus = async (id: string, paid: boolean) => {
     const { data, error } = await supabase
-      .from('orders')
+      .from("orders")
       .update({ paid })
-      .eq('id', id)
+      .eq("id", id)
       .select();
   };
   const handleSwitchChange = () => {
@@ -139,7 +133,10 @@ export default function OrderDetailsScreen() {
               Fondos
             </Text>
             {order.fondos.map((item, index) => (
-              <View key={index} className="flex flex-row w-full justify-between">
+              <View
+                key={index}
+                className="flex flex-row w-full justify-between"
+              >
                 <Text className="w-36">{item.name}</Text>
                 <Text>S/. {item.price}</Text>
                 <Text>{item.quantity}</Text>
@@ -189,9 +186,6 @@ export default function OrderDetailsScreen() {
             Imprimir Boleta
           </Button>
         )}
-        <Text>
-          {order.paid ? "Orden Pagada" : "Orden sin pagar"}
-        </Text>
       </View>
       <Portal>
         <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)}>
@@ -212,10 +206,7 @@ export default function OrderDetailsScreen() {
                 <Text> estado de la orden ?</Text>
               </View>
             </View>
-            <Button
-              mode="contained"
-              onPress={confirmUpdate}
-            >
+            <Button mode="contained" onPress={confirmUpdate}>
               Confirmar
             </Button>
           </View>

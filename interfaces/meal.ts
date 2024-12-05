@@ -2,8 +2,9 @@ export interface IMeal {
   id: string;
   name: string;
   price: number;
-  created_at: Date;
-  category: "entradas" | "fondos" | "bebidas";
+  created_at?: Date;
+  image_url: string;
+  category: "Entradas" | "Fondos" | "Bebidas";
   quantity: number;
 }
 

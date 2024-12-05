@@ -8,13 +8,12 @@ export default function MenuLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Menú",
+          title: "Menú del Día",
           headerLargeTitle: true,
           headerShadowVisible: false,
           headerRight: () => (
             <Button
               title="Agregar"
-              color="#FF6247"
               onPress={() => router.push("/(tabs)/menu/add-meal")}
             />
           ),
@@ -35,27 +34,6 @@ export default function MenuLayout() {
             },
           },
           headerLargeTitleShadowVisible: false,
-        }}
-      />
-      <Stack.Screen
-        name="details/[id]"
-        options={({ route }) => {
-          const { id } = route.params as { id: string };
-          return {
-            title: "Detalles",
-            headerBackTitle: "Menú",
-            headerLargeTitle: true,
-            headerBackVisible: true,
-            headerShadowVisible: false,
-            headerLargeTitleShadowVisible: false,
-            headerRight: () => (
-              <Button
-                title="Eliminar"
-                color="red"
-                onPress={() => router.back()}
-              />
-            ),
-          };
         }}
       />
       <Stack.Screen

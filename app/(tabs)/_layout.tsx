@@ -108,6 +108,23 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="my-profile"
+        options={{
+          title: "Mi Perfil",
+          tabBarIcon: ({ color, focused }) => (
+            <Image
+              style={{ width: 28, height: 28, tintColor: color }}
+              source={{
+                uri: focused
+                  ? "https://api.iconify.design/mingcute:user-2-fill.svg"
+                  : "https://api.iconify.design/mingcute:user-2-line.svg",
+              }}
+              alt="google"
+            />
+          ),
+        }}
+      />
 
       <Tabs.Screen
         name="orders"
@@ -131,6 +148,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Perfil",
+          href: null,
           tabBarIcon: ({ color, focused }) => (
             <Image
               style={{ width: 28, height: 28, tintColor: color }}
@@ -256,6 +274,24 @@ export default function TabLayout() {
                 uri: focused
                   ? "https://api.iconify.design/mingcute:clipboard-fill.svg"
                   : "https://api.iconify.design/mingcute:clipboard-line.svg",
+              }}
+              alt="google"
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="my-profile"
+        options={{
+          title: "Perfil",
+          href: null,
+          tabBarIcon: ({ color, focused }) => (
+            <Image
+              style={{ width: 28, height: 28, tintColor: color }}
+              source={{
+                uri: focused
+                  ? "https://api.iconify.design/mingcute:user-2-fill.svg"
+                  : "https://api.iconify.design/mingcute:user-2-line.svg",
               }}
               alt="google"
             />
@@ -403,6 +439,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Perfil",
+          href: null,
           tabBarIcon: ({ color, focused }) => (
             <Image
               style={{ width: 28, height: 28, tintColor: color }}
