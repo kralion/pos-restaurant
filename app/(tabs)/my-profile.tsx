@@ -39,7 +39,7 @@ export default function ProfileScreen() {
 
       <Text className="text-muted-foreground opacity-40  mt-44 mx-auto text-sm">
         Logueado con
-        {session.user.email || "email"}
+        {/* {session.user.email} */}
       </Text>
       <Text className="text-muted-foreground opacity-40   mx-auto text-sm">
         Versión 2.15.1
