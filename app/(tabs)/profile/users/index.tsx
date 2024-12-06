@@ -1,10 +1,10 @@
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FAB,
-  IconButton,
-  List,
+  Button,
+  Card,
   Text,
 } from "react-native-paper";
 import { supabase } from "@/utils/supabase";
@@ -12,35 +12,62 @@ import { IUser } from "@/interfaces";
 import { useRouter } from "expo-router";
 import { Image } from "expo-image";
 import { useHeaderHeight } from "@react-navigation/elements";
+import { useAuth } from "@/context/auth";
 
 export default function UsersScreen() {
-  const [users, setUsers] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, getUsers, deleteUser, users } = useAuth();
   const router = useRouter();
   const headerHeight = useHeaderHeight();
 
   useEffect(() => {
-    fetchUsers();
+    getUsers()
+      .then(() => setLoading(false))
+      .catch((error) => {
+        setError(error.message);
+        setLoading(false);
+      });
+
+    // Suscripción a cambios en la tabla users
+    const channel = supabase
+      .channel('users_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'users'
+        },
+        () => {
+          getUsers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
-  const fetchUsers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .order("name");
-
-      if (error) {
-        throw error;
-      }
-
-      setUsers(data || []);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  const onDelete = (id: string) => {
+    Alert.alert("Eliminar", "¿Estás seguro?", [
+      {
+        text: "Sí",
+        onPress: async () => {
+          try {
+            await deleteUser(id);
+            alert("Usuario eliminado correctamente");
+          } catch (error: any) {
+            alert("Error al eliminar: " + error.message);
+          }
+        },
+      },
+      {
+        text: "No",
+        style: "cancel",
+      },
+    ]);
   };
 
   const getRoleLabel = (role: string) => {
@@ -74,32 +101,39 @@ export default function UsersScreen() {
         contentInsetAdjustmentBehavior="automatic"
         style={{ marginTop: headerHeight }}
       >
-        <List.Section>
-          {users.map((user) => (
-            <List.Item
-              style={{ marginHorizontal: 16 }}
-              key={user.id}
+        {users.map((user) => (
+          <Card
+            key={user.id}
+            style={{
+              marginHorizontal: 10,
+              marginVertical: 8,
+            }}
+          >
+            <Card.Title
               title={`${user.name} ${user.last_name}`}
-              description={user.role}
+              subtitle={getRoleLabel(user.role)}
+              subtitleStyle={{ fontSize: 16 }}
               left={(props) => (
                 <Image
                   style={{
                     width: 50,
                     height: 50,
-                    borderRadius: 50,
+                    borderRadius: 25,
                   }}
                   source={{ uri: user.image_url }}
                 />
               )}
-              right={() => (
-                <IconButton
-                  icon="chevron-right"
-                  onPress={() => router.push(`/profile/users/user/${user.id}`)}
-                />
-              )}
             />
-          ))}
-        </List.Section>
+            <Card.Actions>
+              <Button
+                mode="contained"
+                onPress={() => onDelete(user.id || "")}
+              >
+                Eliminar
+              </Button>
+            </Card.Actions>
+          </Card>
+        ))}
       </ScrollView>
 
       <FAB

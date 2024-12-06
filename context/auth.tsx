@@ -10,8 +10,11 @@ export const AuthContext = createContext<IAuthContextProvider>({
   session: {} as Session,
   user: {} as IUser,
   loading: false,
-  signOut: async () => {},
-  updateProfile: async () => {},
+  signOut: async () => { },
+  updateProfile: async () => { },
+  deleteUser: async () => { },
+  getUsers: async () => { },
+  users: [],
 });
 
 export const AuthContextProvider = ({
@@ -22,6 +25,7 @@ export const AuthContextProvider = ({
   const [loading, setLoading] = React.useState(false);
   const [user, setUser] = React.useState<IUser>({} as IUser);
   const [session, setSession] = React.useState<Session>({} as Session);
+  const [users, setUsers] = React.useState<IUser[]>([]);
   React.useEffect(() => {
     const checkSession = async () => {
       const {
@@ -115,6 +119,41 @@ export const AuthContextProvider = ({
     }
   }
 
+  const getUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .neq("role", "admin")
+        .order("name");
+
+      if (error) {
+        throw error;
+      }
+
+      setUsers(data || []);
+    } catch (err: any) {
+      alert("Error al obtener usuarios: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteUser = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("users")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      setUsers(users.filter(user => user.id !== id));
+    } catch (err: any) {
+      alert("Error al eliminar usuario: " + err.message);
+    }
+  };
+
   React.useEffect(() => {
     if (session?.user) {
       getProfile();
@@ -129,6 +168,9 @@ export const AuthContextProvider = ({
         loading,
         updateProfile,
         signOut,
+        deleteUser,
+        getUsers,
+        users,
       }}
     >
       {children}

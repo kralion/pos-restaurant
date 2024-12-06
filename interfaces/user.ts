@@ -16,4 +16,7 @@ export interface IAuthContextProvider {
   loading: boolean;
   signOut : () => Promise<void>;
   updateProfile: (userData: Partial<IUser>) => Promise<void>;
+  deleteUser: (id: string) => Promise<void>;
+  getUsers: () => Promise<void>;
+  users: IUser[];
 }
