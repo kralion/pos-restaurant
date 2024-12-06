@@ -51,7 +51,7 @@ export default function SignInScreen() {
             <View className="flex flex-col gap-1 items-center">
               <Text className="text-4xl font-bold"> Inicia Sesión</Text>
               <Text className="text-center ">
-                Ingresa las credenciales de tu cuenta :V
+                Ingresa las credenciales de tu cuenta
               </Text>
             </View>
           </View>

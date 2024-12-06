@@ -61,7 +61,6 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const { session, user } = useAuth();
-
   useEffect(() => {
     if (session && user) {
       router.replace("/(tabs)");
