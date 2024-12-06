@@ -176,8 +176,6 @@ export default function OrderScreen() {
         ...data,
         served: false,
         id_waiter: session.user.id,
-        date: new Date(),
-        id: uuidRandom(),
         paid: false,
         table: Number(data.table),
         entradas: selectedEntradas,

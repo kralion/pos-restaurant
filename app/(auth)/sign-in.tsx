@@ -23,24 +23,17 @@ export default function SignInScreen() {
 
   const onSubmit = async (data: TLogin) => {
     setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-      if (!error) {
-        router.replace("/(tabs)");
-      } else {
-        setVisible(true);
-      }
-    } catch (err) {
-      console.error("An error occurred:", err);
-      alert("Algo sucedió mal, vuelve a intentarlo.");
-    } finally {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
+    });
+    if (error) {
+      setVisible(true);
       setTimeout(() => setVisible(false), 5000);
-      setLoading(false);
-      reset();
     }
+    router.push("/(tabs)");
+    setLoading(false);
+    reset();
   };
 
   return (

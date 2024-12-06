@@ -3,7 +3,7 @@ import { IMeal, IUser } from "@/interfaces";
 export interface IOrder {
   id?: string;
   table: number;
-  date: Date;
+  date?: Date;
   users?: IUser;
   id_waiter: string;
   served: boolean;
