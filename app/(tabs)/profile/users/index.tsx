@@ -1,15 +1,24 @@
 import { View, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FAB, List, Text } from "react-native-paper";
+import {
+  ActivityIndicator,
+  FAB,
+  IconButton,
+  List,
+  Text,
+} from "react-native-paper";
 import { supabase } from "@/utils/supabase";
 import { IUser } from "@/interfaces";
 import { useRouter } from "expo-router";
+import { Image } from "expo-image";
+import { useHeaderHeight } from "@react-navigation/elements";
 
 export default function UsersScreen() {
   const [users, setUsers] = useState<IUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const headerHeight = useHeaderHeight();
 
   useEffect(() => {
     fetchUsers();
@@ -61,16 +70,33 @@ export default function UsersScreen() {
 
   return (
     <View className="flex-1">
-      <ScrollView>
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        style={{ marginTop: headerHeight }}
+      >
         <List.Section>
           {users.map((user) => (
             <List.Item
+              style={{ marginHorizontal: 16 }}
               key={user.id}
-              title={user.name}
-              description={`Usuario: ${user.username} - Rol: ${getRoleLabel(
-                user.role
-              )}`}
-              left={(props) => <List.Icon {...props} icon="account" />}
+              title={`${user.name} ${user.last_name}`}
+              description={user.role}
+              left={(props) => (
+                <Image
+                  style={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: 50,
+                  }}
+                  source={{ uri: user.image_url }}
+                />
+              )}
+              right={() => (
+                <IconButton
+                  icon="chevron-right"
+                  onPress={() => router.push(`/profile/users/user/${user.id}`)}
+                />
+              )}
             />
           ))}
         </List.Section>

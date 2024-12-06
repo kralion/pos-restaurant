@@ -19,7 +19,9 @@ export default function AddUserScreen() {
   } = useForm<IUser>({
     defaultValues: {
       name: "",
-      username: "",
+      last_name: "",
+      image_url: "",
+      email: "",
       password: "",
       role: "waiter",
     },
@@ -44,11 +46,36 @@ export default function AddUserScreen() {
   };
 
   return (
-    <ScrollView
-      style={{ marginTop: headerHeight }}
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <ScrollView contentInsetAdjustmentBehavior="automatic">
       <View className="flex flex-col justify-center align-middle w-full p-4">
+        <Controller
+          control={control}
+          name="image_url"
+          rules={{
+            required: "Requerido",
+            pattern: {
+              value:
+                /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
+              message: "Ingrese una URL valida",
+            },
+          }}
+          render={({ field: { onChange, value } }) => (
+            <View className="mb-4">
+              <TextInput
+                label="URL de foto de perfil"
+                value={value}
+                onChangeText={onChange}
+                mode="outlined"
+                error={!!errors.image_url}
+              />
+              {errors.image_url && (
+                <Text className="text-red-500 ml-4">
+                  {errors.image_url.message}
+                </Text>
+              )}
+            </View>
+          )}
+        />
         <Controller
           control={control}
           name="name"
@@ -58,7 +85,7 @@ export default function AddUserScreen() {
           render={({ field: { onChange, value } }) => (
             <View className="mb-4">
               <TextInput
-                label="Nombre completo"
+                label="Nombres"
                 value={value}
                 onChangeText={onChange}
                 mode="outlined"
@@ -70,24 +97,53 @@ export default function AddUserScreen() {
             </View>
           )}
         />
-
         <Controller
           control={control}
-          name="username"
+          name="last_name"
           rules={{
             required: "Requerido",
           }}
           render={({ field: { onChange, value } }) => (
             <View className="mb-4">
               <TextInput
-                label="Nombre de usuario"
+                label="Apellidos"
                 value={value}
                 onChangeText={onChange}
                 mode="outlined"
-                error={!!errors.username}
+                error={!!errors.last_name}
               />
-              {errors.username && (
-                <Text className="text-red-500 ml-4">{errors.username.message}</Text>
+              {errors.last_name && (
+                <Text className="text-red-500 ml-4">
+                  {errors.last_name.message}
+                </Text>
+              )}
+            </View>
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="email"
+          rules={{
+            required: "Requerido",
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: "Ingrese un correo valido",
+            },
+          }}
+          render={({ field: { onChange, value } }) => (
+            <View className="mb-4">
+              <TextInput
+                label="Correo"
+                value={value}
+                onChangeText={onChange}
+                mode="outlined"
+                error={!!errors.email}
+              />
+              {errors.email && (
+                <Text className="text-red-500 ml-4">
+                  {errors.email.message}
+                </Text>
               )}
             </View>
           )}
@@ -172,7 +228,7 @@ export default function AddUserScreen() {
           onPress={handleSubmit(onSubmit)}
           loading={loading}
         >
-          Registrar Usuario
+          Registrar
         </Button>
       </View>
     </ScrollView>

@@ -28,9 +28,12 @@ export default function LogInScreen() {
         email: data.email,
         password: data.password,
       });
-
-      reset();
-      router.replace("/(tabs)");
+      if (error) {
+        throw error;
+      } else {
+        reset();
+        router.replace("/(tabs)");
+      }
     } catch (err) {
       console.error("An error occurred:", err);
       alert("Algo sucedió mal, vuelve a intentarlo.");

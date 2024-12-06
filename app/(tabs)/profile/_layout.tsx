@@ -36,11 +36,12 @@ export default function ProfileLayout() {
       />
       <Stack.Screen
         name="users"
-        options={({ route }) => {
-          const { id } = route.params as { id: string };
-          return {
-            title: "Usuarios",
-          };
+        options={{
+          title: "Usuarios",
+          headerBackTitle: "Pedidos",
+          headerLargeTitle: true,
+          headerBackVisible: true,
+          headerShadowVisible: false,
         }}
       />
       <Stack.Screen

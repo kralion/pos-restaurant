@@ -1,7 +1,6 @@
 import { IAuthContextProvider, IUser } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { Session } from "@supabase/supabase-js";
-import { router } from "expo-router";
 import * as React from "react";
 import { createContext, useContext } from "react";
 import { Alert } from "react-native";
@@ -11,7 +10,6 @@ export const AuthContext = createContext<IAuthContextProvider>({
   user: {} as IUser,
   loading: false,
   updateProfile: async () => {},
-  signOut: async () => {},
 });
 
 export const AuthContextProvider = ({
@@ -100,24 +98,6 @@ export const AuthContextProvider = ({
       getProfile();
     }
   }, [session]);
-  async function signOut() {
-    try {
-      setLoading(true);
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        throw error;
-      }
-      setUser({} as IUser);
-      setSession({} as Session);
-      router.replace("/(auth)/login");
-    } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert("Sign Out Error", error.message);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
 
   return (
     <AuthContext.Provider
@@ -126,7 +106,6 @@ export const AuthContextProvider = ({
         user,
         loading,
         updateProfile,
-        signOut,
       }}
     >
       {children}

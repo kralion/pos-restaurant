@@ -38,12 +38,8 @@ export default function UserLayout() {
         options={() => {
           return {
             title: "Agregar Usuario",
-            headerBackTitle: "Pedidos",
-            headerLargeTitle: true,
-            headerBackVisible: true,
             presentation: "modal",
             headerShadowVisible: false,
-            headerLargeTitleShadowVisible: false,
             headerRight: () => (
               <Button title="Cancelar" onPress={() => router.back()} />
             ),
@@ -52,23 +48,9 @@ export default function UserLayout() {
       />
       <Stack.Screen
         name="user/[id]"
-        options={({ route }) => {
-          const { id } = route.params as { id: string };
-          return {
-            title: "Detalles Usuario",
-            headerBackTitle: "Pedidos",
-            headerLargeTitle: true,
-            headerBackVisible: true,
-            headerShadowVisible: false,
-            headerLargeTitleShadowVisible: false,
-            headerRight: () => (
-              <Button
-                title="Eliminar"
-                color="red"
-                onPress={() => onDelete(id)}
-              />
-            ),
-          };
+        options={{
+          title: "Detalles Usuario",
+          headerShown: false,
         }}
       />
     </Stack>
