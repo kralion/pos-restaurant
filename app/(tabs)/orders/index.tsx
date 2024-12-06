@@ -1,9 +1,8 @@
 import OrderCard from "@/components/order-card";
 import { useOrderContext } from "@/context";
-import { supabase } from "@/utils/supabase";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import { RefreshControl } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -40,12 +39,6 @@ export default function HomeScreen() {
   if (!orders) return <ActivityIndicator />;
   if (isLoading && !orders?.length) return <ActivityIndicator />;
   return (
-    // <ScrollView
-    //   contentInsetAdjustmentBehavior="automatic"
-    //   keyboardDismissMode="on-drag"
-    //   className="min-h-screen"
-    // >
-    // </ScrollView>
     <SafeAreaView style={{ flex: 1 }}>
       <FlashList
         contentContainerStyle={{

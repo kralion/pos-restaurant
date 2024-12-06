@@ -2,7 +2,7 @@ import { useAuth, useOrderContext } from "@/context";
 import { IMeal, IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { useHeaderHeight } from "@react-navigation/elements";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, View } from "react-native";
@@ -15,7 +15,6 @@ import {
   Switch,
   Text,
 } from "react-native-paper";
-import uuidRandom from "uuid-random";
 
 interface MealWithQuantity extends IMeal {
   quantity: number;
@@ -57,7 +56,7 @@ export default function OrderScreen() {
     const { data: entradas, error } = await supabase
       .from("meals")
       .select("*")
-      .eq("category", "Entradas");
+      .eq("category", "entradas");
 
     if (error || !entradas) {
       console.error("An error occurred:", error);
@@ -71,7 +70,7 @@ export default function OrderScreen() {
     const { data: fondos, error } = await supabase
       .from("meals")
       .select("*")
-      .eq("category", "Fondos");
+      .eq("category", "fondos");
 
     if (error || !fondos) {
       console.error("An error occurred:", error);
@@ -85,7 +84,7 @@ export default function OrderScreen() {
     const { data: bebidas, error } = await supabase
       .from("meals")
       .select("*")
-      .eq("category", "Bebidas");
+      .eq("category", "bebidas");
 
     if (error || !bebidas) {
       console.error("An error occurred:", error);
@@ -165,16 +164,11 @@ export default function OrderScreen() {
         ...selectedBebidas,
       ];
 
-      // Calculate total price
-      const totalPrice = allSelectedMeals.reduce(
-        (sum, meal) => sum + meal.price * meal.quantity,
-        0
-      );
-
       // Prepare order data
       const orderData: IOrder = {
         ...data,
         served: false,
+        to_go: data.to_go,
         id_waiter: session.user.id,
         paid: false,
         table: Number(data.table),
@@ -185,12 +179,8 @@ export default function OrderScreen() {
 
       addOrder(orderData, orderData.table);
       alert("Pedido registrado");
-      setSelectedBebidas([]);
-      setSelectedFondos([]);
-      setSelectedEntradas([]);
+      router.push("/(tabs)");
       reset();
-
-      // Reset selected meals
       setSelectedEntradas([]);
       setSelectedFondos([]);
       setSelectedBebidas([]);

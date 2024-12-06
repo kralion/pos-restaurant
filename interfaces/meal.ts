@@ -4,7 +4,7 @@ export interface IMeal {
   price: number;
   created_at?: Date;
   image_url: string;
-  category: "Entradas" | "Fondos" | "Bebidas";
+  category: "entradas" | "fondos" | "bebidas";
   quantity: number;
 }
 
