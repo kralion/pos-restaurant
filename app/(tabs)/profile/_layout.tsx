@@ -55,13 +55,6 @@ export default function ProfileLayout() {
             headerBackVisible: true,
             headerShadowVisible: false,
             headerLargeTitleShadowVisible: false,
-            headerRight: () => (
-              <Button
-                title="Eliminar"
-                color="red"
-                onPress={() => onDelete(id)}
-              />
-            ),
           };
         }}
       />

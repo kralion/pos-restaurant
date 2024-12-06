@@ -3,7 +3,7 @@ import { IMeal, IUser } from "@/interfaces";
 export interface IOrder {
   id?: string;
   id_table: string;
-  date?: Date;
+  date?: Date;  // We'll use this existing field
   users?: IUser;
   id_waiter: string;
   served: boolean;
@@ -25,4 +25,5 @@ export interface IOrderContextProvider {
   paidOrders: IOrder[];
   deleteOrder: (id: string) => Promise<void>;
   getOrders: () => Promise<IOrder[]>;
+  getDailyPaidOrders: () => Promise<IOrder[]>;
 }

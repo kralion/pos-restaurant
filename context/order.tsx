@@ -15,6 +15,7 @@ export const OrderContext = createContext<IOrderContextProvider>({
   getOrders: async () => [],
   updateOrderServedStatus: async () => {},
   paidOrders: [],
+  getDailyPaidOrders: async () => [],
 });
 
 export const OrderContextProvider = ({
@@ -25,6 +26,28 @@ export const OrderContextProvider = ({
   const [orders, setOrders] = React.useState<IOrder[]>([]);
   const [order, setOrder] = React.useState<IOrder>({} as IOrder);
   const [paidOrders, setPaidOrders] = React.useState<IOrder[]>([]);
+
+  React.useEffect(() => {
+    const subscription = supabase
+      .channel('orders')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'orders' },
+        async (payload) => {
+          // Recargar los pedidos cuando haya cambios
+          if (payload.eventType === 'INSERT' || 
+              payload.eventType === 'UPDATE' || 
+              payload.eventType === 'DELETE') {
+            await getOrders();
+            await getPaidOrders();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const addOrder = async (order: IOrder, tableId: string) => {
     try {
@@ -108,6 +131,22 @@ export const OrderContextProvider = ({
     setOrder(data);
     return data;
   }
+
+  async function getDailyPaidOrders() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("paid", true)
+      .gte("date", today.toISOString())
+      .order("date");
+
+    if (error) throw error;
+    return data;
+  }
+
   return (
     <OrderContext.Provider
       value={{
@@ -121,6 +160,7 @@ export const OrderContextProvider = ({
         addOrder,
         updateOrderServedStatus,
         order,
+        getDailyPaidOrders,
       }}
     >
       {children}
