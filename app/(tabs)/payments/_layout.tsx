@@ -1,6 +1,8 @@
+import { useOrderContext } from "@/context";
 import { router, Stack } from "expo-router";
 import React from "react";
 export default function PaymentsLayout() {
+  const { order } = useOrderContext();
   return (
     <Stack>
       <Stack.Screen
@@ -28,13 +30,16 @@ export default function PaymentsLayout() {
       />
       <Stack.Screen
         name="receipt/[id]"
-        options={{
-          title: "Detalles",
-          headerBackTitle: "Pagos",
-          headerLargeTitle: true,
-          headerBackVisible: true,
-          headerShadowVisible: false,
-          headerLargeTitleShadowVisible: false,
+        options={({ route }) => {
+          const { id } = route.params as { id: string };
+          return {
+            title: "Mesa #" + order.id_table,
+            headerBackTitle: "Pagos",
+            headerLargeTitle: true,
+            headerBackVisible: true,
+            headerShadowVisible: false,
+            headerLargeTitleShadowVisible: false,
+          };
         }}
       />
     </Stack>

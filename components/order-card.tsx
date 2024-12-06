@@ -2,7 +2,6 @@ import { IOrder } from "@/interfaces";
 import { router } from "expo-router";
 import React from "react";
 import { Avatar, Card, IconButton } from "react-native-paper";
-
 export default function OrderCard({ order }: { order: IOrder }) {
   return (
     <Card
@@ -15,7 +14,7 @@ export default function OrderCard({ order }: { order: IOrder }) {
       }}
     >
       <Card.Title
-        title={"Mesa #" + order.table}
+        title={"Mesa #" + order.id_table}
         subtitle={order.served ? "Servido" : "No Servido"}
         left={(props) => (
           <Avatar.Icon

@@ -29,19 +29,7 @@ export default function ReceiptScreen() {
   return (
     <ScrollView className="p-4" contentInsetAdjustmentBehavior="automatic">
       <View className="flex flex-col gap-12">
-        <Image
-          style={{
-            width: 125,
-            height: 125,
-          }}
-          source={require("../../../../assets/images/sucess.png")}
-        />
         <View className="flex flex-col gap-3">
-          <View className="flex flex-row justify-between">
-            <Text>Mesa</Text>
-            <Text> {order.table}</Text>
-          </View>
-          <Divider />
           <View className="flex flex-row justify-between">
             <Text>Mozo</Text>
             <Text>Jhon Doe</Text>
@@ -55,7 +43,7 @@ export default function ReceiptScreen() {
           <View className="flex flex-col gap-4">
             <View className="flex flex-row justify-between">
               <Text variant="bodySmall" className="w-48">
-                Entradas
+                Item
               </Text>
               <Text variant="bodySmall">Precio</Text>
               <Text variant="bodySmall">Cantidad</Text>
@@ -68,24 +56,14 @@ export default function ReceiptScreen() {
               </View>
             ))}
           </View>
-          <Divider />
-          <View className="flex flex-col gap-4">
-            <Text variant="bodySmall" className="w-48 ">
-              Bebidas
-            </Text>
 
-            {order.bebidas.map((item, index) => (
-              <View
-                key={index}
-                className="flex flex-row w-full justify-between"
-              >
-                <Text className="w-36">{item.name}</Text>
-                <Text>S/. {item.price}</Text>
-                <Text>{item.quantity}</Text>
-              </View>
-            ))}
-          </View>
-          <Divider />
+          {order.bebidas.map((item, index) => (
+            <View key={index} className="flex flex-row w-full justify-between">
+              <Text className="w-36">{item.name}</Text>
+              <Text>S/. {item.price}</Text>
+              <Text>{item.quantity}</Text>
+            </View>
+          ))}
         </View>
 
         <Divider className="border-dashed border-2" />
@@ -96,7 +74,7 @@ export default function ReceiptScreen() {
           </View>
           <View className="flex flex-row justify-between">
             <Text>Impuestos</Text>
-            <Text>S/. {subTotal * 0.18}</Text>
+            <Text>S/. {(subTotal * 0.18).toFixed(2)}</Text>
           </View>
           <Divider />
           <View className="flex flex-row justify-between">

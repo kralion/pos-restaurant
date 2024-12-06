@@ -4,6 +4,9 @@ import React from "react";
 import { Avatar, Card, IconButton } from "react-native-paper";
 
 export default function PaymentCard({ order }: { order: IOrder }) {
+  if (!order.date) return null;
+  const formattedDate = new Date(order.date).toLocaleDateString();
+
   return (
     <Card
       style={{
@@ -15,8 +18,9 @@ export default function PaymentCard({ order }: { order: IOrder }) {
       }}
     >
       <Card.Title
-        title={"Mesa #" + order.table}
-        subtitle={order.served ? "Servido" : "No Servido"}
+        title={"Mesa #" + order.id_table}
+        titleStyle={{ fontWeight: "bold" }}
+        subtitle={`${formattedDate}`}
         left={(props) => (
           <Avatar.Icon
             color="white"

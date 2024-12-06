@@ -55,7 +55,7 @@ export default function WaiterLayout() {
         options={({ route }) => {
           const { id } = route.params as { id: string };
           return {
-            title: "Mesa " + order.table,
+            title: "Mesa " + order.id_table,
             headerRight: () => (
               <Button
                 title="Eliminar"
