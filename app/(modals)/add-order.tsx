@@ -57,7 +57,7 @@ export default function OrderScreen() {
     const { data: entradas, error } = await supabase
       .from("meals")
       .select("*")
-      .eq("category", "entradas");
+      .eq("category", "Entradas");
 
     if (error || !entradas) {
       console.error("An error occurred:", error);
@@ -71,7 +71,7 @@ export default function OrderScreen() {
     const { data: fondos, error } = await supabase
       .from("meals")
       .select("*")
-      .eq("category", "fondos");
+      .eq("category", "Fondos");
 
     if (error || !fondos) {
       console.error("An error occurred:", error);
@@ -85,7 +85,7 @@ export default function OrderScreen() {
     const { data: bebidas, error } = await supabase
       .from("meals")
       .select("*")
-      .eq("category", "bebidas");
+      .eq("category", "Bebidas");
 
     if (error || !bebidas) {
       console.error("An error occurred:", error);
@@ -99,7 +99,7 @@ export default function OrderScreen() {
     getEntradasData();
     getFondosData();
     getBebidasData();
-  }, []);
+  }, [addOrder]);
 
   const updateMealQuantity = (
     meal: IMeal,
