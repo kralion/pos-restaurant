@@ -4,16 +4,10 @@ import { useRouter } from "expo-router";
 import { View } from "react-native";
 import { Avatar, Button, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { supabase } from "@/utils/supabase";
 export default function ProfileScreen() {
-  const { user, session } = useAuth();
+  const { user, session, signOut } = useAuth();
   const headerHeight = useHeaderHeight();
   const router = useRouter();
-
-  async function signOut() {
-    await supabase.auth.signOut();
-    router.replace("/(auth)");
-  }
 
   return (
     <SafeAreaView style={{ paddingTop: headerHeight, height: "100%" }}>
@@ -65,7 +59,8 @@ export default function ProfileScreen() {
       </View>
 
       <Text className="text-muted-foreground opacity-40  mt-48 mx-auto ">
-        Logueado con {session.user.email}
+        Logueado con
+        {session.user.email}
       </Text>
       <Text className="text-muted-foreground opacity-40   mx-auto text-sm">
         Versión 2.15.1
