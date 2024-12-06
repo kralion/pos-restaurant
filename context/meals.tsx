@@ -64,6 +64,30 @@ export const MealContextProvider = ({
     setMeal(data);
     return data;
   }
+
+  React.useEffect(() => {
+    getDailyMeals();
+
+    const channel = supabase
+      .channel('meals_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'meals'
+        },
+        () => {
+          getDailyMeals();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   return (
     <MealContext.Provider
       value={{

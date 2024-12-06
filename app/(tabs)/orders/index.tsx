@@ -26,24 +26,6 @@ export default function HomeScreen() {
       setIsLoading(false);
     }
   }, [getOrders]);
-  React.useEffect(() => {
-    getOrders();
-    const channel = supabase.channel("order-changes").on(
-      "postgres_changes",
-      {
-        event: "*",
-        schema: "public",
-        table: "orders",
-      },
-      () => {
-        getOrders();
-      }
-    );
-
-    return () => {
-      channel.unsubscribe();
-    };
-  }, []);
 
   const filteredOrders = React.useMemo(() => {
     if (!search) return orders;
