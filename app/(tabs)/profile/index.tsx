@@ -17,7 +17,7 @@ export default function ProfileScreen() {
             accessibilityLabel="avatar"
             size={100}
             source={{
-              uri: user.image_url,
+              uri: "https://cdn-icons-png.freepik.com/256/12165/12165042.png?ga=GA1.1.492447503.1733309013&semt=ais_hybrid",
             }}
           />
 

@@ -1,12 +1,6 @@
 import { View, ScrollView, Alert } from "react-native";
 import React, { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  FAB,
-  Button,
-  Card,
-  Text,
-} from "react-native-paper";
+import { ActivityIndicator, FAB, Button, Card, Text } from "react-native-paper";
 import { supabase } from "@/utils/supabase";
 import { IUser } from "@/interfaces";
 import { useRouter } from "expo-router";
@@ -31,13 +25,13 @@ export default function UsersScreen() {
 
     // Suscripción a cambios en la tabla users
     const channel = supabase
-      .channel('users_changes')
+      .channel("users_changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'users'
+          event: "*",
+          schema: "public",
+          table: "users",
         },
         () => {
           getUsers();
@@ -125,10 +119,7 @@ export default function UsersScreen() {
               )}
             />
             <Card.Actions>
-              <Button
-                mode="contained"
-                onPress={() => onDelete(user.id || "")}
-              >
+              <Button mode="contained" onPress={() => onDelete(user.id || "")}>
                 Eliminar
               </Button>
             </Card.Actions>

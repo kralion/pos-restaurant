@@ -22,7 +22,6 @@ export default function AddUserScreen() {
     defaultValues: {
       name: "",
       last_name: "",
-      image_url: "",
       email: "",
       password: "",
       role: "waiter",
@@ -32,14 +31,17 @@ export default function AddUserScreen() {
   const onSubmit = async (data: IUser) => {
     setLoading(true);
     try {
-
       // Obtener la sesión actual del administrador
-      const { data: { session } } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
       if (!session) {
-        throw new Error("Debes estar autenticado como administrador para crear usuarios");
+        throw new Error(
+          "Debes estar autenticado como administrador para crear usuarios"
+        );
       }
-      
+
       // Crear usuario sin iniciar sesión
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
@@ -49,8 +51,8 @@ export default function AddUserScreen() {
             name: data.name,
             last_name: data.last_name,
             role: data.role,
-          }
-        }
+          },
+        },
       });
 
       if (authError) {
@@ -71,19 +73,19 @@ export default function AddUserScreen() {
         name: data.name,
         last_name: data.last_name,
         role: data.role,
-        image_url: data.image_url || null,
+        image_url: data.image_url,
       });
 
       if (profileError) throw profileError;
 
       // Cerrar inmediatamente la sesión del usuario creado
       const { error: signOutError } = await supabase.auth.signOut();
-      
+
       if (signOutError) throw signOutError;
 
       // Restaurar la sesión del administrador
       const { error: sessionError } = await supabase.auth.setSession(session);
-      
+
       if (sessionError) throw sessionError;
 
       alert("Usuario agregado exitosamente");
