@@ -15,7 +15,7 @@ export interface IOrder {
 }
 
 export interface IOrderContextProvider {
-  addOrder: (Order: IOrder) => Promise<void>;
+  addOrder: (order: IOrder, tableNumber: number) => Promise<void>;
   updateOrderServedStatus: (id: string) => Promise<void>;
   getUnservedOrders: () => Promise<IOrder[]>;
   getPaidOrders: () => Promise<IOrder[]>;
@@ -25,8 +25,4 @@ export interface IOrderContextProvider {
   paidOrders: IOrder[];
   deleteOrder: (id: string) => Promise<void>;
   getOrders: () => Promise<IOrder[]>;
-  addOrderAndUpdateTable: (
-    order: IOrder,
-    selectedTable: string
-  ) => Promise<{ success: boolean; error?: any }>;
 }

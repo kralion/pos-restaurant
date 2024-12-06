@@ -28,11 +28,10 @@ export default function SignInScreen() {
         email: data.email,
         password: data.password,
       });
-      if (error) {
-        throw error;
-      } else {
-        reset();
+      if (!error) {
         router.replace("/(tabs)");
+      } else {
+        setVisible(true);
       }
     } catch (err) {
       console.error("An error occurred:", err);
@@ -40,6 +39,7 @@ export default function SignInScreen() {
     } finally {
       setTimeout(() => setVisible(false), 5000);
       setLoading(false);
+      reset();
     }
   };
 

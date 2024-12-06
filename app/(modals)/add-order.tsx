@@ -38,8 +38,8 @@ export default function OrderScreen() {
     []
   );
   const headerHeight = useHeaderHeight();
-  const { user } = useAuth();
-  const { addOrderAndUpdateTable } = useOrderContext();
+  const { session } = useAuth();
+  const { addOrder } = useOrderContext();
   const {
     control,
     handleSubmit,
@@ -175,7 +175,7 @@ export default function OrderScreen() {
       const orderData: IOrder = {
         ...data,
         served: false,
-        id_waiter: user.id ? user.id : "211777bc-f588-4779-b468-6dcde65a960d",
+        id_waiter: session.user.id,
         date: new Date(),
         id: uuidRandom(),
         paid: false,
@@ -185,7 +185,7 @@ export default function OrderScreen() {
         bebidas: selectedBebidas,
       };
 
-      addOrderAndUpdateTable(orderData, orderData.table.toString());
+      addOrder(orderData, orderData.table);
       alert("Pedido registrado");
       setSelectedBebidas([]);
       setSelectedFondos([]);
@@ -281,8 +281,8 @@ export default function OrderScreen() {
           />
           <Divider />
         </View>
-        <View className="flex flex-col justify-center align-middle w-full">
-          <List.Section title="Entradas">
+        <View className="flex flex-col justify-center align-middle w-full gap-4">
+          <List.Section>
             <List.Accordion
               title="Seleccionar Entradas"
               expanded={expandedEntradas}
@@ -294,7 +294,7 @@ export default function OrderScreen() {
             </List.Accordion>
           </List.Section>
 
-          <List.Section title="Fondos">
+          <List.Section>
             <List.Accordion
               title="Seleccionar Fondos"
               expanded={expandedFondos}
@@ -306,7 +306,7 @@ export default function OrderScreen() {
             </List.Accordion>
           </List.Section>
 
-          <List.Section title="Bebidas">
+          <List.Section>
             <List.Accordion
               title="Seleccionar Bebidas"
               expanded={expandedBebidas}
@@ -326,12 +326,7 @@ export default function OrderScreen() {
           >
             Registrar Orden
           </Button>
-          <Button
-            mode="outlined"
-            style={{ marginTop: 10 }}
-            onPress={() => reset()}
-            loading={loading}
-          >
+          <Button mode="outlined" onPress={() => reset()} loading={loading}>
             Cancelar
           </Button>
         </View>
