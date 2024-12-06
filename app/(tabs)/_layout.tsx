@@ -55,24 +55,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="order"
-        options={{
-          title: "Orden",
-          href: null,
-          tabBarIcon: ({ color, focused }) => (
-            <Image
-              style={{ width: 28, height: 28, tintColor: color }}
-              source={{
-                uri: focused
-                  ? "https://api.iconify.design/mingcute:pencil-3-fill.svg"
-                  : "https://api.iconify.design/mingcute:pencil-3-line.svg",
-              }}
-              alt="google"
-            />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="payments"
         options={{
@@ -210,23 +193,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="order"
-        options={{
-          title: "Orden",
-          tabBarIcon: ({ color, focused }) => (
-            <Image
-              style={{ width: 28, height: 28, tintColor: color }}
-              source={{
-                uri: focused
-                  ? "https://api.iconify.design/mingcute:pencil-3-fill.svg"
-                  : "https://api.iconify.design/mingcute:pencil-3-line.svg",
-              }}
-              alt="google"
-            />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="payments"
         options={{
@@ -364,23 +331,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="order"
-        options={{
-          title: "Orden",
-          tabBarIcon: ({ color, focused }) => (
-            <Image
-              style={{ width: 28, height: 28, tintColor: color }}
-              source={{
-                uri: focused
-                  ? "https://api.iconify.design/mingcute:pencil-3-fill.svg"
-                  : "https://api.iconify.design/mingcute:pencil-3-line.svg",
-              }}
-              alt="google"
-            />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="payments"
         options={{

@@ -7,6 +7,7 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import {
   MD3LightTheme as DefaultTheme,
+  IconButton,
   PaperProvider,
 } from "react-native-paper";
 import "react-native-reanimated";
@@ -35,6 +36,7 @@ const theme = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const { session, user } = useAuth();
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     ...FontAwesome.font,
@@ -49,36 +51,39 @@ export default function RootLayout() {
     if (loaded) {
       SplashScreen.hideAsync();
     }
+    if (!session && !user) {
+      router.push("/(auth)/sign-in");
+    }
   }, [loaded]);
 
   if (!loaded) {
     return null;
   }
 
-  return (
-    <AuthContextProvider>
-      <RootLayoutNav />
-    </AuthContextProvider>
-  );
+  return <RootLayoutNav />;
 }
 
 function RootLayoutNav() {
-  const { user } = useAuth();
-  React.useEffect(() => {
-    if (user) {
-      router.push("/(tabs)");
-    }
-  }, [user]);
   return (
-    <PaperProvider theme={theme}>
-      <OrderContextProvider>
-        <MealContextProvider>
-          <Stack>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
-        </MealContextProvider>
-      </OrderContextProvider>
-    </PaperProvider>
+    <AuthContextProvider>
+      <PaperProvider theme={theme}>
+        <OrderContextProvider>
+          <MealContextProvider>
+            <Stack>
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="(modals)/add-order"
+                options={{
+                  presentation: "modal",
+                  title: "Agregar Order",
+                  headerShown: false,
+                }}
+              />
+            </Stack>
+          </MealContextProvider>
+        </OrderContextProvider>
+      </PaperProvider>
+    </AuthContextProvider>
   );
 }

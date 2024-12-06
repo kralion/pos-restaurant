@@ -1,20 +1,26 @@
+import { ITable } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { router } from "expo-router";
+
 import React, { useEffect, useState } from "react";
-import { Pressable, ScrollView, View } from "react-native";
-import { Divider, Surface, Text } from "react-native-paper";
+import { ScrollView, View } from "react-native";
+import { Divider, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Circle, Rect, Svg, Text as SvgText } from "react-native-svg";
+import { Path, Svg, Text as SvgText } from "react-native-svg";
 
-interface ITable {
-  id: number;
-  number: number;
-  status: boolean;
-}
-
-const TableSvg: React.FC<ITable> = ({ number, status }) => {
-  const getColor = () => {
-    switch (status) {
+function TableSvg({ table }: { table: ITable }) {
+  function onPress() {
+    if (table.status) {
+      router.push({
+        pathname: "/(modals)/add-order",
+        params: { number: table.number },
+      });
+    } else {
+      alert("La mesa está ocupada");
+    }
+  }
+  const getStatusColor = () => {
+    switch (table.status) {
       case true:
         return "#4CAF50";
       case false:
@@ -25,33 +31,24 @@ const TableSvg: React.FC<ITable> = ({ number, status }) => {
   };
 
   return (
-    <Svg height="120" width="120" viewBox="0 0 120 120">
-      <Rect
-        x="20"
-        y="20"
-        width="80"
-        height="80"
-        fill="white"
-        stroke={getColor()}
-        strokeWidth="3"
-        rx="10"
-      />
-      <Circle cx="60" cy="35" r="8" fill={getColor()} />
-      <Circle cx="60" cy="85" r="8" fill={getColor()} />
-      <Circle cx="35" cy="60" r="8" fill={getColor()} />
-      <Circle cx="85" cy="60" r="8" fill={getColor()} />
+    <Svg width="100" height="120" viewBox="0 0 24 24" onPress={onPress}>
       <SvgText
-        x="60"
-        y="65"
-        fontSize="20"
+        x="12"
+        y="2"
+        fontSize="5"
+        fontWeight="bold"
         textAnchor="middle"
-        fill={getColor()}
+        alignmentBaseline="middle"
       >
-        {number}
+        {table.number}
       </SvgText>
+      <Path
+        d="M18.76,6l2,4H3.24l2-4H18.76M20,4H4L1,10v2H3v7H5V16H19v3h2V12h2V10L20,4ZM5,14V12H19v2Z"
+        fill={getStatusColor()}
+      />
     </Svg>
   );
-};
+}
 
 export default function TablesScreen() {
   const [tables, setTables] = useState<ITable[]>([]);
@@ -97,30 +94,9 @@ export default function TablesScreen() {
       <Divider style={{ marginTop: 16 }} />
 
       <ScrollView contentContainerStyle={{ paddingVertical: 40 }}>
-        <View className="flex-row flex-wrap justify-between items-center gap-4">
+        <View className="flex-row flex-wrap justify-center items-center gap-8">
           {tables.map((table) => (
-            <Pressable
-              key={table.id}
-              onPress={() => {
-                if (table.status) {
-                  router.push({
-                    pathname: "/(tabs)/order",
-                    params: { number: table.number },
-                  });
-                } else {
-                  alert("La mesa está ocupada");
-                }
-              }}
-              className="p-2"
-            >
-              <Surface className="rounded-lg elevation-4 p-2">
-                <TableSvg
-                  number={table.id}
-                  status={table.status}
-                  id={table.id}
-                />
-              </Surface>
-            </Pressable>
+            <TableSvg key={table.id} table={table} />
           ))}
         </View>
       </ScrollView>

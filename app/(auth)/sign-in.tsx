@@ -11,7 +11,7 @@ type TLogin = {
   email: string;
   password: string;
 };
-export default function LogInScreen() {
+export default function SignInScreen() {
   const [loading, setLoading] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
   const {

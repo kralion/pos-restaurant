@@ -1,22 +1,21 @@
+import { useAuth, useOrderContext } from "@/context";
 import { IMeal, IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
+import { useHeaderHeight } from "@react-navigation/elements";
+import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, View } from "react-native";
-import { useHeaderHeight } from "@react-navigation/elements";
-import uuidRandom from "uuid-random";
 import {
   Button,
   Divider,
   IconButton,
   List,
-  TextInput,
   Surface,
-  Text,
   Switch,
+  Text,
 } from "react-native-paper";
-import { useOrderContext, useAuth } from "@/context";
-import { useLocalSearchParams } from "expo-router";
+import uuidRandom from "uuid-random";
 
 interface MealWithQuantity extends IMeal {
   quantity: number;
