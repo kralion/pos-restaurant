@@ -2,6 +2,7 @@ import * as React from "react";
 import { createContext, useContext } from "react";
 import { supabase } from "@/utils/supabase";
 import { IOrder, IOrderContextProvider } from "@/interfaces";
+import { router } from "expo-router";
 
 export const OrderContext = createContext<IOrderContextProvider>({
   addOrder: async () => {},
@@ -25,12 +26,35 @@ export const OrderContextProvider = ({
   const [order, setOrder] = React.useState<IOrder>({} as IOrder);
   const [paidOrders, setPaidOrders] = React.useState<IOrder[]>([]);
 
-  const addOrder = async (order: IOrder, tableNumber: number) => {
-    await supabase.from("orders").insert(order);
-    await supabase
-      .from("tables")
-      .update({ status: false })
-      .eq("number", tableNumber);
+  const addOrder = async (order: IOrder, tableId: string) => {
+    try {
+      const { data: orderData, error: orderError } = await supabase
+        .from("orders")
+        .insert(order);
+
+      if (orderError) {
+        console.error("Error inserting order:", orderError);
+        alert("Error al registrar pedido");
+        return;
+      }
+
+      const { data: tableData, error: tableError } = await supabase
+        .from("tables")
+        .update({ status: false })
+        .eq("id", tableId);
+
+      if (tableError) {
+        console.error("Error updating table status:", tableError);
+        alert("Error al actualizar status da mesa");
+        return;
+      }
+
+      alert("Pedido registrado");
+      router.replace("/(tabs)");
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      alert("Erro al procesar pedido");
+    }
   };
 
   const getOrders = async () => {

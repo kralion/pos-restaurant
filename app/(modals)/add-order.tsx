@@ -21,7 +21,10 @@ interface MealWithQuantity extends IMeal {
 }
 
 export default function OrderScreen() {
-  const { number } = useLocalSearchParams<{ number: string }>();
+  const { number, id_table } = useLocalSearchParams<{
+    number: string;
+    id_table: string;
+  }>();
   const [loading, setLoading] = useState(false);
   const [expandedEntradas, setExpandedEntradas] = useState(false);
   const [expandedFondos, setExpandedFondos] = useState(false);
@@ -45,12 +48,7 @@ export default function OrderScreen() {
     formState: { errors },
     reset,
     setValue,
-  } = useForm<IOrder>({
-    defaultValues: {
-      table: 0,
-      to_go: false,
-    },
-  });
+  } = useForm<IOrder>();
 
   const getEntradasData = async () => {
     const { data: entradas, error } = await supabase
@@ -157,29 +155,18 @@ export default function OrderScreen() {
     setLoading(true);
 
     try {
-      // Combine selected meals
-      const allSelectedMeals = [
-        ...selectedEntradas,
-        ...selectedFondos,
-        ...selectedBebidas,
-      ];
-
-      // Prepare order data
       const orderData: IOrder = {
         ...data,
         served: false,
-        to_go: data.to_go,
         id_waiter: session.user.id,
         paid: false,
-        table: Number(data.table),
+        id_table: id_table,
         entradas: selectedEntradas,
         fondos: selectedFondos,
         bebidas: selectedBebidas,
       };
 
-      addOrder(orderData, orderData.table);
-      alert("Pedido registrado");
-      router.push("/(tabs)");
+      addOrder(orderData, id_table);
       reset();
       setSelectedEntradas([]);
       setSelectedFondos([]);
@@ -239,37 +226,25 @@ export default function OrderScreen() {
   };
 
   return (
-    <ScrollView
-      style={{ marginTop: headerHeight }}
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <ScrollView contentInsetAdjustmentBehavior="automatic">
       <View className="flex flex-col gap-16 w-full items-center p-4">
-        <View className="w-full flex flex-col items-center gap-4">
+        <View className="w-full flex flex-col items-center ">
           <Text className="text-xl" style={{ fontWeight: "700" }}>
             Orden Mesa #{number}
           </Text>
+          <Divider />
+        </View>
+        <View className="flex flex-col justify-center align-middle w-full gap-4">
           <Controller
             control={control}
             name="to_go"
-            rules={{
-              required: "Número de mesa es requerido",
-              pattern: {
-                value: /^[0-9]+$/,
-                message: "Ingrese un número de mesa válido",
-              },
-            }}
             render={({ field: { onChange, value } }) => (
-              <View className="flex flex-row gap-2">
-                <Text variant="bodyLarge">
-                  {value ? "Para llevar" : "Para comer"}
-                </Text>
+              <View className="flex flex-row gap-2 justify-between items-center bg-white h-20 p-4">
+                <Text variant="bodyLarge">Orden para llevar ?</Text>
                 <Switch value={value} onValueChange={onChange} />
               </View>
             )}
           />
-          <Divider />
-        </View>
-        <View className="flex flex-col justify-center align-middle w-full gap-4">
           <List.Section>
             <List.Accordion
               title="Seleccionar Entradas"

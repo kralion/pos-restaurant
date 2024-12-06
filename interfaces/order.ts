@@ -2,7 +2,7 @@ import { IMeal, IUser } from "@/interfaces";
 
 export interface IOrder {
   id?: string;
-  table: number;
+  id_table: string;
   date?: Date;
   users?: IUser;
   id_waiter: string;
@@ -15,7 +15,7 @@ export interface IOrder {
 }
 
 export interface IOrderContextProvider {
-  addOrder: (order: IOrder, tableNumber: number) => Promise<void>;
+  addOrder: (order: IOrder, tableId: string) => Promise<void>;
   updateOrderServedStatus: (id: string) => Promise<void>;
   getUnservedOrders: () => Promise<IOrder[]>;
   getPaidOrders: () => Promise<IOrder[]>;

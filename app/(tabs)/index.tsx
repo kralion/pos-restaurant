@@ -13,7 +13,7 @@ function TableSvg({ table }: { table: ITable }) {
     if (table.status) {
       router.push({
         pathname: "/(modals)/add-order",
-        params: { number: table.number },
+        params: { number: table.number, id_table: table.id },
       });
     } else {
       alert("La mesa está ocupada");
