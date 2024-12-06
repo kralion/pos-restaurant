@@ -64,7 +64,7 @@ function RootLayoutNav() {
 
   useEffect(() => {
     if (session && user) {
-      router.push("/(tabs)");
+      router.replace("/(tabs)");
     }
   }, [session, user]);
   return (
