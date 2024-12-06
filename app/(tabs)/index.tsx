@@ -11,7 +11,7 @@ import { Path, Svg, Text as SvgText } from "react-native-svg";
 function TableSvg({ table }: { table: ITable }) {
   function onPress() {
     if (table.status) {
-      router.push({
+      router.replace({
         pathname: "/(modals)/add-order",
         params: { number: table.number, id_table: table.id },
       });
