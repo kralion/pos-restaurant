@@ -31,7 +31,7 @@ export default function SignInScreen() {
       setVisible(true);
       setTimeout(() => setVisible(false), 5000);
     }
-    router.push("/(tabs)");
+    router.replace("/(tabs)");
     setLoading(false);
     reset();
   };
