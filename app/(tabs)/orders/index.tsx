@@ -38,7 +38,7 @@ export default function OrdersScreen() {
   return (
     <FlashList
       contentContainerStyle={{
-        paddingTop: 200,
+        
       }}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

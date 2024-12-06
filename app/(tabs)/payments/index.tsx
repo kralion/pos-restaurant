@@ -46,8 +46,7 @@ export default function HomeScreen() {
   if (!orders) return <ActivityIndicator />;
   return (
     <FlashList
-      contentContainerStyle={{
-        paddingTop: 160, // Adjust this value as needed
+      contentContainerStyle={{// Adjust this value as needed
       }}
       renderItem={({ item: order }) => <OrderCard order={order} />}
       data={filteredOrders}
