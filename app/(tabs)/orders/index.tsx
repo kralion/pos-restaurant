@@ -23,6 +23,9 @@ export default function OrdersScreen() {
       setIsLoading(false);
     }
   }, [getOrders]);
+  React.useEffect(() => {
+    onRefresh();
+  }, []);
   const filteredOrders = React.useMemo(() => {
     if (!search) return orders;
     const lowercasedSearch = search.toLowerCase();
