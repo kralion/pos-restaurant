@@ -29,14 +29,17 @@ export const OrderContextProvider = ({
 
   React.useEffect(() => {
     const subscription = supabase
-      .channel('orders')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'orders' },
+      .channel("orders")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
         async (payload) => {
           // Recargar los pedidos cuando haya cambios
-          if (payload.eventType === 'INSERT' || 
-              payload.eventType === 'UPDATE' || 
-              payload.eventType === 'DELETE') {
+          if (
+            payload.eventType === "INSERT" ||
+            payload.eventType === "UPDATE" ||
+            payload.eventType === "DELETE"
+          ) {
             await getOrders();
             await getPaidOrders();
           }
@@ -51,6 +54,99 @@ export const OrderContextProvider = ({
 
   const addOrder = async (order: IOrder, tableId: string) => {
     try {
+      for (const item of order.entradas) {
+        const { data: mealData, error: mealError } = await supabase
+          .from("meals")
+          .select("quantity")
+          .eq("id", item.id)
+          .single();
+
+        if (mealError) {
+          console.error("Error retrieving meal quantity:", mealError);
+          alert("Error al verificar inventario");
+          return;
+        }
+
+        // Check if there's enough quantity
+        if (mealData.quantity < item.quantity) {
+          alert(`No hay en el inventario`);
+          return;
+        }
+
+        // Update meal quantity
+        const { error: updateError } = await supabase
+          .from("meals")
+          .update({ quantity: mealData.quantity - item.quantity })
+          .eq("id", item.id);
+
+        if (updateError) {
+          console.error("Error updating meal quantity:", updateError);
+          alert("Error al actualizar inventario");
+          return;
+        }
+      }
+      for (const item of order.fondos) {
+        const { data: mealData, error: mealError } = await supabase
+          .from("meals")
+          .select("quantity")
+          .eq("id", item.id)
+          .single();
+
+        if (mealError) {
+          console.error("Error retrieving meal quantity:", mealError);
+          alert("Error al verificar inventario");
+          return;
+        }
+
+        // Check if there's enough quantity
+        if (mealData.quantity < item.quantity) {
+          alert(`No hay en el inventario`);
+          return;
+        }
+
+        // Update meal quantity
+        const { error: updateError } = await supabase
+          .from("meals")
+          .update({ quantity: mealData.quantity - item.quantity })
+          .eq("id", item.id);
+
+        if (updateError) {
+          console.error("Error updating meal quantity:", updateError);
+          alert("Error al actualizar inventario");
+          return;
+        }
+      }
+      for (const item of order.bebidas) {
+        const { data: mealData, error: mealError } = await supabase
+          .from("meals")
+          .select("quantity")
+          .eq("id", item.id)
+          .single();
+
+        if (mealError) {
+          console.error("Error retrieving meal quantity:", mealError);
+          alert("Error al verificar inventario");
+          return;
+        }
+
+        // Check if there's enough quantity
+        if (mealData.quantity < item.quantity) {
+          alert(`No hay en el inventario`);
+          return;
+        }
+
+        // Update meal quantity
+        const { error: updateError } = await supabase
+          .from("meals")
+          .update({ quantity: mealData.quantity - item.quantity })
+          .eq("id", item.id);
+
+        if (updateError) {
+          console.error("Error updating meal quantity:", updateError);
+          alert("Error al actualizar inventario");
+          return;
+        }
+      }
       const { data: orderData, error: orderError } = await supabase
         .from("orders")
         .insert(order);

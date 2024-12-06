@@ -289,7 +289,14 @@ export default function OrderScreen() {
           >
             Registrar Orden
           </Button>
-          <Button mode="outlined" onPress={() => reset()} loading={loading}>
+          <Button
+            mode="outlined"
+            onPress={() => {
+              reset();
+              router.back();
+            }}
+            loading={loading}
+          >
             Cancelar
           </Button>
         </View>

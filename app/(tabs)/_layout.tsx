@@ -296,6 +296,23 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
+        name="index"
+        options={{
+          title: "Mesas",
+          tabBarIcon: ({ color, focused }) => (
+            <Image
+              style={{ width: 28, height: 28, tintColor: color }}
+              source={{
+                uri: focused
+                  ? "https://api.iconify.design/mingcute:album-2-fill.svg"
+                  : "https://api.iconify.design/mingcute:album-2-line.svg",
+              }}
+              alt="google"
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="menu"
         options={{
           title: "Menú",
@@ -307,23 +324,6 @@ export default function TabLayout() {
                 uri: focused
                   ? "https://api.iconify.design/mingcute:hamburger-fill.svg"
                   : "https://api.iconify.design/mingcute:hamburger-line.svg",
-              }}
-              alt="google"
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Mesas",
-          tabBarIcon: ({ color, focused }) => (
-            <Image
-              style={{ width: 28, height: 28, tintColor: color }}
-              source={{
-                uri: focused
-                  ? "https://api.iconify.design/mingcute:album-2-fill.svg"
-                  : "https://api.iconify.design/mingcute:album-2-line.svg",
               }}
               alt="google"
             />
@@ -390,6 +390,23 @@ export default function TabLayout() {
         options={{
           title: "Perfil",
           href: null,
+          tabBarIcon: ({ color, focused }) => (
+            <Image
+              style={{ width: 28, height: 28, tintColor: color }}
+              source={{
+                uri: focused
+                  ? "https://api.iconify.design/mingcute:user-2-fill.svg"
+                  : "https://api.iconify.design/mingcute:user-2-line.svg",
+              }}
+              alt="google"
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="my-profile"
+        options={{
+          title: "Mi Perfil",
           tabBarIcon: ({ color, focused }) => (
             <Image
               style={{ width: 28, height: 28, tintColor: color }}

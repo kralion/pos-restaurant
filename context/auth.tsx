@@ -10,10 +10,10 @@ export const AuthContext = createContext<IAuthContextProvider>({
   session: {} as Session,
   user: {} as IUser,
   loading: false,
-  signOut: async () => { },
-  updateProfile: async () => { },
-  deleteUser: async () => { },
-  getUsers: async () => { },
+  signOut: async () => {},
+  updateProfile: async () => {},
+  deleteUser: async () => {},
+  getUsers: async () => {},
   users: [],
 });
 
@@ -103,13 +103,10 @@ export const AuthContextProvider = ({
   async function signOut() {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        throw error;
-      }
+      await supabase.auth.signOut();
+      router.replace("/(auth)/sign-in");
       setUser({} as IUser);
       setSession({} as Session);
-      router.replace("/(auth)/sign-in");
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert("Sign Out Error", error.message);
@@ -141,14 +138,11 @@ export const AuthContextProvider = ({
 
   const deleteUser = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from("users")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("users").delete().eq("id", id);
 
       if (error) throw error;
 
-      setUsers(users.filter(user => user.id !== id));
+      setUsers(users.filter((user) => user.id !== id));
     } catch (err: any) {
       alert("Error al eliminar usuario: " + err.message);
     }

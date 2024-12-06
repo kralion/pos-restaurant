@@ -36,8 +36,7 @@ export const MealContextProvider = ({
       // TODO: Fix this
       // .gte("created_at", startOfDay) // Greater than or equal to start of day
       // .lte("created_at", endOfDay) // Less than or equal to end of day
-      .order("created_at", { ascending: false })
-      .limit(5);
+      .order("created_at", { ascending: false });
     if (error) {
       console.error("Error fetching daily meals:", error);
       return null;
@@ -69,13 +68,13 @@ export const MealContextProvider = ({
     getDailyMeals();
 
     const channel = supabase
-      .channel('meals_changes')
+      .channel("meals_changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'meals'
+          event: "*",
+          schema: "public",
+          table: "meals",
         },
         () => {
           getDailyMeals();

@@ -86,7 +86,10 @@ export default function OrderDetailsScreen() {
   const generateHTML = () => {
     const now = new Date();
     const dateStr = now.toLocaleDateString();
-    const timeStr = now.toLocaleTimeString();
+    const timeStr = now.toLocaleTimeString("es-ES", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
     return `
       <html>
@@ -96,15 +99,15 @@ export default function OrderDetailsScreen() {
               size: 80mm auto;
               margin: 0;
             }
-            
+
             body {
-              font-family: 'Courier New', monospace; 
-              width: 80mm; 
+              font-family: 'Courier New', monospace;
+              width: 80mm;
               margin: 0;
               padding: 5mm;
               box-sizing: border-box;
             }
-            
+
             /* Para impresión */
             @media print {
               body {
@@ -166,15 +169,15 @@ export default function OrderDetailsScreen() {
           <div class="logo">
             <img src="https://imagizer.imageshack.com/v2/709x709q70/922/GRG4IC.jpg" alt="Logo Restaurante"/>
           </div>
-          
+
           <div class="header-info">
-            Rinconcinto Surcubambino<br> 
+            Rinconcinto Surcubambino<br>
             Av.Huancavelica N°380<br>
             Tel: 906 424 929
           </div>
 
           <div class="table-info">
-            Mesa: ${order.table}<br>
+            Mesa: ${order.id_table}<br>
             Atendido por: ${order?.users?.name}
           </div>
 
@@ -185,20 +188,26 @@ export default function OrderDetailsScreen() {
               <th align="right">Precio</th>
               <th align="right">Total</th>
             </tr>
-            ${[...order.entradas, ...order.fondos, ...order.bebidas].map(item => `
+            ${[...order.entradas, ...order.fondos, ...order.bebidas]
+              .map(
+                (item) => `
               <tr>
                 <td>${item.name}</td>
                 <td align="center">${item.quantity}</td>
                 <td class="price-col">${item.price.toFixed(2)}</td>
-                <td class="price-col">${(item.price * item.quantity).toFixed(2)}</td>
+                <td class="price-col">${(item.price * item.quantity).toFixed(
+                  2
+                )}</td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join("")}
           </table>
 
           <div class="total-section">
             <table width="100%">
               <tr>
-                <td>Base ${(0.18 * 100)}%</td>
+                <td>Base ${0.18 * 100}%</td>
                 <td align="right">${subTotal.toFixed(2)}</td>
               </tr>
               <tr>
