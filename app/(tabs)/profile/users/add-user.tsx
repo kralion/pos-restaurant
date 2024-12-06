@@ -1,5 +1,6 @@
 import { IUser } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
+import { useRouter } from "expo-router";
 import { useHeaderHeight } from "@react-navigation/elements";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -7,6 +8,7 @@ import { ScrollView, Text, View } from "react-native";
 import { Button, List, TextInput } from "react-native-paper";
 
 export default function AddUserScreen() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = React.useState(false);
   const headerHeight = useHeaderHeight();
@@ -30,16 +32,42 @@ export default function AddUserScreen() {
   const onSubmit = async (data: IUser) => {
     setLoading(true);
     try {
-      const response = await supabase.from("users").insert(data);
-      if (response.error) {
-        console.log(response.error.message);
-      } else {
-        alert("Usuario agregado");
-        reset();
+      
+      // Create auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (authError) {
+        if (authError.message.includes("already registered")) {
+          alert("Este correo electrónico ya está registrado");
+          return;
+        }
+        throw authError;
       }
-    } catch (err) {
-      console.error("An error occurred:", err);
-      alert("Algo sucedió mal, vuelve a intentarlo.");
+
+      if (!authData.user?.id) {
+        throw new Error("No se pudo crear el usuario");
+      }
+
+      // Create user profile
+      const { error: profileError } = await supabase.from("users").insert({
+        id: authData.user.id,
+        name: data.name,
+        last_name: data.last_name,
+        role: data.role,
+        image_url: data.image_url || null,
+      });
+
+      if (profileError) throw profileError;
+
+      alert("Usuario agregado exitosamente");
+      reset();
+      router.back();
+    } catch (err: any) {
+      console.error("Error:", err);
+      alert(err.message || "Error al crear usuario");
     } finally {
       setLoading(false);
     }
@@ -51,28 +79,14 @@ export default function AddUserScreen() {
         <Controller
           control={control}
           name="image_url"
-          rules={{
-            required: "Requerido",
-            pattern: {
-              value:
-                /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
-              message: "Ingrese una URL valida",
-            },
-          }}
           render={({ field: { onChange, value } }) => (
             <View className="mb-4">
               <TextInput
-                label="URL de foto de perfil"
+                label="URL de foto de perfil (opcional)"
                 value={value}
                 onChangeText={onChange}
                 mode="outlined"
-                error={!!errors.image_url}
               />
-              {errors.image_url && (
-                <Text className="text-red-500 ml-4">
-                  {errors.image_url.message}
-                </Text>
-              )}
             </View>
           )}
         />
