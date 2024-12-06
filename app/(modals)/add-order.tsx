@@ -50,54 +50,6 @@ export default function OrderScreen() {
     setValue,
   } = useForm<IOrder>();
 
-  const getEntradasData = async () => {
-    const { data: entradas, error } = await supabase
-      .from("meals")
-      .select("*")
-      .eq("category", "entradas");
-
-    if (error || !entradas) {
-      console.error("An error occurred:", error);
-      alert("Algo sucedió mal, vuelve a intentarlo.");
-    } else {
-      setEntradasData(entradas);
-    }
-  };
-
-  const getFondosData = async () => {
-    const { data: fondos, error } = await supabase
-      .from("meals")
-      .select("*")
-      .eq("category", "fondos");
-
-    if (error || !fondos) {
-      console.error("An error occurred:", error);
-      alert("Algo sucedió mal, vuelve a intentarlo.");
-    } else {
-      setFondosData(fondos);
-    }
-  };
-
-  const getBebidasData = async () => {
-    const { data: bebidas, error } = await supabase
-      .from("meals")
-      .select("*")
-      .eq("category", "bebidas");
-
-    if (error || !bebidas) {
-      console.error("An error occurred:", error);
-      alert("Algo sucedió mal, vuelve a intentarlo.");
-    } else {
-      setBebidasData(bebidas);
-    }
-  };
-
-  useEffect(() => {
-    getEntradasData();
-    getFondosData();
-    getBebidasData();
-  }, [addOrder]);
-
   const updateMealQuantity = (
     meal: IMeal,
     quantity: number,
@@ -150,6 +102,136 @@ export default function OrderScreen() {
         : selectedBebidas
     );
   };
+
+  useEffect(() => {
+    // Initial data fetch
+    const getEntradasData = async () => {
+      const { data: entradas, error } = await supabase
+        .from("meals")
+        .select("*")
+        .eq("category", "Entradas");
+      if (error || !entradas) {
+        console.error("An error occurred:", error);
+        alert("Algo sucedió mal, vuelve a intentarlo.");
+      } else {
+        setEntradasData(entradas);
+      }
+    };
+
+    const getFondosData = async () => {
+      const { data: fondos, error } = await supabase
+        .from("meals")
+        .select("*")
+        .eq("category", "Fondos");
+      if (error || !fondos) {
+        console.error("An error occurred:", error);
+        alert("Algo sucedió mal, vuelve a intentarlo.");
+      } else {
+        setFondosData(fondos);
+      }
+    };
+
+    const getBebidasData = async () => {
+      const { data: bebidas, error } = await supabase
+        .from("meals")
+        .select("*")
+        .eq("category", "Bebidas");
+      if (error || !bebidas) {
+        console.error("An error occurred:", error);
+        alert("Algo sucedió mal, vuelve a intentarlo.");
+      } else {
+        setBebidasData(bebidas);
+      }
+    };
+
+    // Real-time subscriptions for selecting data
+    const entradasChannel = supabase
+      .channel("entradas-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "meals",
+          filter: "category=eq.entradas",
+        },
+        async (payload) => {
+          const { data: updatedEntradas, error } = await supabase
+            .from("meals")
+            .select("*")
+            .eq("category", "Entradas");
+
+          if (error) {
+            console.error("Error fetching updated entradas:", error);
+          } else {
+            setEntradasData(updatedEntradas);
+          }
+        }
+      )
+      .subscribe();
+
+    const fondosChannel = supabase
+      .channel("fondos-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "meals",
+          filter: "category=eq.fondos",
+        },
+        async (payload) => {
+          const { data: updatedFondos, error } = await supabase
+            .from("meals")
+            .select("*")
+            .eq("category", "Fondos");
+
+          if (error) {
+            console.error("Error fetching updated fondos:", error);
+          } else {
+            setFondosData(updatedFondos);
+          }
+        }
+      )
+      .subscribe();
+
+    const bebidasChannel = supabase
+      .channel("bebidas-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "meals",
+          filter: "category=eq.bebidas",
+        },
+        async (payload) => {
+          const { data: updatedBebidas, error } = await supabase
+            .from("meals")
+            .select("*")
+            .eq("category", "Bebidas");
+
+          if (error) {
+            console.error("Error fetching updated bebidas:", error);
+          } else {
+            setBebidasData(updatedBebidas);
+          }
+        }
+      )
+      .subscribe();
+
+    // Initial data fetch
+    getEntradasData();
+    getFondosData();
+    getBebidasData();
+
+    // Cleanup subscription on component unmount
+    return () => {
+      supabase.removeChannel(entradasChannel);
+      supabase.removeChannel(fondosChannel);
+      supabase.removeChannel(bebidasChannel);
+    };
+  }, []); // Empty dependency array means this runs once on component mount
 
   const onSubmit = async (data: IOrder) => {
     setLoading(true);
