@@ -47,7 +47,7 @@ function TableSvg({ table }: { table: ITable }) {
     //     fill={getStatusColor()}
     //   />
     // </Svg>
-    <Svg width="80" height="120" viewBox="0 0 500 500">
+    <Svg width="80" height="120" viewBox="0 0 500 500" onPress={onPress}>
       <G fill={getStatusColor()}>
         <Polygon points="407.165,84.97 104.835,84.97 0,175.997 512,175.997" />
         <Rect y="183.102" width="512" height="31.793" />
