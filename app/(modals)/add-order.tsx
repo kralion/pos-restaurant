@@ -379,7 +379,7 @@ export default function OrderScreen() {
             mode="outlined"
             onPress={() => {
               reset();
-              router.back();
+              router.replace("/(tabs)");
             }}
             loading={loading}
           >

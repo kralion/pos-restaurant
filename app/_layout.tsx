@@ -76,9 +76,12 @@ function RootLayoutNav() {
               <Stack.Screen
                 name="(modals)/add-order"
                 options={{
-                  presentation: "modal",
-                  title: "Agregar Order",
-                  headerShown: false,
+                  title: "Agregar Orden",
+                  headerBackTitle: "Menú",
+                  headerLargeTitle: true,
+                  
+                  headerShadowVisible: false,
+                  headerLargeTitleShadowVisible: false,
                 }}
               />
             </Stack>
