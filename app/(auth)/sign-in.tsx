@@ -22,21 +22,33 @@ export default function SignInScreen() {
 
   const onSubmit = async (data: TLogin) => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    });
-    const { data: session } = await supabase.auth.getSession();
-    if (session) {
-      router.replace("/(tabs)");
-    } else {
-      setVisible(true);
-      setTimeout(() => setVisible(false), 5000);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+      if (error) {
+        setVisible(true);
+        setTimeout(() => setVisible(false), 5000);
+        return;
+      }
+      // Asegúrate de que la sesión se haya establecido correctamente
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && session.user) {
+        router.push("/(tabs)"); // Usa `push` para evitar conflictos de historial
+      } else {
+        setVisible(true);
+        setTimeout(() => setVisible(false), 5000);
+      }
+    } catch (err) {
+      console.error("Error al autenticar:", err);
+    } finally {
+      setLoading(false);
+      reset();
     }
-    setLoading(false);
-    reset();
   };
-
+  
+  
   return (
     <ScrollView>
       <SafeAreaView className="flex flex-col justify-center align-middle m-4 items-center ">
