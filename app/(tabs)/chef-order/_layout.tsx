@@ -15,7 +15,7 @@ export default function ChefLayout() {
       <Stack.Screen
         name="details/[id]"
         options={{
-          title: "Mesa " + order.table,
+          title: "Mesa " + order.id_table,
           headerBackTitle: "Pedidos",
           headerLargeTitle: true,
           headerBackVisible: true,
