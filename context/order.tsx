@@ -187,8 +187,7 @@ export const OrderContextProvider = ({
     const { data, error } = await supabase
       .from("orders")
       .select("*")
-      .eq("served", false)
-      .limit(15);
+      .eq("served", false);
     if (error) throw error;
     return data;
   }

@@ -1,5 +1,5 @@
-import { OrderContextProvider, AuthContextProvider, useAuth } from "@/context";
-import "../styles/global.css";
+import { AuthContextProvider, OrderContextProvider, useAuth } from "@/context";
+import { MealContextProvider } from "@/context/meals";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import { router, Stack } from "expo-router";
@@ -7,11 +7,10 @@ import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import {
   MD3LightTheme as DefaultTheme,
-  IconButton,
   PaperProvider,
 } from "react-native-paper";
 import "react-native-reanimated";
-import { MealContextProvider } from "@/context/meals";
+import "../styles/global.css";
 // Import your global CSS file
 
 export {

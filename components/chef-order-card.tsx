@@ -1,11 +1,25 @@
 import { useOrderContext } from "@/context";
 import { IOrder } from "@/interfaces";
 import React from "react";
-import { View } from "react-native";
+import { Alert, View } from "react-native";
 import { Avatar, Button, Card, Divider, Text } from "react-native-paper";
 
 export default function OrderCard({ order }: { order: IOrder }) {
   const { updateOrderServedStatus } = useOrderContext();
+  const onOrderStatusChange = (id: string) => {
+    Alert.alert("Preparado", "Marcar como pedido preparado", [
+      {
+        text: "Sí",
+        onPress: () => {
+          updateOrderServedStatus(id);
+        },
+      },
+      {
+        text: "No",
+        style: "cancel",
+      },
+    ]);
+  };
   return (
     <Card
       style={{
@@ -13,7 +27,7 @@ export default function OrderCard({ order }: { order: IOrder }) {
       }}
     >
       <Card.Title
-        title={"Mesa " + order.table}
+        title={"Mesa " + order.id_table}
         titleStyle={{ fontSize: 20 }}
         subtitle={order.to_go ? "Para Llevar" : "Para Comer"}
         subtitleStyle={{ fontSize: 12 }}
@@ -23,10 +37,7 @@ export default function OrderCard({ order }: { order: IOrder }) {
             mode="contained"
             icon="check"
             style={{ marginRight: 8 }}
-            onPress={() => {
-              updateOrderServedStatus(order.id ? order.id : "");
-              alert("Pedido preparado");
-            }}
+            onPress={() => onOrderStatusChange(order.id ? order.id : "")}
           >
             Preparar
           </Button>
