@@ -246,6 +246,10 @@ export default function OrderScreen() {
         entradas: selectedEntradas,
         fondos: selectedFondos,
         bebidas: selectedBebidas,
+        total: selectedEntradas
+          .concat(selectedFondos)
+          .concat(selectedBebidas)
+          .reduce((acc, meal) => acc + meal.price * meal.quantity, 0),
       };
 
       addOrder(orderData, id_table);

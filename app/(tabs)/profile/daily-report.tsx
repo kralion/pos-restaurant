@@ -28,13 +28,13 @@ export default function DailyReportScreen() {
   ]);
 
   const [weeklySales, setWeeklySales] = useState([
-    { value: 0, label: 'Mon', frontColor: '#4CAF50' },
-    { value: 0, label: 'Tue', frontColor: '#4CAF50' },
-    { value: 0, label: 'Wed', frontColor: '#4CAF50' },
-    { value: 0, label: 'Thu', frontColor: '#4CAF50' },
-    { value: 0, label: 'Fri', frontColor: '#4CAF50' },
-    { value: 0, label: 'Sat', frontColor: '#4CAF50' },
-    { value: 0, label: 'Sun', frontColor: '#4CAF50' },
+    { day: 'Domingo', value: 0 }, // índice 0
+    { day: 'Lunes', value: 0 },   // índice 1
+    { day: 'Martes', value: 0 },  // índice 2
+    { day: 'Miércoles', value: 0 },// índice 3
+    { day: 'Jueves', value: 0 },  // índice 4
+    { day: 'Viernes', value: 0 }, // índice 5
+    { day: 'Sábado', value: 0 },  // índice 6
   ]);
 
   const [totalDailySales, setTotalDailySales] = useState(0);
@@ -65,12 +65,26 @@ export default function DailyReportScreen() {
 
   const loadDailySales = async () => {
     try {
-      const orders = await getDailyPaidOrders();
-      
-      const salesByHour = new Array(7).fill(0);
-      let total = 0;
+      // Obtener fecha inicio (hoy a las 00:00:00) y fin (mañana a las 00:00:00)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
 
-      orders.forEach((order: IOrder) => {
+      // Obtener pedidos pagados de hoy
+      const { data: todayOrders, error: todayError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('paid', true)
+        .gte('date', today.toISOString())
+        .lt('date', tomorrow.toISOString());
+
+      if (todayError) throw todayError;
+
+      const salesByHour = new Array(7).fill(0);
+      let totalDaily = 0;
+
+      todayOrders?.forEach((order: IOrder) => {
         if (order.date) {
           const orderDate = new Date(order.date);
           const hour = orderDate.getHours();
@@ -79,11 +93,12 @@ export default function DailyReportScreen() {
           if (timeIndex >= 0 && timeIndex < salesByHour.length) {
             const orderTotal = calculateOrderTotal(order);
             salesByHour[timeIndex] += orderTotal;
-            total += orderTotal;
+            totalDaily += orderTotal;
           }
         }
       });
 
+      // Actualizar ventas diarias
       setDailySales(prev => 
         prev.map((item, index) => ({
           ...item,
@@ -91,18 +106,55 @@ export default function DailyReportScreen() {
         }))
       );
 
-      setTotalDailySales(total);
+      setTotalDailySales(totalDaily);
 
-      // Calcular detalles adicionales
+      // Obtener ventas de la última semana
+      const lastWeekStart = new Date(today);
+      lastWeekStart.setDate(today.getDate() - 7);
+
+      const { data: weekOrders, error: weekError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('paid', true)
+        .gte('date', lastWeekStart.toISOString())
+        .lt('date', tomorrow.toISOString());
+
+      if (weekError) throw weekError;
+
+      const salesByDay = new Array(7).fill(0);
+      let weeklyTotal = 0;
+
+      weekOrders?.forEach((order: IOrder) => {
+        if (order.date) {
+          const orderDate = new Date(order.date);
+          // getDay() devuelve 0-6 (Domingo-Sábado)
+          const dayIndex = orderDate.getDay(); // Ahora usamos el índice directamente
+          const orderTotal = calculateOrderTotal(order);
+          salesByDay[dayIndex] += orderTotal;
+          weeklyTotal += orderTotal;
+
+          console.log(`Fecha: ${orderDate.toLocaleDateString()}, Día: ${dayIndex}, Total: ${orderTotal}`);
+        }
+      });
+
+      setWeeklySales(prev => 
+        prev.map((item, index) => ({
+          ...item,
+          value: salesByDay[index]
+        }))
+      );
+
+      // Actualizar detalles
       const peakHourIndex = salesByHour.indexOf(Math.max(...salesByHour));
       setOrderDetails({
-        totalOrders: orders.length,
-        totalAmount: total,
+        totalOrders: todayOrders?.length || 0,
+        totalAmount: totalDaily,
         peakHour: dailySales[peakHourIndex]?.label || 'N/A',
-        totalWeekly: total 
+        totalWeekly: weeklyTotal
       });
+
     } catch (error) {
-      console.error('Error loading daily sales:', error);
+      console.error('Error loading sales:', error);
     }
   };
 
@@ -138,21 +190,15 @@ export default function DailyReportScreen() {
 
         <View style={styles.chartContainer}>
           <Text style={styles.title}>Ventas semanales</Text>
-          <BarChart
-            data={weeklySales}
-            barWidth={30}
-            spacing={20}
-            roundedTop
-            roundedBottom
-            hideRules
-            xAxisThickness={1}
-            yAxisThickness={1}
-            yAxisTextStyle={styles.chartText}
-            xAxisLabelTextStyle={styles.chartText}
-            noOfSections={5}
-          />
           <View style={styles.detailsContainer}>
-            <SalesDetails title="Total semanal" data={orderDetails.totalWeekly} />
+            {weeklySales.map((day, index) => (
+              <Text key={index} style={styles.detailText}>
+                {day.day}: S/. {day.value.toFixed(2)}
+              </Text>
+            ))}
+            <Text style={[styles.detailText, styles.totalWeekly]}>
+              Total semanal: S/. {orderDetails.totalWeekly.toFixed(2)}
+            </Text>
           </View>
         </View>
       </ScrollView>
@@ -200,5 +246,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     marginBottom: 8,
+  },
+  totalWeekly: {
+    marginTop: 8,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+    fontSize: 16,
   },
 });

@@ -12,6 +12,7 @@ export interface IOrder {
   entradas: IMeal[];
   fondos: IMeal[];
   bebidas: IMeal[];
+  total: number;
 }
 
 export interface IOrderContextProvider {
