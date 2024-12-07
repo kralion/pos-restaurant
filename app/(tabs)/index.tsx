@@ -114,7 +114,7 @@ export default function TablesScreen() {
       <Divider style={{ marginTop: 16 }} />
 
       <ScrollView contentContainerStyle={{ paddingVertical: 40 }}>
-        <View className="flex-row flex-wrap justify-center items-center gap-8">
+        <View className="flex-row flex-wrap justify-center items-center gap-14">
           {tables.map((table) => (
             <TableSvg key={table.id} table={table} />
           ))}

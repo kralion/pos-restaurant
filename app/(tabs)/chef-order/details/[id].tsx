@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { Image, ScrollView, View } from "react-native";
 import { Button, Divider, Modal, Portal, Text } from "react-native-paper";
-
+import { supabase } from "@/utils/supabase";
 export default function OrderDetailsScreen() {
   const params = useLocalSearchParams<{ id: string }>();
   const { updateOrderServedStatus, getOrderById } = useOrderContext();
@@ -12,6 +12,27 @@ export default function OrderDetailsScreen() {
   const [order, setOrder] = useState<IOrder>();
   React.useEffect(() => {
     getOrderById(params.id).then((order) => setOrder(order));
+  }, [params.id]);
+
+  React.useEffect(() => {
+    const channel = supabase
+      .channel("table-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "orders",
+        },
+        async () => {
+          await supabase.from("orders").select("*");
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
   }, [params.id]);
 
   if (!order) return <Text>Loading...</Text>;

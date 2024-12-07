@@ -11,7 +11,7 @@ export default function HomeScreen() {
   const { getUnservedOrders } = useOrderContext();
   React.useEffect(() => {
     getUnservedOrders().then((orders) => setOrders(orders));
-  }, []);
+  }, [orders]);
   if (!orders) return <ActivityIndicator />;
 
   return (
@@ -21,7 +21,6 @@ export default function HomeScreen() {
       className="min-h-screen"
       contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
     >
-      
       <FlashList
         renderItem={({ item: order }) => <OrderCard order={order} />}
         data={orders}
