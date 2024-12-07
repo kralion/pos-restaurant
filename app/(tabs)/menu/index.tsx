@@ -61,7 +61,7 @@ export default function MenuScreen() {
     <SafeAreaView style={{ flex: 1 }}>
       <FlashList
         contentContainerStyle={{
-          paddingTop: 160,
+          
         }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
