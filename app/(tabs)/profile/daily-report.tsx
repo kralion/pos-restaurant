@@ -88,19 +88,31 @@ export default function DailyReportScreen() {
         totalOrders: orders.length,
         totalAmount: total,
         peakHour: dailySales[peakHourIndex]?.label || 'N/A',
-        totalWeekly: total 
+        totalWeekly: orderDetails.totalWeekly + total // Acumular total diario en total semanal
       });
-      // Sincronizar ventas semanales con ventas diarias
-      setWeeklySales(prev => 
-        prev.map((item, index) => ({
-          ...item,
-          value: salesByHour[index] // Asumiendo que las ventas diarias se distribuyen en la semana
-        }))
-      );
     } catch (error) {
       console.error('Error loading daily sales:', error);
     }
   };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === 0 && now.getMinutes() === 0) {
+        // Reiniciar datos diarios a medianoche
+        setDailySales([
+          { value: 0, label: '8 AM', frontColor: '#177AD5' },
+          { value: 0, label: '10 AM', frontColor: '#177AD5' },
+          { value: 0, label: '12 PM', frontColor: '#177AD5' },
+          { value: 0, label: '2 PM', frontColor: '#177AD5' },
+          { value: 0, label: '4 PM', frontColor: '#177AD5' },
+          { value: 0, label: '6 PM', frontColor: '#177AD5' },
+          { value: 0, label: '8 PM', frontColor: '#177AD5' },
+        ]);
+        setTotalDailySales(0);
+      }
+    }, 60000); // Verificar cada minuto
+    return () => clearInterval(interval);
+  }, []);
   const SalesDetails = ({ title, data }: { title: string; data: number | string }) => (
     <Text style={styles.detailText}>{title}: {typeof data === 'number' ? `${data}` : data}</Text>
   );
