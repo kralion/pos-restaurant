@@ -26,11 +26,13 @@ export default function SignInScreen() {
       email: data.email,
       password: data.password,
     });
-    if (error) {
+    const { data: session } = await supabase.auth.getSession();
+    if (session) {
+      router.replace("/(tabs)");
+    } else {
       setVisible(true);
       setTimeout(() => setVisible(false), 5000);
     }
-    router.replace("/(tabs)");
     setLoading(false);
     reset();
   };
