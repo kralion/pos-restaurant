@@ -6,12 +6,12 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { Divider, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Path, Svg, Text as SvgText } from "react-native-svg";
+import { G, Path, Polygon, Rect, Svg, Text as SvgText } from "react-native-svg";
 
 function TableSvg({ table }: { table: ITable }) {
   function onPress() {
     if (table.status) {
-      router.push({
+      router.replace({
         pathname: "/(modals)/add-order",
         params: { number: table.number, id_table: table.id },
       });
@@ -31,21 +31,41 @@ function TableSvg({ table }: { table: ITable }) {
   };
 
   return (
-    <Svg width="100" height="120" viewBox="0 0 24 24" onPress={onPress}>
+    // <Svg width="100" height="120" viewBox="0 0 24 24" onPress={onPress}>
+    //   <SvgText
+    //     x="12"
+    //     y="2"
+    //     fontSize="5"
+    //     fontWeight="bold"
+    //     textAnchor="middle"
+    //     alignmentBaseline="middle"
+    //   >
+    //     {table.number}
+    //   </SvgText>
+    //   <Path
+    //     d="M18.76,6l2,4H3.24l2-4H18.76M20,4H4L1,10v2H3v7H5V16H19v3h2V12h2V10L20,4ZM5,14V12H19v2Z"
+    //     fill={getStatusColor()}
+    //   />
+    // </Svg>
+    <Svg width="80" height="120" viewBox="0 0 500 500">
+      <G fill={getStatusColor()}>
+        <Polygon points="407.165,84.97 104.835,84.97 0,175.997 512,175.997" />
+        <Rect y="183.102" width="512" height="31.793" />
+        <Rect y="222.223" width="51.203" height="204.806" />
+        <Rect x="92.448" y="222.223" width="42.67" height="130.918" />
+        <Rect x="460.793" y="222.223" width="51.207" height="204.806" />
+        <Rect x="376.882" y="222.223" width="42.67" height="130.918" />
+      </G>
       <SvgText
-        x="12"
-        y="2"
-        fontSize="5"
+        x="256"
+        y="30"
+        fontSize="150"
         fontWeight="bold"
         textAnchor="middle"
         alignmentBaseline="middle"
       >
         {table.number}
       </SvgText>
-      <Path
-        d="M18.76,6l2,4H3.24l2-4H18.76M20,4H4L1,10v2H3v7H5V16H19v3h2V12h2V10L20,4ZM5,14V12H19v2Z"
-        fill={getStatusColor()}
-      />
     </Svg>
   );
 }

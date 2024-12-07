@@ -1,7 +1,6 @@
 import { supabase } from "@/utils/supabase";
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import { Info } from "lucide-react-native";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Linking, ScrollView, Text, View } from "react-native";
@@ -70,7 +69,6 @@ export default function SignInScreen() {
                   />
                   {errors.email && (
                     <View className="flex flex-row gap-1">
-                      <Info color="red" size={20} />
                       <Text className="text-red-500">
                         {errors.email.message}
                       </Text>
@@ -98,7 +96,6 @@ export default function SignInScreen() {
                   />
                   {errors.password && (
                     <View className="flex flex-row gap-1">
-                      <Info color="red" size={20} />
                       <Text className="text-red-500">
                         {errors.password.message}
                       </Text>
