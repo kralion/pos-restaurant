@@ -7,7 +7,7 @@ import { supabase } from "@/utils/supabase";
 // Helper function to calculate order total
 const calculateOrderTotal = (order: IOrder): number => {
   const getMealsTotal = (meals: IMeal[]) => 
-    meals.reduce((sum, meal) => sum + (meal.price || 0), 0);
+    meals.reduce((sum, meal) => sum + (meal.price || 0) * (meal.quantity || 1), 0);
   return getMealsTotal(order.entradas || []) +
          getMealsTotal(order.fondos || []) +
          getMealsTotal(order.bebidas || []);
@@ -25,13 +25,13 @@ export default function DailyReportScreen() {
     { value: 0, label: '8 PM', frontColor: '#177AD5' },
   ]);
   const [weeklySales, setWeeklySales] = useState([
-    { value: 0, label: 'Mon', frontColor: '#4CAF50' },
-    { value: 0, label: 'Tue', frontColor: '#4CAF50' },
-    { value: 0, label: 'Wed', frontColor: '#4CAF50' },
-    { value: 0, label: 'Thu', frontColor: '#4CAF50' },
-    { value: 0, label: 'Fri', frontColor: '#4CAF50' },
-    { value: 0, label: 'Sat', frontColor: '#4CAF50' },
-    { value: 0, label: 'Sun', frontColor: '#4CAF50' },
+    { value: 0, label: 'Lun', frontColor: '#4CAF50' },
+    { value: 0, label: 'Mar', frontColor: '#4CAF50' },
+    { value: 0, label: 'Mier', frontColor: '#4CAF50' },
+    { value: 0, label: 'Juev', frontColor: '#4CAF50' },
+    { value: 0, label: 'Vier', frontColor: '#4CAF50' },
+    { value: 0, label: 'Sab', frontColor: '#4CAF50' },
+    { value: 0, label: 'Dom', frontColor: '#4CAF50' },
   ]);
   const [totalDailySales, setTotalDailySales] = useState(0);
   const [orderDetails, setOrderDetails] = useState({
@@ -90,6 +90,13 @@ export default function DailyReportScreen() {
         peakHour: dailySales[peakHourIndex]?.label || 'N/A',
         totalWeekly: total 
       });
+      // Sincronizar ventas semanales con ventas diarias
+      setWeeklySales(prev => 
+        prev.map((item, index) => ({
+          ...item,
+          value: salesByHour[index] // Asumiendo que las ventas diarias se distribuyen en la semana
+        }))
+      );
     } catch (error) {
       console.error('Error loading daily sales:', error);
     }
