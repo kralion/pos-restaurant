@@ -2,13 +2,18 @@ import { useAuth } from "@/context";
 import { useHeaderHeight } from "@react-navigation/elements";
 import { useRouter } from "expo-router";
 import { View } from "react-native";
+import { supabase } from "@/utils/supabase";
 import { Avatar, Button, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function ProfileScreen() {
   const { user, session, signOut } = useAuth();
   const headerHeight = useHeaderHeight();
   const router = useRouter();
-
+const signOutWithSupabase = async () => {
+  const { error }=await supabase.auth.signOut();
+  console.log("error", error);
+  router.replace("/(auth)/sign-in");
+} 
   return (
     <SafeAreaView style={{ paddingTop: headerHeight, height: "100%" }}>
       <View>
@@ -53,7 +58,7 @@ export default function ProfileScreen() {
           Reporte Diario
         </Button>
 
-        <Button onPress={signOut} icon="logout" mode="text">
+        <Button onPress={signOutWithSupabase} icon="logout" mode="text">
           Salir
         </Button>
       </View>
