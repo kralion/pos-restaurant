@@ -1,10 +1,16 @@
 import { useAuth } from "@/context";
+import { supabase } from "@/utils/supabase";
+import { router } from "expo-router";
 import { View } from "react-native";
 import { Avatar, Button, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function ProfileScreen() {
   const { user, signOut, session } = useAuth();
-
+  const signOutWithSupabase = async () => {
+    const { error }=await supabase.auth.signOut();
+    console.log("error", error);
+    router.replace("/(auth)/sign-in");
+  } 
   return (
     <SafeAreaView style={{ paddingTop: 16, height: "100%" }}>
       <View className="flex flex-col items-center gap-4">
@@ -32,7 +38,7 @@ export default function ProfileScreen() {
             <Text className="text-md">{user.role || "Chef"}</Text>
           </Button>
         </View>
-        <Button onPress={signOut} icon="logout" mode="contained">
+        <Button onPress={signOutWithSupabase} icon="logout" mode="contained">
           Salir
         </Button>
       </View>
