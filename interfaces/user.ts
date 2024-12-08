@@ -11,8 +11,8 @@ export interface IUser {
 }
 
 export interface IAuthContextProvider {
-  session: Session;
-  user: IUser;
+  session: Session | null;
+  user: IUser | null;
   loading: boolean;
   signOut: () => Promise<void>;
   updateProfile: (userData: Partial<IUser>) => Promise<void>;

@@ -59,6 +59,12 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
+  const { session } = useAuth();
+  React.useEffect(() => {
+    if (!session) {
+      router.replace("/sign-in"); // Redirect to sign-in if no session or user
+    }
+  }, [session]);
   return (
     <AuthContextProvider>
       <PaperProvider theme={theme}>

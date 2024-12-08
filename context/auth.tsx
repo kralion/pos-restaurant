@@ -2,13 +2,13 @@ import { IAuthContextProvider, IUser } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { Session } from "@supabase/supabase-js";
 import { router } from "expo-router";
-import * as React from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createContext, useContext } from "react";
 import { Alert } from "react-native";
 
 export const AuthContext = createContext<IAuthContextProvider>({
-  session: {} as Session,
-  user: {} as IUser,
+  session: null,
+  user: null,
   loading: false,
   signOut: async () => {},
   updateProfile: async () => {},
@@ -22,30 +22,49 @@ export const AuthContextProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const [loading, setLoading] = React.useState(false);
-  const [user, setUser] = React.useState<IUser>({} as IUser);
-  const [session, setSession] = React.useState<Session>({} as Session);
-  const [users, setUsers] = React.useState<IUser[]>([]);
-  React.useEffect(() => {
+  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState<IUser | null>(null); // user
+  const [session, setSession] = useState<Session | null>(null);
+  const [users, setUsers] = useState<IUser[]>([]);
+
+  // Simplified session tracking
+  useEffect(() => {
+    // Initial session check
     const checkSession = async () => {
       const {
         data: { session: currentSession },
       } = await supabase.auth.getSession();
-      setSession(currentSession || ({} as Session));
+      setSession(currentSession);
     };
     checkSession();
 
+    // Listen for auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (_event, newSession) => {
-        setSession(newSession || ({} as Session));
+        setSession(newSession);
+
+        // Clear user when session is null
+        if (!newSession) {
+          setUser(null);
+        }
       }
     );
+
+    // Cleanup subscription
     return () => {
       authListener.subscription.unsubscribe();
     };
-  }, [supabase.auth]);
+  }, []);
 
-  async function getProfile() {
+  // Fetch profile when session changes
+  useEffect(() => {
+    if (session?.user) {
+      getProfile();
+    }
+  }, [session]);
+
+  // Get user profile
+  const getProfile = useCallback(async () => {
     try {
       setLoading(true);
       if (!session?.user) throw new Error("No user on the session!");
@@ -53,7 +72,7 @@ export const AuthContextProvider = ({
       const { data, error, status } = await supabase
         .from("users")
         .select("*")
-        .eq("id", session?.user.id)
+        .eq("id", session.user.id)
         .single();
 
       if (error && status !== 406) {
@@ -70,66 +89,70 @@ export const AuthContextProvider = ({
     } finally {
       setLoading(false);
     }
-  }
+  }, [session]);
 
-  async function updateProfile(userData: Partial<IUser>) {
+  // Update profile
+  const updateProfile = useCallback(
+    async (userData: Partial<IUser>) => {
+      try {
+        setLoading(true);
+        if (!session?.user) throw new Error("No user on the session!");
+
+        const updates = {
+          ...userData,
+          id: session.user.id,
+          updated_at: new Date(),
+        };
+
+        const { error } = await supabase.from("users").upsert(updates);
+
+        if (error) {
+          throw error;
+        }
+
+        // Refresh profile after update
+        await getProfile();
+      } catch (error) {
+        if (error instanceof Error) {
+          Alert.alert("Update Error", error.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+    },
+    [session, getProfile]
+  );
+
+  // Sign out
+  const signOut = useCallback(async () => {
     try {
       setLoading(true);
-      if (!session?.user) throw new Error("No user on the session!");
 
-      const updates = {
-        ...userData,
-        id: session?.user.id,
-        updated_at: new Date(),
-      };
-
-      const { error } = await supabase.from("users").upsert(updates);
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
 
       if (error) {
-        throw error;
+        throw new Error(error.message);
       }
 
-      // Refresh profile after update
-      await getProfile();
-    } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert("Update Error", error.message);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function signOut() {
-    setLoading(true); // Start loading state
-
-    try {
-      const { error } = await supabase.auth.signOut(); // Await the signOut promise
-
-      if (error) {
-        throw new Error(error.message); // Throw an error with a message if signOut fails
-      }
-
-      // Clear user and session state
-      setUser({} as IUser);
-      setSession({} as Session);
-
-      // Navigate to the sign-in page
+      // Clear states - this is now handled by the auth state change listener
+      // Navigate to sign-in page
       router.replace("/sign-in");
     } catch (error) {
-      // Handle errors gracefully
       if (error instanceof Error) {
         Alert.alert("Sign Out Error", error.message);
       } else {
         Alert.alert("Sign Out Error", "An unexpected error occurred.");
       }
     } finally {
-      setLoading(false); // Ensure loading state is reset
+      setLoading(false);
     }
-  }
+  }, []);
 
-  const getUsers = async () => {
+  // Get users
+  const getUsers = useCallback(async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from("users")
         .select("*")
@@ -146,25 +169,23 @@ export const AuthContextProvider = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const deleteUser = async (id: string) => {
-    try {
-      const { error } = await supabase.from("users").delete().eq("id", id);
+  // Delete user
+  const deleteUser = useCallback(
+    async (id: string) => {
+      try {
+        const { error } = await supabase.from("users").delete().eq("id", id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      setUsers(users.filter((user) => user.id !== id));
-    } catch (err: any) {
-      alert("Error al eliminar usuario: " + err.message);
-    }
-  };
-
-  React.useEffect(() => {
-    if (session?.user) {
-      getProfile();
-    }
-  }, [session]);
+        setUsers(users.filter((user) => user.id !== id));
+      } catch (err: any) {
+        alert("Error al eliminar usuario: " + err.message);
+      }
+    },
+    [users]
+  );
 
   return (
     <AuthContext.Provider
@@ -183,7 +204,6 @@ export const AuthContextProvider = ({
     </AuthContext.Provider>
   );
 };
-
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

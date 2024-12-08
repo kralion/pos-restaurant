@@ -9,6 +9,8 @@ export default function ProfileScreen() {
   const headerHeight = useHeaderHeight();
   const router = useRouter();
 
+  if (!user) return <></>;
+
   return (
     <SafeAreaView style={{ paddingTop: headerHeight, height: "100%" }}>
       <View>
