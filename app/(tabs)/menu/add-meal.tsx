@@ -19,7 +19,7 @@ export default function MenuScreen() {
     defaultValues: {
       name: "",
       price: 0,
-      category: "Entradas",
+      category: "entradas",
       quantity: 0,
       image_url: "",
     },

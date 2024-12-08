@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { Divider, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { G, Path, Polygon, Rect, Svg, Text as SvgText } from "react-native-svg";
+import { G, Polygon, Rect, Svg, Text as SvgText } from "react-native-svg";
 
 function TableSvg({ table }: { table: ITable }) {
   function onPress() {

@@ -101,18 +101,30 @@ export const AuthContextProvider = ({
   }
 
   async function signOut() {
+    setLoading(true); // Start loading state
+
     try {
-      setLoading(true);
-      await supabase.auth.signOut();
-      router.replace("/(auth)/sign-in");
+      const { error } = await supabase.auth.signOut(); // Await the signOut promise
+
+      if (error) {
+        throw new Error(error.message); // Throw an error with a message if signOut fails
+      }
+
+      // Clear user and session state
       setUser({} as IUser);
       setSession({} as Session);
+
+      // Navigate to the sign-in page
+      router.replace("/sign-in");
     } catch (error) {
+      // Handle errors gracefully
       if (error instanceof Error) {
         Alert.alert("Sign Out Error", error.message);
+      } else {
+        Alert.alert("Sign Out Error", "An unexpected error occurred.");
       }
     } finally {
-      setLoading(false);
+      setLoading(false); // Ensure loading state is reset
     }
   }
 

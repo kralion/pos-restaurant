@@ -2,7 +2,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/context";
 import { Image } from "expo-image";
-import { Redirect, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import React from "react";
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -282,7 +282,7 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
-  ) : user.role === "waiter" ? (
+  ) : (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
@@ -421,7 +421,5 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
-  ) : (
-    <Redirect href="/(auth)/sign-in" />
   );
 }

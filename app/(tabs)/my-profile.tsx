@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { Avatar, Button, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function ProfileScreen() {
-  const { user, signOut, session } = useAuth();
+  const { user, signOut } = useAuth();
 
   return (
     <SafeAreaView style={{ paddingTop: 16, height: "100%" }}>
@@ -38,7 +38,7 @@ export default function ProfileScreen() {
       </View>
 
       <Text className="text-muted-foreground opacity-40  mt-44 mx-auto text-sm">
-        Logueado con
+        Logueado
         {/* {session.user.email} */}
       </Text>
       <Text className="text-muted-foreground opacity-40   mx-auto text-sm">

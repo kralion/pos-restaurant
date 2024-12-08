@@ -33,9 +33,11 @@ export default function SignInScreen() {
         return;
       }
       // Asegúrate de que la sesión se haya establecido correctamente
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (session && session.user) {
-        router.push("/(tabs)"); // Usa `push` para evitar conflictos de historial
+        router.replace("/(tabs)"); // Usa `push` para evitar conflictos de historial
       } else {
         setVisible(true);
         setTimeout(() => setVisible(false), 5000);
@@ -47,8 +49,7 @@ export default function SignInScreen() {
       reset();
     }
   };
-  
-  
+
   return (
     <ScrollView>
       <SafeAreaView className="flex flex-col justify-center align-middle m-4 items-center ">
@@ -59,7 +60,7 @@ export default function SignInScreen() {
                 width: 125,
                 height: 125,
               }}
-              source={require("../../assets/images/logo.png")}
+              source={require("../assets/images/logo.png")}
             />
             <View className="flex flex-col gap-1 items-center">
               <Text className="text-4xl font-bold"> Inicia Sesión</Text>
