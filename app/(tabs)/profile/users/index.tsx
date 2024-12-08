@@ -1,49 +1,20 @@
-import { View, ScrollView, Alert } from "react-native";
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, FAB, Button, Card, Text } from "react-native-paper";
-import { supabase } from "@/utils/supabase";
-import { IUser } from "@/interfaces";
-import { useRouter } from "expo-router";
-import { Image } from "expo-image";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { useAuth } from "@/context/auth";
+import { useHeaderHeight } from "@react-navigation/elements";
+import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import React, { useEffect } from "react";
+import { Alert, ScrollView, View } from "react-native";
+import { Button, Card, FAB } from "react-native-paper";
 
 export default function UsersScreen() {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const { user, getUsers, deleteUser, users } = useAuth();
+  const { deleteUser, getUsers, users } = useAuth();
+
   const router = useRouter();
   const headerHeight = useHeaderHeight();
 
   useEffect(() => {
-    getUsers()
-      .then(() => setLoading(false))
-      .catch((error) => {
-        setError(error.message);
-        setLoading(false);
-      });
-
-    // Suscripción a cambios en la tabla users
-    const channel = supabase
-      .channel("users_changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "users",
-        },
-        () => {
-          getUsers();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    getUsers();
   }, []);
-
   const onDelete = (id: string) => {
     Alert.alert("Eliminar", "¿Estás seguro?", [
       {
@@ -72,22 +43,6 @@ export default function UsersScreen() {
     };
     return roles[role as keyof typeof roles] || role;
   };
-
-  if (loading) {
-    return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View className="flex-1 justify-center items-center p-4">
-        <Text className="text-red-500 text-center">{error}</Text>
-      </View>
-    );
-  }
 
   return (
     <View className="flex-1">

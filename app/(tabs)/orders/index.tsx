@@ -40,9 +40,6 @@ export default function OrdersScreen() {
   if (isLoading && !orders?.length) return <ActivityIndicator />;
   return (
     <FlashList
-      contentContainerStyle={{
-        
-      }}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }

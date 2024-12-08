@@ -1,28 +1,7 @@
-import { useOrderContext } from "@/context";
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import React from "react";
-import { Alert, Button } from "react-native";
 
 export default function ProfileLayout() {
-  const { deleteOrder } = useOrderContext();
-  const onDelete = (id: string) => {
-    Alert.alert("Eliminar", "¿Estás seguro?", [
-      {
-        text: "Sí",
-        onPress: () => {
-          deleteOrder(id).then(() => {
-            alert("Pedido eliminado");
-            router.back();
-          });
-        },
-      },
-      {
-        text: "No",
-        style: "cancel",
-      },
-    ]);
-  };
-
   return (
     <Stack>
       <Stack.Screen

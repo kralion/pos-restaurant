@@ -153,22 +153,16 @@ export function AuthContextProvider({
   };
 
   const getUsers = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .neq("role", "admin")
-        .order("name");
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .neq("role", "admin")
+      .order("name");
 
-      if (error) throw error;
+    if (error) throw error;
 
-      setUsers(data || []);
-    } catch (err: any) {
-      alert("Error fetching users: " + err.message);
-    } finally {
-      setLoading(false);
-    }
+    setUsers(data);
+    return data;
   };
 
   if (!isReady) {

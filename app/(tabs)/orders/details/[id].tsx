@@ -51,7 +51,7 @@ export default function OrderDetailsScreen() {
   }, []);
   if (!order) return <ActivityIndicator />;
 
-  const subTotal =
+  const total =
     order.entradas.reduce((acc, item) => {
       return acc + item.price * item.quantity;
     }, 0) +
@@ -62,7 +62,6 @@ export default function OrderDetailsScreen() {
       return acc + item.price * item.quantity;
     }, 0);
 
-  const total = subTotal + subTotal * 0.18;
   const updatePaidStatus = async (id: string, paid: boolean) => {
     const { data, error } = await supabase
       .from("orders")
@@ -206,14 +205,7 @@ export default function OrderDetailsScreen() {
 
           <div class="total-section">
             <table width="100%">
-              <tr>
-                <td>Base ${0.18 * 100}%</td>
-                <td align="right">${subTotal.toFixed(2)}</td>
-              </tr>
-              <tr>
-                <td>IVA</td>
-                <td align="right">${(subTotal * 0.18).toFixed(2)}</td>
-              </tr>
+
               <tr>
                 <td><strong>Total:</strong></td>
                 <td align="right"><strong>S/. ${total.toFixed(2)}</strong></td>
@@ -228,7 +220,7 @@ export default function OrderDetailsScreen() {
 
           <div class="footer">
             RESTAURANTE / GRACIAS POR SU VISITA<br>
-            ** IVA INCLUIDO EN PRECIOS **
+
           </div>
         </body>
       </html>
@@ -293,14 +285,6 @@ export default function OrderDetailsScreen() {
 
         <Divider className="border-dashed border-2" />
         <View className="flex flex-col gap-3">
-          <View className="flex flex-row justify-between">
-            <Text>SubTotal</Text>
-            <Text>S/. {subTotal.toFixed(2)}</Text>
-          </View>
-          <View className="flex flex-row justify-between">
-            <Text>Impuestos</Text>
-            <Text>S/. {(subTotal * 0.18).toFixed(2)}</Text>
-          </View>
           <Divider />
           <View className="flex flex-row justify-between">
             <Text variant="titleLarge">Total</Text>

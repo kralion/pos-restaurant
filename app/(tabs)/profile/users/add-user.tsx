@@ -1,4 +1,3 @@
-import { IUser } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { useRouter } from "expo-router";
 import { useHeaderHeight } from "@react-navigation/elements";
@@ -7,11 +6,19 @@ import { Controller, useForm } from "react-hook-form";
 import { ScrollView, Text, View } from "react-native";
 import { Button, List, TextInput } from "react-native-paper";
 
+interface IUser {
+  name: string;
+  last_name: string;
+  email: string;
+  password: string;
+  role: string;
+  image_url?: string;
+}
+
 export default function AddUserScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = React.useState(false);
-  const headerHeight = useHeaderHeight();
 
   const {
     control,
