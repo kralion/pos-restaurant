@@ -1,15 +1,23 @@
 import { supabase } from "@/utils/supabase";
 import { Image } from "expo-image";
-import { router } from "expo-router";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Linking, ScrollView, Text, View } from "react-native";
+import { AppState, Linking, ScrollView, Text, View } from "react-native";
 import { Button, Dialog, Portal, TextInput } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 type TLogin = {
   email: string;
   password: string;
 };
+
+AppState.addEventListener("change", (state) => {
+  if (state === "active") {
+    supabase.auth.startAutoRefresh();
+  } else {
+    supabase.auth.stopAutoRefresh();
+  }
+});
+
 export default function SignInScreen() {
   const [loading, setLoading] = React.useState(false);
   const [visible, setVisible] = React.useState(false);
@@ -22,32 +30,17 @@ export default function SignInScreen() {
 
   const onSubmit = async (data: TLogin) => {
     setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-      if (error) {
-        setVisible(true);
-        setTimeout(() => setVisible(false), 5000);
-        return;
-      }
-      // Asegúrate de que la sesión se haya establecido correctamente
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session && session.user) {
-        router.replace("/(tabs)"); // Usa `push` para evitar conflictos de historial
-      } else {
-        setVisible(true);
-        setTimeout(() => setVisible(false), 5000);
-      }
-    } catch (err) {
-      console.error("Error al autenticar:", err);
-    } finally {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
+    });
+    if (error) {
       setLoading(false);
-      reset();
+      setTimeout(() => setVisible(false), 5000);
+      return;
     }
+    setLoading(false);
+    reset();
   };
 
   return (
@@ -60,7 +53,7 @@ export default function SignInScreen() {
                 width: 125,
                 height: 125,
               }}
-              source={require("../assets/images/logo.png")}
+              source={require("../../assets/images/logo.png")}
             />
             <View className="flex flex-col gap-1 items-center">
               <Text className="text-4xl font-bold"> Inicia Sesión</Text>

@@ -40,7 +40,7 @@ export default function OrderScreen() {
     []
   );
   const headerHeight = useHeaderHeight();
-  const { session } = useAuth();
+  const { profile, user } = useAuth();
   const { addOrder } = useOrderContext();
   const {
     control,
@@ -235,12 +235,13 @@ export default function OrderScreen() {
 
   const onSubmit = async (data: IOrder) => {
     setLoading(true);
+    if (!profile.id) return;
 
     try {
       const orderData: IOrder = {
         ...data,
         served: false,
-        id_waiter: session.user.id,
+        id_waiter: profile.id,
         paid: false,
         id_table: id_table,
         entradas: selectedEntradas,

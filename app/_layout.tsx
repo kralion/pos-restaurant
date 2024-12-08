@@ -1,8 +1,8 @@
-import { AuthContextProvider, OrderContextProvider, useAuth } from "@/context";
+import { AuthContextProvider, OrderContextProvider } from "@/context";
 import { MealContextProvider } from "@/context/meals";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import {
@@ -59,35 +59,20 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const { session } = useAuth();
-  React.useEffect(() => {
-    if (!session) {
-      router.replace("/sign-in"); // Redirect to sign-in if no session or user
-    }
-  }, [session]);
   return (
     <AuthContextProvider>
       <PaperProvider theme={theme}>
         <OrderContextProvider>
           <MealContextProvider>
             <Stack>
-              <Stack.Screen
-                name="sign-in"
-                options={{
-                  title: "Iniciar Sesión",
-                  headerShown: false,
-                }}
-              />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
               <Stack.Screen
-                name="(modals)/add-order"
+                name="add-order"
                 options={{
                   title: "Agregar Orden",
-                  headerBackTitle: "Menú",
-                  headerLargeTitle: true,
-
-                  headerShadowVisible: false,
-                  headerLargeTitleShadowVisible: false,
+                  headerBackTitle: "Atrás",
+                  presentation: "modal",
                 }}
               />
             </Stack>

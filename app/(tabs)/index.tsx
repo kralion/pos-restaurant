@@ -12,7 +12,7 @@ function TableSvg({ table }: { table: ITable }) {
   function onPress() {
     if (table.status) {
       router.replace({
-        pathname: "/(modals)/add-order",
+        pathname: "/add-order",
         params: { number: table.number, id_table: table.id },
       });
     } else {

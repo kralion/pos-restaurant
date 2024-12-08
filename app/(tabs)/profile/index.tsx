@@ -5,11 +5,9 @@ import { View } from "react-native";
 import { Avatar, Button, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function ProfileScreen() {
-  const { user, signOut } = useAuth();
+  const { profile: user, signOut } = useAuth();
   const headerHeight = useHeaderHeight();
   const router = useRouter();
-
-  if (!user) return <></>;
 
   return (
     <SafeAreaView style={{ paddingTop: headerHeight, height: "100%" }}>
