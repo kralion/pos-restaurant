@@ -2,11 +2,16 @@ import { useColorScheme } from "@/components/useColorScheme";
 import Colors from "@/constants/Colors";
 import { useAuth } from "@/context";
 import { Image } from "expo-image";
-import { Tabs } from "expo-router";
+import { router, Tabs } from "expo-router";
 import React from "react";
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { user } = useAuth();
+  const { session, user } = useAuth();
+  React.useEffect(() => {
+    if (!session || !user) {
+      router.replace("/sign-in"); // Redirect to sign-in if no session or user
+    }
+  }, [session, user]);
   return user.role === "chef" ? (
     <Tabs
       screenOptions={{
@@ -282,7 +287,7 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
-  ) : (
+  ) : user.role === "waiter" ? (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
@@ -421,5 +426,7 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
-  );
+  ) : (
+    router.replace("/sign-in")
+  ); // Redirect to sign-in if no session or user
 }

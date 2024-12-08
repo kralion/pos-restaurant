@@ -20,7 +20,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "sign-in",
+  initialRouteName: "(tabs)",
 };
 
 const theme = {
@@ -59,14 +59,6 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const { session, user } = useAuth();
-  useEffect(() => {
-    if (!session || !user) {
-      router.replace("/sign-in"); // Redirect to sign-in if no session or user
-    } else {
-      router.replace("/(tabs)"); // Redirect to tabs if session and user exist
-    }
-  }, [session, user]);
   return (
     <AuthContextProvider>
       <PaperProvider theme={theme}>
