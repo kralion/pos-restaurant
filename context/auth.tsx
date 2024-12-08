@@ -4,6 +4,7 @@ import { Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Alert } from "react-native";
 import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/utils/supabaseAdmin";
 
 const AuthContext = createContext<IAuthContextProvider>({
   session: null,
@@ -18,10 +19,8 @@ const AuthContext = createContext<IAuthContextProvider>({
   loading: false,
 });
 
-const supabaseAdmin = createClient(
-  'https://hlsomaaxkfjoffnmppmj.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhsc29tYWF4a2Zqb2Zmbm1wcG1qIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMzE3MzMwNSwiZXhwIjoyMDQ4NzQ5MzA1fQ.Mwrzz0FRxForoM7R2ldXOj7YFqYtZoFHelgF9Mst37U' // Asegúrate de usar la clave de servicio aquí
-);
+
+
 
 export function AuthContextProvider({
   children,
