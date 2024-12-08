@@ -38,18 +38,13 @@ export default function AddUserScreen() {
   const onSubmit = async (data: IUser) => {
     setLoading(true);
     try {
-      // Obtener la sesión actual del administrador
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session) {
-        throw new Error(
-          "Debes estar autenticado como administrador para crear usuarios"
-        );
+      // Guardar la sesión actual del administrador
+      const adminSession = await supabase.auth.getSession();
+      if (!adminSession.data.session) {
+        throw new Error("Debes estar autenticado como administrador para crear usuarios");
       }
 
-      // Crear usuario sin iniciar sesión
+      // Crear nuevo usuario
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -64,8 +59,7 @@ export default function AddUserScreen() {
 
       if (authError) {
         if (authError.message.includes("already registered")) {
-          alert("Este correo electrónico ya está registrado");
-          return;
+          throw new Error("Este correo electrónico ya está registrado");
         }
         throw authError;
       }
@@ -74,7 +68,7 @@ export default function AddUserScreen() {
         throw new Error("No se pudo crear el usuario");
       }
 
-      // Create user profile
+      // Crear perfil de usuario
       const { error: profileError } = await supabase.from("users").insert({
         id: authData.user.id,
         name: data.name,
@@ -85,19 +79,9 @@ export default function AddUserScreen() {
 
       if (profileError) throw profileError;
 
-      // Cerrar inmediatamente la sesión del usuario creado
-      const { error: signOutError } = await supabase.auth.signOut();
-
-      if (signOutError) throw signOutError;
-
-      // Restaurar la sesión del administrador
-      const { error: sessionError } = await supabase.auth.setSession(session);
-
-      if (sessionError) throw sessionError;
-
       alert("Usuario agregado exitosamente");
       reset();
-      router.back();
+      router.push("/profile/users");
     } catch (err: any) {
       console.error("Error:", err);
       alert(err.message || "Error al crear usuario");
