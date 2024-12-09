@@ -73,6 +73,7 @@ function RootLayoutNav() {
                   title: "Agregar Orden",
                   headerBackTitle: "Atrás",
                   presentation: "modal",
+                  headerShown: false,
                 }}
               />
             </Stack>
