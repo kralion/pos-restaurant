@@ -19,8 +19,8 @@ const AuthContext = createContext<IAuthContextProvider>({
 });
 
 const supabaseAdmin = createClient(
-  'https://hlsomaaxkfjoffnmppmj.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhsc29tYWF4a2Zqb2Zmbm1wcG1qIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMzE3MzMwNSwiZXhwIjoyMDQ4NzQ5MzA1fQ.Mwrzz0FRxForoM7R2ldXOj7YFqYtZoFHelgF9Mst37U' // Asegúrate de usar la clave de servicio aquí
+  "https://hlsomaaxkfjoffnmppmj.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhsc29tYWF4a2Zqb2Zmbm1wcG1qIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTczMzE3MzMwNSwiZXhwIjoyMDQ4NzQ5MzA1fQ.Mwrzz0FRxForoM7R2ldXOj7YFqYtZoFHelgF9Mst37U" // Asegúrate de usar la clave de servicio aquí
 );
 
 export function AuthContextProvider({
@@ -38,7 +38,7 @@ export function AuthContextProvider({
     try {
       setLoading(true);
       const { data, error, status } = await supabase
-        .from("users")
+        .from("accounts")
         .select("*")
         .eq("id", userId)
         .single();
@@ -132,7 +132,7 @@ export function AuthContextProvider({
         updated_at: new Date(),
       };
 
-      const { error } = await supabase.from("users").upsert(updates);
+      const { error } = await supabase.from("accounts").upsert(updates);
 
       if (error) throw error;
 
@@ -148,7 +148,7 @@ export function AuthContextProvider({
 
   const deleteUser = async (id: string) => {
     try {
-      const { error } = await supabase.from("users").delete().eq("id", id);
+      const { error } = await supabase.from("accounts").delete().eq("id", id);
 
       if (error) throw error;
 
@@ -160,7 +160,7 @@ export function AuthContextProvider({
 
   const getUsers = async () => {
     const { data, error } = await supabase
-      .from("users")
+      .from("accounts")
       .select("*")
       .neq("role", "admin")
       .order("name");

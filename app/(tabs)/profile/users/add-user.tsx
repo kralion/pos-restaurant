@@ -1,10 +1,11 @@
+import { useAuth } from "@/context";
 import { supabase } from "@/utils/supabase";
+import { supabaseAdmin } from "@/utils/supabaseAdmin";
 import { useRouter } from "expo-router";
-import { useHeaderHeight } from "@react-navigation/elements";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, Text, View } from "react-native";
-import { Button, List, TextInput } from "react-native-paper";
+import { ActivityIndicator, Button, List, TextInput } from "react-native-paper";
 
 interface IUser {
   name: string;
@@ -38,29 +39,13 @@ export default function AddUserScreen() {
   const onSubmit = async (data: IUser) => {
     setLoading(true);
     try {
-      // Obtener la sesión actual del administrador
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session) {
-        throw new Error(
-          "Debes estar autenticado como administrador para crear usuarios"
-        );
-      }
-
       // Crear usuario sin iniciar sesión
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: {
-            name: data.name,
-            last_name: data.last_name,
-            role: data.role,
-          },
-        },
-      });
+      const { data: authData, error: authError } =
+        await supabaseAdmin.auth.admin.createUser({
+          email: data.email,
+          password: data.password,
+          email_confirm: true,
+        });
 
       if (authError) {
         if (authError.message.includes("already registered")) {
@@ -75,7 +60,7 @@ export default function AddUserScreen() {
       }
 
       // Create user profile
-      const { error: profileError } = await supabase.from("users").insert({
+      const { error: profileError } = await supabase.from("accounts").insert({
         id: authData.user.id,
         name: data.name,
         last_name: data.last_name,
@@ -84,17 +69,6 @@ export default function AddUserScreen() {
       });
 
       if (profileError) throw profileError;
-
-      // Cerrar inmediatamente la sesión del usuario creado
-      const { error: signOutError } = await supabase.auth.signOut();
-
-      if (signOutError) throw signOutError;
-
-      // Restaurar la sesión del administrador
-      const { error: sessionError } = await supabase.auth.setSession(session);
-
-      if (sessionError) throw sessionError;
-
       alert("Usuario agregado exitosamente");
       reset();
       router.back();
