@@ -9,39 +9,34 @@ export default function ProfileScreen() {
       <View className="flex flex-col items-center gap-4">
         <Avatar.Image
           accessibilityLabel="avatar"
-          size={150}
+          size={100}
           source={{
-            uri: "https://cdn-icons-png.freepik.com/256/16111/16111587.png?semt=ais_hybrid",
+            uri: user.image_url,
           }}
         />
 
         <View className="flex flex-col gap-1">
-          <Text className="font-bold text-2xl">{`${
-            user.name || "Jhons"
-          }`}</Text>
-          <Button
-            mode={
-              user.role === "chef"
-                ? "contained"
-                : user.role === "admin"
-                ? "contained"
-                : "outlined"
-            }
-          >
-            <Text className="text-md">{user.role || "Chef"}</Text>
-          </Button>
+          <Text className="font-bold text-2xl">{user.name}</Text>
+
+          <Text className="text-md">
+            {user.role === "chef"
+              ? "Cocinero"
+              : user.role === "admin"
+              ? "Administrador"
+              : "Mesero"}
+          </Text>
         </View>
         <Button onPress={signOut} icon="logout" mode="contained">
-          Salir
+          Cerrar Sesión
         </Button>
       </View>
 
-      <Text className="text-muted-foreground opacity-40  mt-44 mx-auto text-sm">
+      <Text className="text-muted-foreground opacity-40  mt-20 mx-auto text-sm">
         Logueado
-        {/* {session.user.email} */}
+        {/* con {session?.user.email} */}
       </Text>
       <Text className="text-muted-foreground opacity-40   mx-auto text-sm">
-        Versión 2.15.1
+        Versión 3.15.1
       </Text>
 
       <View className="absolute bottom-[80px] right-[-70px] w-[200px] h-[300px] rounded-xl rotate-[-30deg] bg-yellow-400 shadow-lg" />
