@@ -3,38 +3,20 @@ import { useHeaderHeight } from "@react-navigation/elements";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
-import { Alert, RefreshControl, ScrollView, View } from "react-native";
-import { ActivityIndicator, Button, Card, FAB } from "react-native-paper";
+import React from "react";
+import { Alert, ScrollView, View } from "react-native";
+import { Button, Card, FAB } from "react-native-paper";
 
 export default function UsersScreen() {
-  const { deleteUser, getUsers, users } = useAuth();
+  const { deleteUser, users, getUsers } = useAuth();
+
+  React.useEffect(() => {
+    getUsers();
+  }, [users]);
 
   const router = useRouter();
   const headerHeight = useHeaderHeight();
-  const [refreshing, setRefreshing] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const onRefresh = React.useCallback(async () => {
-    setRefreshing(true);
-    setIsLoading(true);
-    try {
-      await getUsers();
-    } catch (error) {
-      console.error("Error refreshing orders:", error);
-    } finally {
-      setRefreshing(false);
-      setIsLoading(false);
-    }
-  }, [getUsers]);
-  React.useEffect(() => {
-    onRefresh();
-  }, []);
 
-  if (!users) return <ActivityIndicator />;
-  if (isLoading && !users?.length) return <ActivityIndicator />;
-  useEffect(() => {
-    getUsers();
-  }, []);
   const onDelete = (id: string) => {
     Alert.alert("Eliminar", "¿Estás seguro?", [
       {
@@ -42,7 +24,6 @@ export default function UsersScreen() {
         onPress: async () => {
           try {
             await deleteUser(id);
-            alert("Usuario eliminado correctamente");
           } catch (error: any) {
             alert("Error al eliminar: " + error.message);
           }
@@ -71,9 +52,6 @@ export default function UsersScreen() {
         style={{ marginTop: headerHeight }}
       >
         <FlashList
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
           renderItem={({ item: user }) => (
             <Card
               key={user.id}

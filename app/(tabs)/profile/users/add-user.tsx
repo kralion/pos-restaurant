@@ -72,13 +72,13 @@ export default function AddUserScreen() {
       if (profileError) throw profileError;
       alert("Usuario agregado exitosamente");
       reset();
+
       router.back();
     } catch (err: any) {
       console.error("Error:", err);
       alert(err.message || "Error al crear usuario");
     } finally {
       setLoading(false);
-      getUsers();
     }
   };
 
