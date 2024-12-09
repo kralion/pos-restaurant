@@ -20,6 +20,7 @@ export default function AddUserScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = React.useState(false);
+  const { getUsers } = useAuth();
 
   const {
     control,
@@ -77,6 +78,7 @@ export default function AddUserScreen() {
       alert(err.message || "Error al crear usuario");
     } finally {
       setLoading(false);
+      getUsers();
     }
   };
 
