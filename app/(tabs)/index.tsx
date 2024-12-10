@@ -103,7 +103,7 @@ export default function TablesScreen() {
     return () => {
       channel.unsubscribe();
     };
-  }, []);
+  }, [tables]);
 
   return (
     <SafeAreaView className="p-4 ">

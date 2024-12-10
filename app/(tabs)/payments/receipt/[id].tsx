@@ -48,6 +48,7 @@ export default function ReceiptScreen() {
       return acc + item.price * item.quantity;
     }, 0);
 
+
   return (
     <ScrollView className="p-4" contentInsetAdjustmentBehavior="automatic">
       <View className="flex flex-col gap-12">
@@ -62,22 +63,28 @@ export default function ReceiptScreen() {
         <View className="flex flex-col gap-4">
           <Text variant="titleMedium">Orden</Text>
           <Divider />
-          <View className="flex flex-col gap-4">
-            <View className="flex flex-row justify-between">
-              <Text variant="bodySmall" className="w-48">
-                Item
-              </Text>
-              <Text variant="bodySmall">Precio</Text>
-              <Text variant="bodySmall">Cantidad</Text>
-            </View>
-            {order.entradas.map((item, index) => (
-              <View key={index} className="flex flex-row justify-between">
-                <Text className="w-36">{item.name}</Text>
-                <Text>S/. {item.price}</Text>
-                <Text>{item.quantity}</Text>
-              </View>
-            ))}
+          <View className="flex flex-row justify-between">
+            <Text variant="bodySmall" className="w-48">
+              Item
+            </Text>
+            <Text variant="bodySmall">Precio</Text>
+            <Text variant="bodySmall">Cantidad</Text>
           </View>
+          {order.entradas.map((item, index) => (
+            <View key={index} className="flex flex-row justify-between">
+              <Text className="w-36">{item.name}</Text>
+              <Text>S/. {item.price}</Text>
+              <Text>{item.quantity}</Text>
+            </View>
+          ))}
+
+          {order.fondos.map((item, index) => (
+            <View key={index} className="flex flex-row w-full justify-between">
+              <Text className="w-36">{item.name}</Text>
+              <Text>S/. {item.price}</Text>
+              <Text>{item.quantity}</Text>
+            </View>
+          ))}
 
           {order.bebidas.map((item, index) => (
             <View key={index} className="flex flex-row w-full justify-between">

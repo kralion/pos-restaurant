@@ -70,7 +70,7 @@ export default function OrderDetailsScreen() {
       .select();
     router.back();
     //update status table tables to true
-    const { data: dataTable, error: errorTable } = await supabase
+    await supabase
       .from("tables")
       .update({ status: true })
       .eq("id", order.id_table)
