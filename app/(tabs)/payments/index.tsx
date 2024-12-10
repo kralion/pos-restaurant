@@ -4,9 +4,7 @@ import { supabase } from "@/utils/supabase";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
-import { ScrollView } from "react-native";
-import { ActivityIndicator, Divider } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ActivityIndicator } from "react-native-paper";
 
 export default function HomeScreen() {
   const { search } = useLocalSearchParams<{ search?: string }>();
@@ -46,8 +44,11 @@ export default function HomeScreen() {
   if (!orders) return <ActivityIndicator />;
   return (
     <FlashList
-      contentContainerStyle={{// Adjust this value as needed
-      }}
+      contentContainerStyle={
+        {
+          // Adjust this value as needed
+        }
+      }
       renderItem={({ item: order }) => <OrderCard order={order} />}
       data={filteredOrders}
       estimatedItemSize={200}

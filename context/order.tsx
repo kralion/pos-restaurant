@@ -196,8 +196,7 @@ export const OrderContextProvider = ({
     const { data, error } = await supabase
       .from("orders")
       .select("*")
-      .eq("paid", true)
-      .limit(15);
+      .eq("paid", true);
     if (error) throw error;
     setPaidOrders(data);
     return data;
