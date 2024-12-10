@@ -1,37 +1,32 @@
 import OrderCard from "@/components/payment-card";
 import { useOrderContext } from "@/context";
-import { supabase } from "@/utils/supabase";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
+import { RefreshControl } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 
 export default function HomeScreen() {
   const { search } = useLocalSearchParams<{ search?: string }>();
-  const { paidOrders: orders, getPaidOrders } = useOrderContext();
+  const { paidOrders: orders, getPaidOrders: getOrders } = useOrderContext();
+  const [refreshing, setRefreshing] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    setIsLoading(true);
+    try {
+      await getOrders();
+    } catch (error) {
+      console.error("Error refreshing orders:", error);
+    } finally {
+      setRefreshing(false);
+      setIsLoading(false);
+    }
+  }, [getOrders]);
   React.useEffect(() => {
-    getPaidOrders();
-    const channel = supabase
-      .channel("orders-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "orders",
-        },
-        () => {
-          getPaidOrders();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      channel.unsubscribe();
-    };
+    onRefresh();
   }, []);
-
   const filteredOrders = React.useMemo(() => {
     if (!search) return orders;
     const lowercasedSearch = search.toLowerCase();
@@ -41,13 +36,13 @@ export default function HomeScreen() {
         order.entradas.toString().includes(lowercasedSearch)
     );
   }, [search, orders]);
+
   if (!orders) return <ActivityIndicator />;
+  if (isLoading && !orders?.length) return <ActivityIndicator />;
   return (
     <FlashList
-      contentContainerStyle={
-        {
-          // Adjust this value as needed
-        }
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
       renderItem={({ item: order }) => <OrderCard order={order} />}
       data={filteredOrders}

@@ -1,26 +1,50 @@
 import { useOrderContext } from "@/context";
 import { IOrder } from "@/interfaces";
-import { Image } from "expo-image";
+import { supabase } from "@/utils/supabase";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
 import { ScrollView, View } from "react-native";
-import { Button, Divider, Modal, Portal, Text } from "react-native-paper";
+import { ActivityIndicator, Divider, Text } from "react-native-paper";
 
 export default function ReceiptScreen() {
   const params = useLocalSearchParams<{ id: string }>();
   const [order, setOrder] = useState<IOrder>();
   const { getOrderById } = useOrderContext();
-  const [paid, setPaid] = useState<boolean>(false);
-  const [modalVisible, setModalVisible] = useState(false);
   React.useEffect(() => {
-    getOrderById(params.id).then((order) => setOrder(order));
+    getOrderById(params.id).then((order) => {
+      setOrder(order);
+    });
   }, [params.id]);
-  if (!order) return <Text>Loading...</Text>;
+  React.useEffect(() => {
+    const channel = supabase
+      .channel("table-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "orders",
+        },
+        async () => {
+          await supabase.from("orders").select("*");
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, []);
+  if (!order) return <ActivityIndicator />;
+
   const total =
     order.entradas.reduce((acc, item) => {
       return acc + item.price * item.quantity;
     }, 0) +
     order.bebidas.reduce((acc, item) => {
+      return acc + item.price * item.quantity;
+    }, 0) +
+    order.fondos.reduce((acc, item) => {
       return acc + item.price * item.quantity;
     }, 0);
 
@@ -66,44 +90,12 @@ export default function ReceiptScreen() {
 
         <Divider className="border-dashed border-2" />
         <View className="flex flex-col gap-3">
-          <Divider />
           <View className="flex flex-row justify-between">
-            <Text>Total</Text>
+            <Text variant="titleLarge">Total</Text>
             <Text variant="titleLarge">S/. {total}</Text>
           </View>
         </View>
       </View>
-      <Portal>
-        <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)}>
-          <View className="p-4 bg-white mx-4 rounded-lg flex flex-col gap-16">
-            <View className="flex flex-row gap-4 items-center">
-              <Image
-                style={{
-                  width: 50,
-                  height: 50,
-                }}
-                source={{
-                  uri: "https://img.icons8.com/?size=100&id=VQOfeAx5KWTK&format=png&color=000000",
-                }}
-              />
-              <View className="flex flex-col gap-1">
-                <Text variant="titleMedium">Estado del pedido</Text>
-                <Text>Estas seguro de cambiar el </Text>
-                <Text> estado de la orden ?</Text>
-              </View>
-            </View>
-            <Button
-              mode="contained"
-              onPress={() => {
-                setPaid(!paid);
-                setModalVisible(false);
-              }}
-            >
-              Confirmar
-            </Button>
-          </View>
-        </Modal>
-      </Portal>
     </ScrollView>
   );
 }
