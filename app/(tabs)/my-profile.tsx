@@ -16,7 +16,9 @@ export default function ProfileScreen() {
         />
 
         <View className="flex flex-col gap-1">
-          <Text className="font-bold text-2xl">{user.name}</Text>
+          <Text className="font-bold text-2xl">
+            {user.name} {user.last_name}
+          </Text>
 
           <Text className="text-md">
             {user.role === "chef"

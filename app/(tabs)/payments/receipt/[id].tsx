@@ -16,7 +16,7 @@ export default function ReceiptScreen() {
     getOrderById(params.id).then((order) => setOrder(order));
   }, [params.id]);
   if (!order) return <Text>Loading...</Text>;
-  const subTotal =
+  const total =
     order.entradas.reduce((acc, item) => {
       return acc + item.price * item.quantity;
     }, 0) +
@@ -24,15 +24,13 @@ export default function ReceiptScreen() {
       return acc + item.price * item.quantity;
     }, 0);
 
-  const total = subTotal + subTotal * 0.18;
-
   return (
     <ScrollView className="p-4" contentInsetAdjustmentBehavior="automatic">
       <View className="flex flex-col gap-12">
         <View className="flex flex-col gap-3">
           <View className="flex flex-row justify-between">
-            <Text>Mozo</Text>
-            <Text>Jhon Doe</Text>
+            <Text>Atendido por: </Text>
+            <Text>{order.users?.name}</Text>
           </View>
           <Divider />
         </View>
@@ -68,14 +66,6 @@ export default function ReceiptScreen() {
 
         <Divider className="border-dashed border-2" />
         <View className="flex flex-col gap-3">
-          <View className="flex flex-row justify-between">
-            <Text>SubTotal</Text>
-            <Text>S/. {subTotal}</Text>
-          </View>
-          <View className="flex flex-row justify-between">
-            <Text>Impuestos</Text>
-            <Text>S/. {(subTotal * 0.18).toFixed(2)}</Text>
-          </View>
           <Divider />
           <View className="flex flex-row justify-between">
             <Text>Total</Text>
