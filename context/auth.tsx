@@ -1,5 +1,6 @@
 import { IAuthContextProvider, IUser } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
+import { supabaseAdmin } from "@/utils/supabaseAdmin";
 import { Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Alert } from "react-native";
@@ -142,7 +143,7 @@ export function AuthContextProvider({
 
   const deleteUser = async (id: string) => {
     try {
-      const { error } = await supabase.from("accounts").delete().eq("id", id);
+      const { error } = await supabaseAdmin.auth.admin.deleteUser(id);
 
       if (error) throw error;
 

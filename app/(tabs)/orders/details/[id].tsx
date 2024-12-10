@@ -69,6 +69,12 @@ export default function OrderDetailsScreen() {
       .eq("id", id)
       .select();
     router.back();
+    //update status table tables to true
+    const { data: dataTable, error: errorTable } = await supabase
+      .from("tables")
+      .update({ status: true })
+      .eq("id", order.id_table)
+      .select();
   };
   const handleSwitchChange = () => {
     setModalVisible(!modalVisible);
