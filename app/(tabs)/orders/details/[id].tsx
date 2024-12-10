@@ -297,11 +297,9 @@ export default function OrderDetailsScreen() {
             <Text variant="titleLarge">S/. {total.toFixed(2)}</Text>
           </View>
         </View>
-        {order.paid && (
-          <Button mode="contained" onPress={() => printOrder()}>
-            Imprimir Boleta
-          </Button>
-        )}
+        <Button mode="contained" onPress={() => printOrder()}>
+          Imprimir Boleta
+        </Button>
       </View>
       <Portal>
         <Modal visible={modalVisible} onDismiss={() => setModalVisible(false)}>
