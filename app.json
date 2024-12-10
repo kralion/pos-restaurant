@@ -2,14 +2,14 @@
   "expo": {
     "name": "Ordee",
     "slug": "pos-restaurant",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/logoFinal.png",
     "scheme": "pos-restaurant",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/logoFinal.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -18,7 +18,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/logoFinal.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.miguelparis.posrestaurant"
