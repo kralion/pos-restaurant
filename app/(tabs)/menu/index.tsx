@@ -58,11 +58,9 @@ export default function MenuScreen() {
   if (!meals) return <ActivityIndicator />;
   if (isLoading && !meals?.length) return <ActivityIndicator />;
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView className="flex-1 bg-white">
       <FlashList
-        contentContainerStyle={{
-          
-        }}
+        contentContainerStyle={{}}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }

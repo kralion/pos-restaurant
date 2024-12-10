@@ -44,7 +44,7 @@ export default function SignInScreen() {
   };
 
   return (
-    <ScrollView>
+    <ScrollView className="bg-white">
       <SafeAreaView className="flex flex-col justify-center align-middle m-4 items-center ">
         <View className="flex flex-col gap-16 w-full items-center">
           <View className="flex flex-col items-center gap-8 mt-20">
@@ -135,7 +135,7 @@ export default function SignInScreen() {
               </Text>
             </Text>
             <Text className="text-muted-foreground text-zinc-400   mx-auto text-sm">
-              Versión 1.2.1
+              Versión 1.2.2
             </Text>
           </View>
         </View>

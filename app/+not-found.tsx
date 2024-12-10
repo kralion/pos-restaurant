@@ -6,7 +6,7 @@ import { Text, View } from "@/components/Themed";
 
 export default function NotFoundScreen() {
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <Stack.Screen options={{ title: "Oops!" }} />
       <View style={styles.container}>
         <Text style={styles.title}>This screen doesn't exist.</Text>

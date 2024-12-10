@@ -41,6 +41,12 @@ export default function HomeScreen() {
   if (isLoading && !orders?.length) return <ActivityIndicator />;
   return (
     <FlashList
+      contentContainerStyle={{
+        backgroundColor: "#fff",
+      }}
+      style={{
+        backgroundColor: "#fff",
+      }}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }

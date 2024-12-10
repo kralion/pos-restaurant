@@ -5,7 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function ProfileScreen() {
   const { profile: user, signOut, session } = useAuth();
   return (
-    <SafeAreaView style={{ paddingTop: 16, height: "100%" }}>
+    <SafeAreaView className="bg-white p-4 h-screen-safe">
       <View className="flex flex-col items-center gap-4">
         <Avatar.Image
           accessibilityLabel="avatar"

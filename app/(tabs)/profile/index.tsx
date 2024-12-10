@@ -10,7 +10,12 @@ export default function ProfileScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={{ paddingTop: headerHeight, height: "100%" }}>
+    <SafeAreaView
+      className="bg-white p-4 h-screen-full"
+      style={{
+        paddingTop: headerHeight,
+      }}
+    >
       <View>
         <View className="flex flex-col items-center justify-center gap-2">
           <Avatar.Image

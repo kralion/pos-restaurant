@@ -106,7 +106,7 @@ export default function TablesScreen() {
   }, [tables]);
 
   return (
-    <SafeAreaView className="p-4 ">
+    <SafeAreaView className="p-4 bg-white">
       <Text className="text-4xl" style={{ fontWeight: "700" }}>
         Mesas
       </Text>
