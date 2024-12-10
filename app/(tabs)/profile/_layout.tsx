@@ -17,7 +17,15 @@ export default function ProfileLayout() {
         name="users"
         options={{
           title: "Usuarios",
-          headerBackTitle: "Pedidos",
+          headerLargeTitle: true,
+          headerBackVisible: true,
+          headerShadowVisible: false,
+        }}
+      />
+      <Stack.Screen
+        name="customers"
+        options={{
+          title: "Clientes Fijos",
           headerLargeTitle: true,
           headerBackVisible: true,
           headerShadowVisible: false,
@@ -29,7 +37,6 @@ export default function ProfileLayout() {
           const { id } = route.params as { id: string };
           return {
             title: "Reporte",
-            headerBackTitle: "Pedidos",
             headerLargeTitle: true,
             headerBackVisible: true,
             headerShadowVisible: false,

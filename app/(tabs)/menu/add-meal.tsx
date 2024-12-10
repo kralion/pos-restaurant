@@ -156,7 +156,7 @@ export default function MenuScreen() {
           }}
           render={({ field: { onChange, value } }) => (
             <View className="mb-4">
-              <List.Section>
+              <List.Section title="Categoría">
                 <List.Accordion
                   expanded={expanded}
                   title={value}

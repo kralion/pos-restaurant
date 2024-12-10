@@ -24,26 +24,24 @@ export default function ProfileScreen() {
           <Text className="font-bold text-2xl">
             {user.name} {user.last_name}
           </Text>
-          <Button
-            mode={
-              user.role === "chef"
-                ? "contained"
-                : user.role === "admin"
-                ? "contained"
-                : "outlined"
-            }
-          >
-            <Text className="text-md">{user.role}</Text>
-          </Button>
+
+          <Text className="text-md">{user.role}</Text>
         </View>
       </View>
       <View className="flex flex-col mt-10 items-start ml-4">
         <Button
-          icon="account-group"
+          icon="account-group-outline"
           onPress={() => router.push("/(tabs)/profile/users")}
           mode="text"
         >
           Usuarios
+        </Button>
+        <Button
+          icon="account-heart-outline"
+          onPress={() => router.push("/(tabs)/profile/customers")}
+          mode="text"
+        >
+          Clientes Fijos
         </Button>
         <Button
           onPress={() => router.push("/(tabs)/profile/daily-report")}

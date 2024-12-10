@@ -92,7 +92,8 @@ export default function UsersScreen() {
       </ScrollView>
 
       <FAB
-        icon="plus"
+        icon="account-plus-outline"
+        variant="tertiary"
         style={{
           position: "absolute",
           margin: 16,

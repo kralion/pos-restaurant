@@ -33,7 +33,7 @@ export default function AddUserScreen() {
       last_name: "",
       email: "",
       password: "",
-      role: "waiter",
+      role: "Administrador",
     },
   });
 
@@ -209,7 +209,7 @@ export default function AddUserScreen() {
           }}
           render={({ field: { onChange, value } }) => (
             <View className="mb-4">
-              <List.Section>
+              <List.Section title="Rol del usuario">
                 <List.Accordion
                   expanded={expanded}
                   title={value}

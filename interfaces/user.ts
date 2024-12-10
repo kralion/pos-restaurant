@@ -6,6 +6,13 @@ export interface IUser {
   image_url?: string;
   role: "waiter" | "chef" | "admin";
 }
+
+export interface ICustomer {
+  id?: string;
+  full_name: string;
+  total_orders: number;
+  total_free_orders: number;
+}
 export interface IAuthContextProvider {
   session: Session | null;
   user: User | null;
@@ -17,4 +24,12 @@ export interface IAuthContextProvider {
   deleteUser: (id: string) => void;
   getUsers: () => void;
   users: IUser[];
+}
+export interface ICustomerContextProvider {
+  loading: boolean;
+  deleteCustomer: (id: string) => void;
+  getCustomerById: (id: string) => void;
+  getCustomers: () => void;
+  customers: ICustomer[];
+  customer: ICustomer;
 }
