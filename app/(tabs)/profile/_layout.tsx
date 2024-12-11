@@ -7,8 +7,8 @@ export default function ProfileLayout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Perfil",
-          headerLargeTitle: true,
+          title: "Mi Perfil",
+          headerLargeTitle: false,
           headerShadowVisible: false,
           headerLargeTitleShadowVisible: false,
         }}

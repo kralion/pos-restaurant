@@ -11,24 +11,22 @@ export default function PaymentsLayout() {
           title: "Pedidos Pagados",
           headerShadowVisible: false,
           headerLargeTitle: true,
-          headerBlurEffect: "regular",
-          headerTransparent: true,
-          headerSearchBarOptions: {
-            placeholder: "Buscar ...",
-            hideWhenScrolling: true,
-            cancelButtonText: "Cancelar",
-            onChangeText: (event) => {
-              const search = event.nativeEvent.text;
-              router.setParams({
-                search: search,
-              });
-            },
-            onCancelButtonPress: () => {
-              router.setParams({
-                search: undefined,
-              });
-            },
-          },
+          // headerSearchBarOptions: {
+          //   placeholder: "Buscar ...",
+          //   hideWhenScrolling: true,
+          //   cancelButtonText: "Cancelar",
+          //   onChangeText: (event) => {
+          //     const search = event.nativeEvent.text;
+          //     router.setParams({
+          //       search: search,
+          //     });
+          //   },
+          //   onCancelButtonPress: () => {
+          //     router.setParams({
+          //       search: undefined,
+          //     });
+          //   },
+          // },
         }}
       />
       <Stack.Screen

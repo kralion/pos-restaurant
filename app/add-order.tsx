@@ -433,11 +433,19 @@ export default function OrderScreen() {
               <View className="flex flex-row gap-2 justify-between items-center p-4 w-full">
                 <View>
                   <Text variant="titleMedium">Cliente Fijo</Text>
-                  <Text variant="bodyMedium" className="opacity-60">
-                    {value
-                      ? customers.find((c) => c.id === value)?.full_name
-                      : "No seleccionado"}
-                  </Text>
+                  {value && (
+                    <Text variant="bodyMedium" className="opacity-60">
+                      {(() => {
+                        const customer = customers.find((c) => c.id === value);
+                        return (
+                          <>
+                            {customer?.full_name} -{" "}
+                            {customer?.total_free_orders} pedidos gratis
+                          </>
+                        );
+                      })()}
+                    </Text>
+                  )}
                 </View>
                 <Switch
                   value={!!value}
@@ -453,6 +461,23 @@ export default function OrderScreen() {
             )}
           />
           <Divider />
+
+          {/* //TODO: Renderizar el boton de orden gratis solo si el cliente fijo seleccionado tiene ordenes gratis disponibles */}
+          {!watch("id_fixed_customer") && (
+            <Controller
+              control={control}
+              name="free"
+              render={({ field: { onChange, value } }) => (
+                <View className="flex flex-row gap-2 justify-between items-center p-4">
+                  <View>
+                    <Text variant="titleMedium">Orden Gratuita</Text>
+                  </View>
+                  <Switch value={value} onValueChange={onChange} />
+                </View>
+              )}
+            />
+          )}
+          <Divider />
           <Controller
             control={control}
             name="to_go"
@@ -460,9 +485,6 @@ export default function OrderScreen() {
               <View className="flex flex-row gap-2 justify-between items-center p-4">
                 <View>
                   <Text variant="titleMedium">Orden para llevar</Text>
-                  <Text variant="bodyMedium" className="opacity-60">
-                    {value ? "Sí" : "No"}
-                  </Text>
                 </View>
                 <Switch value={value} onValueChange={onChange} />
               </View>

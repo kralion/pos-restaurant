@@ -31,24 +31,22 @@ export default function WaiterLayout() {
           title: "Pedidos",
           headerLargeTitle: true,
           headerShadowVisible: false,
-          headerBlurEffect: "regular",
-          headerTransparent: true,
-          headerSearchBarOptions: {
-            placeholder: "Buscar ...",
-            hideWhenScrolling: true,
-            cancelButtonText: "Cancelar",
-            onChangeText: (event) => {
-              const search = event.nativeEvent.text;
-              router.setParams({
-                search: search,
-              });
-            },
-            onCancelButtonPress: () => {
-              router.setParams({
-                search: undefined,
-              });
-            },
-          },
+          // headerSearchBarOptions: {
+          //   placeholder: "Buscar ...",
+          //   hideWhenScrolling: true,
+          //   cancelButtonText: "Cancelar",
+          //   onChangeText: (event) => {
+          //     const search = event.nativeEvent.text;
+          //     router.setParams({
+          //       search: search,
+          //     });
+          //   },
+          //   onCancelButtonPress: () => {
+          //     router.setParams({
+          //       search: undefined,
+          //     });
+          //   },
+          // },
           headerLargeTitleShadowVisible: false,
         }}
       />

@@ -10,12 +10,7 @@ export default function ProfileScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView
-      className="bg-white p-4 h-screen-full"
-      style={{
-        paddingTop: headerHeight,
-      }}
-    >
+    <SafeAreaView className="bg-white p-4 h-screen-safe">
       <View className="flex flex-col items-center justify-center gap-2">
         <Avatar.Image
           accessibilityLabel="avatar"
@@ -68,11 +63,11 @@ export default function ProfileScreen() {
         Versión 2.15.1
       </Text>
 
-      <View className="absolute bottom-[100px] right-[-70px] w-[200px] h-[300px] rounded-xl rotate-[-30deg] bg-yellow-400 shadow-lg" />
+      <View className="absolute bottom-[200px] right-[-70px] w-[200px] h-[300px] rounded-xl rotate-[-30deg] bg-yellow-400 shadow-lg" />
 
-      <View className="absolute bottom-[50px] right-[-70px] w-[200px] h-[300px] rounded-xl rotate-[-40deg] bg-orange-500 shadow-lg" />
+      <View className="absolute bottom-[150px] right-[-70px] w-[200px] h-[300px] rounded-xl rotate-[-40deg] bg-orange-500 shadow-lg" />
 
-      <View className="absolute bottom-[10px] right-[-70px] w-[200px] h-[300px] rounded-xl rotate-[-50deg] bg-black shadow-lg" />
+      <View className="absolute bottom-[100px] right-[-70px] w-[200px] h-[300px] rounded-xl rotate-[-50deg] bg-black shadow-lg" />
     </SafeAreaView>
   );
 }

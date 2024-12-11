@@ -7,6 +7,7 @@ export interface IOrder {
   users?: IUser;
   id_fixed_customer?: string;
   id_waiter: string;
+  free?: boolean;
   served: boolean;
   to_go: boolean;
   paid: boolean;
