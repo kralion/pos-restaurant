@@ -1,4 +1,5 @@
 import { useAuth, useOrderContext } from "@/context";
+import { useCustomer } from "@/context/customer";
 import { IMeal, IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { useHeaderHeight } from "@react-navigation/elements";
@@ -14,7 +15,18 @@ import {
   Surface,
   Switch,
   Text,
+  Portal,
+  Modal,
+  TextInput,
+  Searchbar 
 } from "react-native-paper";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInDown,
+  SlideOutDown,
+} from "react-native-reanimated";
+import { useDebouncedCallback } from 'use-debounce';
 
 interface MealWithQuantity extends IMeal {
   quantity: number;
@@ -42,12 +54,26 @@ export default function OrderScreen() {
   const headerHeight = useHeaderHeight();
   const { profile, user } = useAuth();
   const { addOrder } = useOrderContext();
+  const { getCustomers, customers } = useCustomer();
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchText, setSearchText] = useState("");
+  
+  const debouncedSearch = useDebouncedCallback((text : string) => {
+    setSearchQuery(text);
+  }, 300);
+
+  useEffect(() => {
+    getCustomers();
+  }, []);
+
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
     setValue,
+    watch,
   } = useForm<IOrder>();
 
   const updateMealQuantity = (
@@ -312,6 +338,90 @@ export default function OrderScreen() {
     );
   };
 
+  const filteredCustomers = React.useMemo(() => 
+    customers.filter((customer) =>
+      customer.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+    ), [customers, searchQuery]
+  );
+
+  const renderCustomerModal = () => (
+    <Portal>
+      <Modal
+        visible={showCustomerModal}
+        onDismiss={() => {
+          setShowCustomerModal(false);
+          setSearchText("");
+          setSearchQuery("");
+        }}
+        contentContainerStyle={{
+          backgroundColor: "white",
+          padding: 20,
+          margin: 20,
+          borderRadius: 8,
+        }}
+      >
+        <Animated.View
+          entering={SlideInDown}
+          exiting={SlideOutDown}
+          className="w-full"
+        >
+          <View className="flex-row justify-between items-center mb-4">
+            <Text variant="titleSmall">Seleccionar Cliente</Text>
+            <IconButton
+              icon="close"
+              onPress={() => {
+                setShowCustomerModal(false);
+                setSearchText("");
+                setSearchQuery("");
+              }}
+            />
+          </View>
+          <Searchbar
+            placeholder="Buscar cliente..."
+            onChangeText={(text) => {
+              setSearchText(text);
+              debouncedSearch(text);
+            }}
+            value={searchText}
+            onClearIconPress={() => {
+              setSearchText("");
+              setSearchQuery("");
+            }}
+            className="mb-4"
+            autoFocus
+          />
+
+          <ScrollView style={{ maxHeight: 400 }}>
+            {filteredCustomers.length > 0 ? (
+              filteredCustomers.map((customer) => (
+                <List.Item
+                  key={customer.id}
+                  title={customer.full_name}
+                  onPress={() => {
+                    setValue("id_fixed_customer", customer.id);
+                    setShowCustomerModal(false);
+                    setSearchText("");
+                    setSearchQuery("");
+                  }}
+                  left={props => <List.Icon {...props} icon="account" />}
+                  right={(props) =>
+                    watch("id_fixed_customer") === customer.id ? (
+                      <List.Icon {...props} icon="check" />
+                    ) : null
+                  }
+                />
+              ))
+            ) : (
+              <View className="p-4 items-center">
+                <Text variant="bodyMedium">No se encontraron clientes</Text>
+              </View>
+            )}
+          </ScrollView>
+        </Animated.View>
+      </Modal>
+    </Portal>
+  );
+
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic">
       <View className="flex flex-col gap-16 w-full items-center p-4">
@@ -321,17 +431,51 @@ export default function OrderScreen() {
           </Text>
           <Divider />
         </View>
-        <View className="flex flex-col justify-center align-middle w-full gap-4">
+        <View className="w-full rounded-lg overflow-hidden flex flex-col borde bg-white">
+          <Controller
+            control={control}
+            name="id_fixed_customer"
+            render={({ field: { value } }) => (
+              <View className="flex flex-row gap-2 justify-between items-center p-4 w-full">
+                <View>
+                  <Text variant="titleMedium">Cliente Fijo</Text>
+                  <Text variant="bodyMedium" className="opacity-60">
+                    {value
+                      ? customers.find((c) => c.id === value)?.full_name
+                      : "No seleccionado"}
+                  </Text>
+                </View>
+                <Switch
+                  value={!!value}
+                  onValueChange={(checked) => {
+                    if (checked) {
+                      setShowCustomerModal(true);
+                    } else {
+                      setValue("id_fixed_customer", undefined);
+                    }
+                  }}
+                />
+              </View>
+            )}
+          />
+          <Divider />
           <Controller
             control={control}
             name="to_go"
             render={({ field: { onChange, value } }) => (
-              <View className="flex flex-row gap-2 justify-between items-center bg-white h-20 p-4">
-                <Text variant="bodyLarge">Orden para llevar ?</Text>
+              <View className="flex flex-row gap-2 justify-between items-center p-4">
+                <View>
+                  <Text variant="titleMedium">Orden para llevar</Text>
+                  <Text variant="bodyMedium" className="opacity-60">
+                    {value ? "Sí" : "No"}
+                  </Text>
+                </View>
                 <Switch value={value} onValueChange={onChange} />
               </View>
             )}
           />
+        </View>
+        <View className="flex flex-col justify-center align-middle w-full gap-4">
           <List.Section>
             <List.Accordion
               title="Seleccionar Entradas"
@@ -388,6 +532,7 @@ export default function OrderScreen() {
           </Button>
         </View>
       </View>
+      {renderCustomerModal()}
     </ScrollView>
   );
 }

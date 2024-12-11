@@ -5,6 +5,7 @@ export interface IOrder {
   id_table: string;
   date?: Date;  // We'll use this existing field
   users?: IUser;
+  id_fixed_customer?: string;
   id_waiter: string;
   served: boolean;
   to_go: boolean;

@@ -11,6 +11,7 @@ import {
 } from "react-native-paper";
 import "react-native-reanimated";
 import "../styles/global.css";
+import { CustomerContextProvider } from "@/context/customer";
 // Import your global CSS file
 
 export {
@@ -64,19 +65,21 @@ function RootLayoutNav() {
       <PaperProvider theme={theme}>
         <OrderContextProvider>
           <MealContextProvider>
-            <Stack>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="add-order"
-                options={{
-                  title: "Agregar Orden",
-                  headerBackTitle: "Atrás",
-                  presentation: "modal",
-                  headerShown: false,
-                }}
-              />
-            </Stack>
+            <CustomerContextProvider>
+              <Stack>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="add-order"
+                  options={{
+                    title: "Agregar Orden",
+                    headerBackTitle: "Atrás",
+                    presentation: "modal",
+                    headerShown: false,
+                  }}
+                />
+              </Stack>
+            </CustomerContextProvider>
           </MealContextProvider>
         </OrderContextProvider>
       </PaperProvider>
