@@ -45,8 +45,7 @@ export default function OrderScreen() {
   const [selectedBebidas, setSelectedBebidas] = useState<MealWithQuantity[]>(
     []
   );
-  const headerHeight = useHeaderHeight();
-  const { profile, user } = useAuth();
+  const { profile } = useAuth();
   const { addOrder } = useOrderContext();
   const { getCustomers, customers } = useCustomer();
   const [showCustomerModal, setShowCustomerModal] = useState(false);
