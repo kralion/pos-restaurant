@@ -11,15 +11,12 @@ export default function MenuLayout() {
           title: "Menú del Día",
           headerLargeTitle: true,
           headerShadowVisible: false,
-          headerRight: () => (
-            <Button
-              title="Agregar"
-              onPress={() => router.push("/(tabs)/menu/add-meal")}
-            />
-          ),
+          headerBlurEffect: "regular",
+          headerTransparent: true,
+
           headerSearchBarOptions: {
             placeholder: "Buscar ...",
-            hideWhenScrolling: false,
+            hideWhenScrolling: true,
             cancelButtonText: "Cancelar",
             onChangeText: (event) => {
               const search = event.nativeEvent.text;

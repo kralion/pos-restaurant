@@ -236,8 +236,8 @@ export const OrderContextProvider = ({
       .eq("id", id)
       .single();
     if (error) throw error;
-    setOrder(data);
     setLoading(false);
+    setOrder(data);
     return data;
   }
 

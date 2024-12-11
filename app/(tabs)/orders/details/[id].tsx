@@ -40,7 +40,7 @@ export default function OrderDetailsScreen() {
           table: "orders",
         },
         async () => {
-          const { data, error } = await supabase.from("orders").select("*");
+          await supabase.from("orders").select("*");
         }
       )
       .subscribe();
@@ -63,13 +63,8 @@ export default function OrderDetailsScreen() {
     }, 0);
 
   const updatePaidStatus = async (id: string, paid: boolean) => {
-    const { data, error } = await supabase
-      .from("orders")
-      .update({ paid })
-      .eq("id", id)
-      .select();
+    await supabase.from("orders").update({ paid }).eq("id", id).select();
     router.back();
-    //update status table tables to true
     await supabase
       .from("tables")
       .update({ status: true })

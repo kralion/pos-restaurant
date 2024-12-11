@@ -9,9 +9,13 @@ export default function PaymentsLayout() {
         name="index"
         options={{
           title: "Pedidos Pagados",
+          headerShadowVisible: false,
+          headerLargeTitle: true,
+          headerBlurEffect: "regular",
+          headerTransparent: true,
           headerSearchBarOptions: {
             placeholder: "Buscar ...",
-            hideWhenScrolling: false,
+            hideWhenScrolling: true,
             cancelButtonText: "Cancelar",
             onChangeText: (event) => {
               const search = event.nativeEvent.text;
@@ -19,7 +23,6 @@ export default function PaymentsLayout() {
                 search: search,
               });
             },
-
             onCancelButtonPress: () => {
               router.setParams({
                 search: undefined,

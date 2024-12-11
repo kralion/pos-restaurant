@@ -48,12 +48,6 @@ export default function HomeScreen() {
       className=" bg-white flex-1"
     >
       <FlashList
-        contentContainerStyle={{
-          backgroundColor: "#fff",
-        }}
-        style={{
-          backgroundColor: "#fff",
-        }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }

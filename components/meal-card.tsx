@@ -16,6 +16,9 @@ export default function MealCard({ meal }: { meal: IMeal }) {
         source={{
           uri: meal.image_url,
         }}
+        style={{
+          height: 150,
+        }}
       />
       <Card.Title
         title={meal.name}

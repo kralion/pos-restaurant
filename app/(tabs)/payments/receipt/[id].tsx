@@ -3,8 +3,13 @@ import { IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
-import { ScrollView, View } from "react-native";
-import { ActivityIndicator, Divider, Text } from "react-native-paper";
+import {
+  SafeAreaView,
+  ScrollView,
+  View,
+  ActivityIndicator,
+} from "react-native";
+import { Divider, Text } from "react-native-paper";
 
 export default function ReceiptScreen() {
   const params = useLocalSearchParams<{ id: string }>();
@@ -48,7 +53,12 @@ export default function ReceiptScreen() {
       return acc + item.price * item.quantity;
     }, 0);
 
-  if (loading || !order) return <ActivityIndicator />;
+  if (loading)
+    return (
+      <SafeAreaView className="h-screen items-center justify-center flex flex-col">
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
 
   return (
     <ScrollView
@@ -103,7 +113,7 @@ export default function ReceiptScreen() {
         <View className="flex flex-col gap-3">
           <View className="flex flex-row justify-between">
             <Text variant="titleLarge">Total</Text>
-            <Text variant="titleLarge">S/. {total}</Text>
+            <Text variant="titleLarge">S/. {total.toFixed(2)}</Text>
           </View>
         </View>
       </View>

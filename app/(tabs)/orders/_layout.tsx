@@ -31,9 +31,11 @@ export default function WaiterLayout() {
           title: "Pedidos",
           headerLargeTitle: true,
           headerShadowVisible: false,
+          headerBlurEffect: "regular",
+          headerTransparent: true,
           headerSearchBarOptions: {
             placeholder: "Buscar ...",
-            hideWhenScrolling: false,
+            hideWhenScrolling: true,
             cancelButtonText: "Cancelar",
             onChangeText: (event) => {
               const search = event.nativeEvent.text;

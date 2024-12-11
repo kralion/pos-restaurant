@@ -2,10 +2,10 @@ import MealCard from "@/components/meal-card";
 import { useMealContext } from "@/context/meals";
 import { supabase } from "@/utils/supabase";
 import { FlashList } from "@shopify/flash-list";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
-import { RefreshControl, ScrollView } from "react-native";
-import { ActivityIndicator } from "react-native-paper";
+import { RefreshControl, ScrollView, View } from "react-native";
+import { ActivityIndicator, FAB } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function MenuScreen() {
@@ -58,20 +58,33 @@ export default function MenuScreen() {
   if (!meals) return <ActivityIndicator />;
   if (isLoading && !meals?.length) return <ActivityIndicator />;
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      className=" bg-white flex-1"
-    >
-      <FlashList
-        contentContainerStyle={{}}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        renderItem={({ item: meal }) => <MealCard meal={meal} />}
-        data={filteredMeals}
-        estimatedItemSize={200}
-        horizontal={false}
+    <View className="flex-1">
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        className=" bg-white flex-1 h-screen-safe"
+      >
+        <FlashList
+          contentContainerStyle={{}}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          renderItem={({ item: meal }) => <MealCard meal={meal} />}
+          data={filteredMeals}
+          estimatedItemSize={200}
+          horizontal={false}
+        />
+      </ScrollView>
+      <FAB
+        icon="toy-brick-plus-outline"
+        variant="tertiary"
+        style={{
+          position: "absolute",
+          margin: 16,
+          right: 0,
+          bottom: 0,
+        }}
+        onPress={() => router.push("/menu/add-meal")}
       />
-    </ScrollView>
+    </View>
   );
 }

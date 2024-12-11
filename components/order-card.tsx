@@ -1,8 +1,18 @@
 import { IOrder } from "@/interfaces";
 import { router } from "expo-router";
 import React from "react";
-import { Avatar, Card, IconButton } from "react-native-paper";
+import { View } from "react-native";
+import { Avatar, Card, IconButton, Text } from "react-native-paper";
+
 export default function OrderCard({ order }: { order: IOrder }) {
+  const formattedDate = new Date(order.date ?? new Date()).toLocaleString(
+    "es-ES",
+    {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }
+  );
   return (
     <Card
       style={{
@@ -14,8 +24,10 @@ export default function OrderCard({ order }: { order: IOrder }) {
       }}
     >
       <Card.Title
-        title={"Mesa #" + order.id_table}
-        subtitle={order.served ? "Servido" : "No Servido"}
+        title={"Mesa " + order.id_table}
+        titleStyle={{ fontWeight: "bold", fontSize: 16 }}
+        subtitle={order.served ? "Servido" : "En espera"}
+        subtitleStyle={{ fontSize: 13 }}
         left={(props) => (
           <Avatar.Icon
             color="white"
@@ -23,7 +35,12 @@ export default function OrderCard({ order }: { order: IOrder }) {
             icon={order.served ? "food" : "alert-decagram-outline"}
           />
         )}
-        right={(props) => <IconButton {...props} icon="chevron-right" />}
+        right={(props) => (
+          <View className="flex flex-row items-center">
+            <Text variant="bodyMedium">{formattedDate}</Text>
+            <IconButton {...props} icon="chevron-right" />
+          </View>
+        )}
       />
     </Card>
   );

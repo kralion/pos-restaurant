@@ -1,16 +1,26 @@
 import { IOrder } from "@/interfaces";
 import { router } from "expo-router";
 import React from "react";
+import { View } from "react-native";
 import {
   ActivityIndicator,
   Avatar,
   Card,
   IconButton,
+  Text,
 } from "react-native-paper";
 
 export default function PaymentCard({ order }: { order: IOrder }) {
   if (!order.date) return <ActivityIndicator />;
-  const formattedDate = new Date(order.date).toLocaleDateString();
+  const formattedDate = new Date(order.date).toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "short",
+  });
+  const formattedTime = new Date().toLocaleString("es-ES", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
 
   return (
     <Card
@@ -23,17 +33,17 @@ export default function PaymentCard({ order }: { order: IOrder }) {
       }}
     >
       <Card.Title
-        title={"Mesa #" + order.id_table}
-        titleStyle={{ fontWeight: "bold" }}
-        subtitle={`${formattedDate}`}
-        left={(props) => (
-          <Avatar.Icon
-            color="white"
-            {...props}
-            icon={order.served ? "food" : "alert-decagram-outline"}
-          />
+        title={"Mesa " + order.id_table}
+        titleStyle={{ fontWeight: "bold", fontSize: 16 }}
+        subtitleStyle={{ fontSize: 12 }}
+        subtitle={`${formattedDate} - ${formattedTime}`}
+        left={(props) => <Avatar.Icon color="white" {...props} icon="dolby" />}
+        right={(props) => (
+          <View className="flex flex-row items-center">
+            <Text variant="bodyMedium">S/. {order.total.toFixed(2)}</Text>
+            <IconButton {...props} icon="chevron-right" />
+          </View>
         )}
-        right={(props) => <IconButton {...props} icon="chevron-right" />}
       />
     </Card>
   );
