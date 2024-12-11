@@ -9,7 +9,7 @@ import { ActivityIndicator, Divider, Text } from "react-native-paper";
 export default function ReceiptScreen() {
   const params = useLocalSearchParams<{ id: string }>();
   const [order, setOrder] = useState<IOrder>();
-  const { getOrderById } = useOrderContext();
+  const { getOrderById, loading } = useOrderContext();
   React.useEffect(() => {
     getOrderById(params.id).then((order) => {
       setOrder(order);
@@ -48,9 +48,13 @@ export default function ReceiptScreen() {
       return acc + item.price * item.quantity;
     }, 0);
 
+  if (loading || !order) return <ActivityIndicator />;
 
   return (
-    <ScrollView className="p-4" contentInsetAdjustmentBehavior="automatic">
+    <ScrollView
+      className="p-4 bg-white"
+      contentInsetAdjustmentBehavior="automatic"
+    >
       <View className="flex flex-col gap-12">
         <View className="flex flex-col gap-3">
           <View className="flex flex-row justify-between">

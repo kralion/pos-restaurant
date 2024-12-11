@@ -10,6 +10,7 @@ export const OrderContext = createContext<IOrderContextProvider>({
   getOrderById: async (id: string): Promise<IOrder> => ({} as IOrder),
   orders: [],
   order: {} as IOrder,
+  loading: false,
   getPaidOrders: async () => [],
   deleteOrder: async () => {},
   getOrders: async () => [],
@@ -26,6 +27,7 @@ export const OrderContextProvider = ({
   const [orders, setOrders] = React.useState<IOrder[]>([]);
   const [order, setOrder] = React.useState<IOrder>({} as IOrder);
   const [paidOrders, setPaidOrders] = React.useState<IOrder[]>([]);
+  const [loading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     const subscription = supabase
@@ -53,6 +55,7 @@ export const OrderContextProvider = ({
   }, []);
 
   const addOrder = async (order: IOrder, tableId: string) => {
+    setLoading(true);
     try {
       for (const item of order.entradas) {
         const { data: mealData, error: mealError } = await supabase
@@ -167,7 +170,7 @@ export const OrderContextProvider = ({
         alert("Error al actualizar status da mesa");
         return;
       }
-
+      setLoading(false);
       alert("Pedido registrado");
       router.back();
     } catch (error) {
@@ -177,45 +180,56 @@ export const OrderContextProvider = ({
   };
 
   const getOrders = async () => {
+    setLoading(true);
     const { data, error } = await supabase.from("orders").select("*");
     if (error) throw error;
     setOrders(data);
+    setLoading(false);
     return data;
   };
 
   async function getUnservedOrders() {
+    setLoading(true);
     const { data, error } = await supabase
       .from("orders")
       .select("*")
       .eq("served", false);
     if (error) throw error;
+    setLoading(false);
     return data;
   }
 
   async function getPaidOrders() {
+    setLoading(true);
     const { data, error } = await supabase
       .from("orders")
       .select("*")
       .eq("paid", true);
     if (error) throw error;
     setPaidOrders(data);
+    setLoading(false);
     return data;
   }
   const updateOrderServedStatus = async (id: string) => {
+    setLoading(true);
     const { error } = await supabase
       .from("orders")
       .update({ served: true })
       .eq("id", id);
     if (error) throw error;
     console.log("Order updated", error);
+    setLoading(false);
   };
 
   const deleteOrder = async (id: string) => {
+    setLoading(true);
     await supabase.from("orders").delete().eq("id", id);
+    setLoading(false);
     setOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
   };
 
   async function getOrderById(id: string) {
+    setLoading(true);
     const { data, error } = await supabase
       .from("orders")
       .select("*, users:id_waiter(name)")
@@ -223,12 +237,14 @@ export const OrderContextProvider = ({
       .single();
     if (error) throw error;
     setOrder(data);
+    setLoading(false);
     return data;
   }
 
   async function getDailyPaidOrders() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    setLoading(true);
 
     const { data, error } = await supabase
       .from("orders")
@@ -238,6 +254,7 @@ export const OrderContextProvider = ({
       .order("date");
 
     if (error) throw error;
+    setLoading(false);
     return data;
   }
 
@@ -247,6 +264,7 @@ export const OrderContextProvider = ({
         orders,
         getOrders,
         deleteOrder,
+        loading,
         getOrderById,
         paidOrders,
         getPaidOrders,

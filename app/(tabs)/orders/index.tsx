@@ -3,8 +3,7 @@ import { useOrderContext } from "@/context";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
-import { RefreshControl } from "react-native";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, RefreshControl, ScrollView } from "react-native";
 
 export default function OrdersScreen() {
   const { search } = useLocalSearchParams<{ search?: string }>();
@@ -39,20 +38,25 @@ export default function OrdersScreen() {
   if (!orders) return <ActivityIndicator />;
   if (isLoading && !orders?.length) return <ActivityIndicator />;
   return (
-    <FlashList
-      style={{
-        backgroundColor: "#fff",
-      }}
-      contentContainerStyle={{
-        backgroundColor: "#fff",
-      }}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-      renderItem={({ item: order }) => <OrderCard order={order} />}
-      data={filteredOrders}
-      estimatedItemSize={200}
-      horizontal={false}
-    />
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      className=" bg-white flex-1"
+    >
+      <FlashList
+        style={{
+          backgroundColor: "#fff",
+        }}
+        contentContainerStyle={{
+          backgroundColor: "#fff",
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        renderItem={({ item: order }) => <OrderCard order={order} />}
+        data={filteredOrders}
+        estimatedItemSize={200}
+        horizontal={false}
+      />
+    </ScrollView>
   );
 }

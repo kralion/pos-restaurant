@@ -4,7 +4,7 @@ import { supabase } from "@/utils/supabase";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
-import { RefreshControl } from "react-native";
+import { RefreshControl, ScrollView } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -58,7 +58,10 @@ export default function MenuScreen() {
   if (!meals) return <ActivityIndicator />;
   if (isLoading && !meals?.length) return <ActivityIndicator />;
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      className=" bg-white flex-1"
+    >
       <FlashList
         contentContainerStyle={{}}
         refreshControl={
@@ -69,6 +72,6 @@ export default function MenuScreen() {
         estimatedItemSize={200}
         horizontal={false}
       />
-    </SafeAreaView>
+    </ScrollView>
   );
 }
