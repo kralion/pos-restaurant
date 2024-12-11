@@ -11,7 +11,7 @@ import { G, Polygon, Rect, Svg, Text as SvgText } from "react-native-svg";
 function TableSvg({ table }: { table: ITable }) {
   function onPress() {
     if (table.status) {
-      router.replace({
+      router.push({
         pathname: "/add-order",
         params: { number: table.number, id_table: table.id },
       });
@@ -31,22 +31,6 @@ function TableSvg({ table }: { table: ITable }) {
   };
 
   return (
-    // <Svg width="100" height="120" viewBox="0 0 24 24" onPress={onPress}>
-    //   <SvgText
-    //     x="12"
-    //     y="2"
-    //     fontSize="5"
-    //     fontWeight="bold"
-    //     textAnchor="middle"
-    //     alignmentBaseline="middle"
-    //   >
-    //     {table.number}
-    //   </SvgText>
-    //   <Path
-    //     d="M18.76,6l2,4H3.24l2-4H18.76M20,4H4L1,10v2H3v7H5V16H19v3h2V12h2V10L20,4ZM5,14V12H19v2Z"
-    //     fill={getStatusColor()}
-    //   />
-    // </Svg>
     <Svg width="80" height="120" viewBox="0 0 500 500" onPress={onPress}>
       <G fill={getStatusColor()}>
         <Polygon points="407.165,84.97 104.835,84.97 0,175.997 512,175.997" />

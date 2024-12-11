@@ -239,7 +239,10 @@ export default function OrderDetailsScreen() {
     });
   };
   return (
-    <ScrollView className="p-4" contentInsetAdjustmentBehavior="automatic">
+    <ScrollView
+      className="p-4 bg-white"
+      contentInsetAdjustmentBehavior="automatic"
+    >
       <View className="flex flex-col gap-12">
         <View className="flex flex-row justify-between">
           <Text variant="titleLarge">

@@ -54,7 +54,7 @@ export default function TabLayout() {
       },
       {
         name: "profile",
-        title: "Perfil",
+        title: "Mi Perfil",
         href: null,
         icon: ["mingcute:user-2-fill.svg", "mingcute:user-2-line.svg"],
       },
@@ -88,13 +88,13 @@ export default function TabLayout() {
       },
       {
         name: "my-profile",
-        title: "Perfil",
+        title: "Mi Perfil",
         href: null,
         icon: ["mingcute:user-2-fill.svg", "mingcute:user-2-line.svg"],
       },
       {
         name: "profile",
-        title: "Perfil",
+        title: "Mi Perfil",
         icon: ["mingcute:user-2-fill.svg", "mingcute:user-2-line.svg"],
       },
     ],
@@ -134,7 +134,7 @@ export default function TabLayout() {
       },
       {
         name: "profile",
-        title: "Perfil",
+        title: "Mi Perfil",
         href: null,
         icon: ["mingcute:user-2-fill.svg", "mingcute:user-2-line.svg"],
       },

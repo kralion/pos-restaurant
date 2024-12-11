@@ -12,21 +12,15 @@ import {
   Divider,
   IconButton,
   List,
+  Modal,
+  Portal,
+  Searchbar,
   Surface,
   Switch,
   Text,
-  Portal,
-  Modal,
-  TextInput,
-  Searchbar 
 } from "react-native-paper";
-import Animated, {
-  FadeIn,
-  FadeOut,
-  SlideInDown,
-  SlideOutDown,
-} from "react-native-reanimated";
-import { useDebouncedCallback } from 'use-debounce';
+import Animated, { SlideInDown, SlideOutDown } from "react-native-reanimated";
+import { useDebouncedCallback } from "use-debounce";
 
 interface MealWithQuantity extends IMeal {
   quantity: number;
@@ -58,8 +52,8 @@ export default function OrderScreen() {
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchText, setSearchText] = useState("");
-  
-  const debouncedSearch = useDebouncedCallback((text : string) => {
+
+  const debouncedSearch = useDebouncedCallback((text: string) => {
     setSearchQuery(text);
   }, 300);
 
@@ -338,10 +332,12 @@ export default function OrderScreen() {
     );
   };
 
-  const filteredCustomers = React.useMemo(() => 
-    customers.filter((customer) =>
-      customer.full_name.toLowerCase().includes(searchQuery.toLowerCase())
-    ), [customers, searchQuery]
+  const filteredCustomers = React.useMemo(
+    () =>
+      customers.filter((customer) =>
+        customer.full_name.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    [customers, searchQuery]
   );
 
   const renderCustomerModal = () => (
@@ -355,8 +351,8 @@ export default function OrderScreen() {
         }}
         contentContainerStyle={{
           backgroundColor: "white",
-          padding: 20,
-          margin: 20,
+          padding: 16,
+          margin: 16,
           borderRadius: 8,
         }}
       >
@@ -387,7 +383,6 @@ export default function OrderScreen() {
               setSearchText("");
               setSearchQuery("");
             }}
-            className="mb-4"
             autoFocus
           />
 
@@ -403,7 +398,7 @@ export default function OrderScreen() {
                     setSearchText("");
                     setSearchQuery("");
                   }}
-                  left={props => <List.Icon {...props} icon="account" />}
+                  left={(props) => <List.Icon {...props} icon="account" />}
                   right={(props) =>
                     watch("id_fixed_customer") === customer.id ? (
                       <List.Icon {...props} icon="check" />
@@ -424,7 +419,7 @@ export default function OrderScreen() {
 
   return (
     <ScrollView contentInsetAdjustmentBehavior="automatic">
-      <View className="flex flex-col gap-16 w-full items-center p-4">
+      <View className="flex flex-col gap-4 w-full items-center p-4">
         <View className="w-full flex flex-col items-center ">
           <Text className="text-xl" style={{ fontWeight: "700" }}>
             Orden Mesa #{number}
@@ -474,8 +469,7 @@ export default function OrderScreen() {
               </View>
             )}
           />
-        </View>
-        <View className="flex flex-col justify-center align-middle w-full gap-4">
+          <Divider />
           <List.Section>
             <List.Accordion
               title="Seleccionar Entradas"
@@ -487,7 +481,7 @@ export default function OrderScreen() {
               )}
             </List.Accordion>
           </List.Section>
-
+          <Divider />
           <List.Section>
             <List.Accordion
               title="Seleccionar Fondos"
@@ -499,7 +493,7 @@ export default function OrderScreen() {
               )}
             </List.Accordion>
           </List.Section>
-
+          <Divider />
           <List.Section>
             <List.Accordion
               title="Seleccionar Bebidas"
@@ -511,7 +505,8 @@ export default function OrderScreen() {
               )}
             </List.Accordion>
           </List.Section>
-
+        </View>
+        <View className="flex flex-col justify-center align-middle w-full gap-4">
           <Button
             mode="contained"
             style={{ marginTop: 50 }}
@@ -524,7 +519,7 @@ export default function OrderScreen() {
             mode="outlined"
             onPress={() => {
               reset();
-              router.replace("/(tabs)");
+              router.back();
             }}
             loading={loading}
           >

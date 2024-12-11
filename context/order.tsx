@@ -169,7 +169,7 @@ export const OrderContextProvider = ({
       }
 
       alert("Pedido registrado");
-      router.replace("/(tabs)");
+      router.back();
     } catch (error) {
       console.error("Unexpected error:", error);
       alert("Error al procesar pedido");

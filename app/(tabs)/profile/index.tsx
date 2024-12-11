@@ -16,24 +16,23 @@ export default function ProfileScreen() {
         paddingTop: headerHeight,
       }}
     >
-      <View>
-        <View className="flex flex-col items-center justify-center gap-2">
-          <Avatar.Image
-            accessibilityLabel="avatar"
-            size={100}
-            source={{
-              uri: "https://cdn-icons-png.freepik.com/256/12165/12165042.png?ga=GA1.1.492447503.1733309013&semt=ais_hybrid",
-            }}
-          />
+      <View className="flex flex-col items-center justify-center gap-2">
+        <Avatar.Image
+          accessibilityLabel="avatar"
+          size={100}
+          source={{
+            uri: "https://cdn-icons-png.freepik.com/256/12165/12165042.png?ga=GA1.1.492447503.1733309013&semt=ais_hybrid",
+          }}
+        />
 
-          <Text className="font-bold text-2xl">
-            {user.name} {user.last_name}
-          </Text>
+        <Text className="font-bold text-2xl">
+          {user.name} {user.last_name}
+        </Text>
 
-          <Text className="text-md">{user.role}</Text>
-        </View>
+        <Text className="text-md">{user.role}</Text>
       </View>
-      <View className="flex flex-col mt-10 items-start ml-4">
+
+      <View className="flex flex-col gap-2 mt-10 items-start ">
         <Button
           icon="account-group-outline"
           onPress={() => router.push("/(tabs)/profile/users")}
@@ -61,7 +60,7 @@ export default function ProfileScreen() {
         </Button>
       </View>
 
-      <Text className="text-muted-foreground opacity-40  mt-48 mx-auto ">
+      <Text className="text-muted-foreground opacity-40  mt-36 mx-auto ">
         Logueado
         {/* {session.user.email} */}
       </Text>

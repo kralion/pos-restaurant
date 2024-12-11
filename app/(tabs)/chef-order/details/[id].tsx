@@ -38,7 +38,10 @@ export default function OrderDetailsScreen() {
   if (!order) return <Text>Loading...</Text>;
 
   return (
-    <ScrollView className="p-4" contentInsetAdjustmentBehavior="automatic">
+    <ScrollView
+      className="p-4 bg-white"
+      contentInsetAdjustmentBehavior="automatic"
+    >
       <View className="flex flex-col gap-12 mb-10">
         <View className="flex flex-col gap-4">
           <View className="flex flex-col gap-4">

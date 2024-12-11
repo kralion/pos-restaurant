@@ -73,7 +73,6 @@ function RootLayoutNav() {
                   name="add-order"
                   options={{
                     title: "Agregar Orden",
-                    headerBackTitle: "Atrás",
                     presentation: "modal",
                     headerShown: false,
                   }}
