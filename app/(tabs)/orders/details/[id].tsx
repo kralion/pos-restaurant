@@ -178,7 +178,8 @@ export default function OrderDetailsScreen() {
 
           <div class="table-info">
             Mesa: ${order.id_table}<br>
-            Atendido por: ${order?.users?.name}
+            Atendido por: ${order?.users?.name}<br>
+            Para llevar: ${order.to_go ? "Sí" : "No"}
           </div>
 
           <table class="items">
@@ -245,6 +246,26 @@ export default function OrderDetailsScreen() {
           </Text>
           <Switch value={paid} onValueChange={handleSwitchChange} />
         </View>
+
+        {order.to_go && (
+          <View className="flex flex-row justify-between">
+            <Text variant="titleSmall">---Orden para llevar---</Text>
+          </View>
+        )}
+        {order.id_fixed_customer && (
+          <View
+            style={{
+              backgroundColor: "green",
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+              marginBottom: 8,
+            }}
+          >
+            <Text variant="bodyMedium" style={{ color: "white" }}>
+              Cliente : {order.customers?.full_name}
+            </Text>
+          </View>
+        )}
 
         <Divider className="border-dashed border-2" />
         <View className="flex flex-col gap-4">

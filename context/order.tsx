@@ -12,6 +12,7 @@ export const OrderContext = createContext<IOrderContextProvider>({
   order: {} as IOrder,
   loading: false,
   getPaidOrders: async () => [],
+  updateOrder: async () => {},
   deleteOrder: async () => {},
   getOrders: async () => [],
   updateOrderServedStatus: async () => {},
@@ -234,13 +235,25 @@ export const OrderContextProvider = ({
     setLoading(true);
     const { data, error } = await supabase
       .from("orders")
-      .select("*, users:id_waiter(name)")
+      .select(
+        "*, users:id_waiter(name), customers:id_fixed_customer(full_name)"
+      )
       .eq("id", id)
       .single();
     if (error) throw error;
     setLoading(false);
     setOrder(data);
     return data;
+  }
+
+  async function updateOrder(order: IOrder) {
+    setLoading(true);
+    const { error } = await supabase
+      .from("orders")
+      .update(order)
+      .eq("id", order.id);
+    if (error) console.error("Update Error", error);
+    setLoading(false);
   }
 
   async function getDailyPaidOrders() {
@@ -271,6 +284,7 @@ export const OrderContextProvider = ({
         paidOrders,
         getPaidOrders,
         getUnservedOrders,
+        updateOrder,
         addOrder,
         updateOrderServedStatus,
         order,
