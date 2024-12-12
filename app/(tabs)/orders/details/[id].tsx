@@ -178,7 +178,8 @@ export default function OrderDetailsScreen() {
 
           <div class="table-info">
             Mesa: ${order.id_table}<br>
-            Atendido por: ${order?.users?.name}
+            Atendido por: ${order?.users?.name}<br>
+            Para llevar: ${order.to_go ? "Sí" : "No"}
           </div>
 
           <table class="items">
@@ -239,17 +240,16 @@ export default function OrderDetailsScreen() {
       contentInsetAdjustmentBehavior="automatic"
     >
       <View className="flex flex-col gap-12">
-        {!order.free && (
+        <View className="flex flex-row justify-between">
+          <Text variant="titleLarge">
+            {order.paid ? "Orden Pagada" : "Orden sin pagar"}
+          </Text>
+          <Switch value={paid} onValueChange={handleSwitchChange} />
+        </View>
+
+        {order.to_go && (
           <View className="flex flex-row justify-between">
-            <Text variant="titleLarge">
-              {order.paid ? "Orden Pagada" : "Orden sin pagar"}
-            </Text>
-            <Switch value={paid} onValueChange={handleSwitchChange} />
-          </View>
-        )}
-        {order.free && (
-          <View>
-            <Text variant="titleLarge">Pedido Gratis</Text>
+            <Text variant="titleSmall">---Orden para llevar---</Text>
           </View>
         )}
 
