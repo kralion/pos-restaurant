@@ -238,7 +238,7 @@ export default function OrderDetailsScreen() {
       className="p-4 bg-white"
       contentInsetAdjustmentBehavior="automatic"
     >
-      <View className="flex flex-col gap-12">
+      <View className="flex flex-col gap-10 mt-10">
         {!order.free && (
           <View className="flex flex-row justify-between">
             <Text variant="titleLarge">
@@ -250,6 +250,20 @@ export default function OrderDetailsScreen() {
         {order.free && (
           <View>
             <Text variant="titleLarge">Pedido Gratis</Text>
+          </View>
+        )}
+        {order.id_fixed_customer && (
+          <View
+            style={{
+              backgroundColor: "green",
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+              marginBottom: 8,
+            }}
+          >
+            <Text variant="bodyMedium" style={{ color: "white" }}>
+              Cliente : {order.customers?.full_name}
+            </Text>
           </View>
         )}
 

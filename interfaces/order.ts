@@ -1,11 +1,12 @@
-import { IMeal, IUser } from "@/interfaces";
+import { ICustomer, IMeal, IUser } from "@/interfaces";
 
 export interface IOrder {
   id?: string;
-  id_table: string;
+  id_table: string ;
   date?: Date;
   users?: IUser;
-  id_fixed_customer?: string;
+  customers?: ICustomer;
+  id_fixed_customer?: string | null;
   id_waiter: string;
   free?: boolean;
   served: boolean;
@@ -23,6 +24,7 @@ export interface IOrderContextProvider {
   getUnservedOrders: () => Promise<IOrder[]>;
   getPaidOrders: () => Promise<IOrder[]>;
   loading: boolean;
+  updateOrder: (order: IOrder) => Promise<void>;
   getOrderById: (id: string) => Promise<IOrder>;
   orders: IOrder[];
   order: IOrder;
