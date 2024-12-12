@@ -454,6 +454,7 @@ export default function OrderScreen() {
                       setShowCustomerModal(true);
                     } else {
                       setValue("id_fixed_customer", undefined);
+                      setValue("free", false);
                     }
                   }}
                 />
@@ -462,22 +463,28 @@ export default function OrderScreen() {
           />
           <Divider />
 
-          {/* //TODO: Renderizar el boton de orden gratis solo si el cliente fijo seleccionado tiene ordenes gratis disponibles */}
-          {!watch("id_fixed_customer") && (
-            <Controller
-              control={control}
-              name="free"
-              render={({ field: { onChange, value } }) => (
-                <View className="flex flex-row gap-2 justify-between items-center p-4">
-                  <View>
-                    <Text variant="titleMedium">Orden Gratuita</Text>
-                  </View>
-                  <Switch value={value} onValueChange={onChange} />
-                </View>
-              )}
-            />
-          )}
-          <Divider />
+          {/* Show free order switch only when fixed customer has available free orders */}
+          {(() => {
+            const selectedCustomer = customers.find((c) => c.id === watch("id_fixed_customer"));
+            return (selectedCustomer?.total_free_orders ?? 0) > 0 ? (
+              <>
+                <Controller
+                  control={control}
+                  name="free"
+                  render={({ field: { onChange, value } }) => (
+                    <View className="flex flex-row gap-2 justify-between items-center p-4">
+                      <View>
+                        <Text variant="titleMedium">Orden Gratuita</Text>
+                      </View>
+                      <Switch value={value} onValueChange={onChange} />
+                    </View>
+                  )}
+                />
+                <Divider />
+              </>
+            ) : null;
+          })()}
+
           <Controller
             control={control}
             name="to_go"
