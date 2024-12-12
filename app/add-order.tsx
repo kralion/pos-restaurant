@@ -2,7 +2,6 @@ import { useAuth, useOrderContext } from "@/context";
 import { useCustomer } from "@/context/customer";
 import { IMeal, IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -32,21 +31,24 @@ export default function OrderScreen() {
     id_table: string;
   }>();
   const [loading, setLoading] = useState(false);
+  const [order, setOrder] = useState<IOrder | null>(null);
   const [expandedEntradas, setExpandedEntradas] = useState(false);
   const [expandedFondos, setExpandedFondos] = useState(false);
   const [expandedBebidas, setExpandedBebidas] = useState(false);
   const [entradasData, setEntradasData] = useState<IMeal[]>([]);
   const [fondosData, setFondosData] = useState<IMeal[]>([]);
   const [bebidasData, setBebidasData] = useState<IMeal[]>([]);
+  const { addOrder, updateOrder } = useOrderContext();
   const [selectedEntradas, setSelectedEntradas] = useState<MealWithQuantity[]>(
-    []
+    order?.entradas ? order.entradas : []
   );
-  const [selectedFondos, setSelectedFondos] = useState<MealWithQuantity[]>([]);
+  const [selectedFondos, setSelectedFondos] = useState<MealWithQuantity[]>(
+    order?.fondos ? order.fondos : []
+  );
   const [selectedBebidas, setSelectedBebidas] = useState<MealWithQuantity[]>(
-    []
+    order?.bebidas ? order.bebidas : []
   );
   const { profile } = useAuth();
-  const { addOrder } = useOrderContext();
   const { getCustomers, customers } = useCustomer();
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -55,6 +57,21 @@ export default function OrderScreen() {
   const debouncedSearch = useDebouncedCallback((text: string) => {
     setSearchQuery(text);
   }, 300);
+
+  async function getCurrentOrderById(id: string) {
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      console.error("Error getting order:", error);
+      alert("Error al obtener o pedido");
+      return;
+    }
+    setOrder(data);
+  }
 
   useEffect(() => {
     getCustomers();
@@ -67,7 +84,20 @@ export default function OrderScreen() {
     reset,
     setValue,
     watch,
-  } = useForm<IOrder>();
+  } = useForm<IOrder>({
+    defaultValues: {
+      id_table: order?.id_table,
+      id_fixed_customer: order?.id_fixed_customer
+        ? order?.id_fixed_customer
+        : "",
+      entradas: order?.entradas,
+      fondos: order?.fondos,
+      bebidas: order?.bebidas,
+      paid: order?.paid,
+      served: order?.served,
+      total: order?.total,
+    },
+  });
 
   const updateMealQuantity = (
     meal: IMeal,
@@ -117,8 +147,8 @@ export default function OrderScreen() {
       category === "entradas"
         ? selectedEntradas
         : category === "fondos"
-          ? selectedFondos
-          : selectedBebidas
+        ? selectedFondos
+        : selectedBebidas
     );
   };
 
@@ -253,16 +283,75 @@ export default function OrderScreen() {
   }, []); // Empty dependency array means this runs once on component mount
 
   useEffect(() => {
-    const selectedCustomer = customers.find((c) => c.id === watch("id_fixed_customer"));
+    if (!order) return;
+    getCurrentOrderById(order.id ? order.id : "");
+  }, [order]);
+  useEffect(() => {
+    const selectedCustomer = customers.find(
+      (c) => c.id === watch("id_fixed_customer")
+    );
     const isFreeOrderSelected = watch("free");
-    if (selectedCustomer && selectedCustomer.total_free_orders === 0 && isFreeOrderSelected) {
+    if (
+      selectedCustomer &&
+      selectedCustomer.total_free_orders === 0 &&
+      isFreeOrderSelected
+    ) {
       setIsRegisterDisabled(true);
     } else {
       setIsRegisterDisabled(false);
     }
   }, [watch("id_fixed_customer"), watch("free")]);
 
-  const onSubmit = async (data: IOrder) => {
+  const onUpdate = async (data: IOrder) => {
+    setLoading(true);
+    try {
+      const orderData: IOrder = {
+        ...data,
+        served: order?.served || data.served,
+        to_go: order?.to_go || data.to_go,
+        id: order?.id || data.id,
+        id_waiter: order?.id_waiter || data.id_waiter,
+        paid: order?.paid || data.paid,
+        id_fixed_customer:
+          order?.id_fixed_customer || data.id_fixed_customer || null,
+        id_table: id_table,
+        entradas: selectedEntradas,
+        fondos: selectedFondos,
+        bebidas: selectedBebidas,
+        total: selectedEntradas
+          .concat(selectedFondos)
+          .concat(selectedBebidas)
+          .reduce((acc, meal) => acc + meal.price * meal.quantity, 0),
+      };
+
+      await updateOrder(orderData);
+      reset();
+      setSelectedEntradas([]);
+      setSelectedFondos([]);
+      setSelectedBebidas([]);
+
+      if (data.free) {
+        const selectedCustomer = customers.find(
+          (c) => c.id === data.id_fixed_customer
+        );
+        if (selectedCustomer) {
+          await supabase
+            .from("fixed_customers")
+            .update({
+              total_free_orders: selectedCustomer.total_free_orders - 1,
+            })
+            .eq("id", selectedCustomer.id);
+        }
+      }
+    } catch (err) {
+      console.error("An error occurred:", err);
+      alert("Algo sucedió mal, vuelve a intentarlo.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onAdd = async (data: IOrder) => {
     setLoading(true);
     if (!profile.id) return;
 
@@ -273,6 +362,9 @@ export default function OrderScreen() {
         id_waiter: profile.id,
         paid: false,
         id_table: id_table,
+        id_fixed_customer: data.id_fixed_customer
+          ? data.id_fixed_customer
+          : null,
         entradas: selectedEntradas,
         fondos: selectedFondos,
         bebidas: selectedBebidas,
@@ -289,23 +381,25 @@ export default function OrderScreen() {
       setSelectedBebidas([]);
 
       if (data.free) {
-      const selectedCustomer = customers.find((c) => c.id === data.id_fixed_customer);
-      console.log("selectedCustomer", selectedCustomer);
-      if (selectedCustomer) {
-        await supabase
-          .from('fixed_customers')
-          .update({ total_free_orders: selectedCustomer.total_free_orders - 1 })
-          .eq('id', selectedCustomer.id);
+        const selectedCustomer = customers.find(
+          (c) => c.id === data.id_fixed_customer
+        );
+        console.log("selectedCustomer", selectedCustomer);
+        if (selectedCustomer) {
+          await supabase
+            .from("fixed_customers")
+            .update({
+              total_free_orders: selectedCustomer.total_free_orders - 1,
+            })
+            .eq("id", selectedCustomer.id);
+        }
       }
-    }
-
     } catch (err) {
       console.error("An error occurred:", err);
       alert("Algo sucedió mal, vuelve a intentarlo.");
     } finally {
       setLoading(false);
     }
-
   };
 
   const renderMealItem = (
@@ -488,7 +582,9 @@ export default function OrderScreen() {
 
           {/* Show free order switch only when fixed customer has available free orders */}
           {(() => {
-            const selectedCustomer = customers.find((c) => c.id === watch("id_fixed_customer"));
+            const selectedCustomer = customers.find(
+              (c) => c.id === watch("id_fixed_customer")
+            );
             return (selectedCustomer?.total_free_orders ?? 0) > 0 ? (
               <>
                 <Controller
@@ -561,11 +657,11 @@ export default function OrderScreen() {
           <Button
             mode="contained"
             style={{ marginTop: 50 }}
-            onPress={handleSubmit(onSubmit)}
+            onPress={order ? handleSubmit(onUpdate) : handleSubmit(onAdd)}
             loading={loading}
             disabled={isRegisterDisabled}
           >
-            Registrar Orden
+            {order ? "Editar Orden" : "Registrar Orden"}
           </Button>
           <Button
             mode="outlined"

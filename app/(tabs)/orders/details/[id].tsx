@@ -252,6 +252,20 @@ export default function OrderDetailsScreen() {
             <Text variant="titleSmall">---Orden para llevar---</Text>
           </View>
         )}
+        {order.id_fixed_customer && (
+          <View
+            style={{
+              backgroundColor: "green",
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+              marginBottom: 8,
+            }}
+          >
+            <Text variant="bodyMedium" style={{ color: "white" }}>
+              Cliente : {order.customers?.full_name}
+            </Text>
+          </View>
+        )}
 
         <Divider className="border-dashed border-2" />
         <View className="flex flex-col gap-4">
