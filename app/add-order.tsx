@@ -298,6 +298,13 @@ export default function OrderScreen() {
           .eq('id', selectedCustomer.id);
       }
     }
+    if (data.to_go) {
+      // Actualizar el estado de la mesa solo si la orden no es para llevar
+      await supabase
+        .from('tables')
+        .update({ status: true })
+        .eq('id', id_table);
+    }
 
     } catch (err) {
       console.error("An error occurred:", err);

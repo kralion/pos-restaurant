@@ -160,15 +160,17 @@ export const OrderContextProvider = ({
         return;
       }
 
-      const { data: tableData, error: tableError } = await supabase
-        .from("tables")
-        .update({ status: false })
-        .eq("id", tableId);
-
-      if (tableError) {
-        console.error("Error updating table status:", tableError);
+      if (!order.to_go) {
+        const { data: tableData, error: tableError } = await supabase
+          .from("tables")
+          .update({ status: false })
+          .eq("id", tableId);
+      
+        if (tableError) {
+          console.error("Error updating table status:", tableError);
         alert("Error al actualizar status da mesa");
         return;
+        }
       }
       setLoading(false);
       alert("Pedido registrado");
