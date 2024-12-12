@@ -239,12 +239,19 @@ export default function OrderDetailsScreen() {
       contentInsetAdjustmentBehavior="automatic"
     >
       <View className="flex flex-col gap-12">
-        <View className="flex flex-row justify-between">
-          <Text variant="titleLarge">
-            {order.paid ? "Orden Pagada" : "Orden sin pagar"}
-          </Text>
-          <Switch value={paid} onValueChange={handleSwitchChange} />
-        </View>
+        {!order.free && (
+          <View className="flex flex-row justify-between">
+            <Text variant="titleLarge">
+              {order.paid ? "Orden Pagada" : "Orden sin pagar"}
+            </Text>
+            <Switch value={paid} onValueChange={handleSwitchChange} />
+          </View>
+        )}
+        {order.free && (
+          <View>
+            <Text variant="titleLarge">Pedido Gratis</Text>
+          </View>
+        )}
 
         <Divider className="border-dashed border-2" />
         <View className="flex flex-col gap-4">
