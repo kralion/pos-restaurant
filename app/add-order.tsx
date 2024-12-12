@@ -51,7 +51,7 @@ export default function OrderScreen() {
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchText, setSearchText] = useState("");
-
+  const [isRegisterDisabled, setIsRegisterDisabled] = useState(false);
   const debouncedSearch = useDebouncedCallback((text: string) => {
     setSearchQuery(text);
   }, 300);
@@ -117,8 +117,8 @@ export default function OrderScreen() {
       category === "entradas"
         ? selectedEntradas
         : category === "fondos"
-        ? selectedFondos
-        : selectedBebidas
+          ? selectedFondos
+          : selectedBebidas
     );
   };
 
@@ -252,6 +252,16 @@ export default function OrderScreen() {
     };
   }, []); // Empty dependency array means this runs once on component mount
 
+  useEffect(() => {
+    const selectedCustomer = customers.find((c) => c.id === watch("id_fixed_customer"));
+    const isFreeOrderSelected = watch("free");
+    if (selectedCustomer && selectedCustomer.total_free_orders === 0 && isFreeOrderSelected) {
+      setIsRegisterDisabled(true);
+    } else {
+      setIsRegisterDisabled(false);
+    }
+  }, [watch("id_fixed_customer"), watch("free")]);
+
   const onSubmit = async (data: IOrder) => {
     setLoading(true);
     if (!profile.id) return;
@@ -277,12 +287,25 @@ export default function OrderScreen() {
       setSelectedEntradas([]);
       setSelectedFondos([]);
       setSelectedBebidas([]);
+
+      if (data.free) {
+      const selectedCustomer = customers.find((c) => c.id === data.id_fixed_customer);
+      console.log("selectedCustomer", selectedCustomer);
+      if (selectedCustomer) {
+        await supabase
+          .from('fixed_customers')
+          .update({ total_free_orders: selectedCustomer.total_free_orders - 1 })
+          .eq('id', selectedCustomer.id);
+      }
+    }
+
     } catch (err) {
       console.error("An error occurred:", err);
       alert("Algo sucedió mal, vuelve a intentarlo.");
     } finally {
       setLoading(false);
     }
+
   };
 
   const renderMealItem = (
@@ -540,6 +563,7 @@ export default function OrderScreen() {
             style={{ marginTop: 50 }}
             onPress={handleSubmit(onSubmit)}
             loading={loading}
+            disabled={isRegisterDisabled}
           >
             Registrar Orden
           </Button>
