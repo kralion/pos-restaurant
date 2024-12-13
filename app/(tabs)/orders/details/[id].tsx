@@ -255,43 +255,45 @@ export default function OrderDetailsScreen() {
           </Text>
           <Switch value={paid} onValueChange={handleSwitchChange} />
         </View>
-
-        {order.to_go && (
-          <View
-            style={{
-              backgroundColor: "gray",
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-              marginBottom: 8,
-            }}
-          >
-            <Text
-              className="uppercase"
-              variant="bodyMedium"
-              style={{ color: "white" }}
+        <View className="flex flex-col gap-2">
+          {order.to_go && (
+            <View
+              style={{
+                backgroundColor: "tomato",
+                paddingHorizontal: 8,
+                borderRadius: 8,
+                paddingVertical: 4,
+              }}
             >
-              Orden para llevar
-            </Text>
-          </View>
-        )}
-        {order.id_fixed_customer && (
-          <View
-            style={{
-              backgroundColor: "green",
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-              marginBottom: 8,
-            }}
-          >
-            <Text
-              variant="bodyMedium"
-              className="uppercase"
-              style={{ color: "white" }}
+              <Text
+                className="uppercase"
+                variant="bodyMedium"
+                style={{ color: "white" }}
+              >
+                Orden para llevar
+              </Text>
+            </View>
+          )}
+          {order.id_fixed_customer && (
+            <View
+              style={{
+                backgroundColor: "gray",
+                paddingHorizontal: 8,
+                borderRadius: 8,
+                paddingVertical: 4,
+                marginBottom: 8,
+              }}
             >
-              Cliente : {order.customers?.full_name}
-            </Text>
-          </View>
-        )}
+              <Text
+                variant="bodyMedium"
+                className="uppercase"
+                style={{ color: "white" }}
+              >
+                Cliente : {order.customers?.full_name}
+              </Text>
+            </View>
+          )}
+        </View>
 
         <Divider />
         <View className="flex flex-col gap-4">

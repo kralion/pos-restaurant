@@ -44,7 +44,7 @@ export default function MenuLayout() {
           headerRight: () => (
             <Button
               title="Cancelar"
-              color="red"
+              color="#FF6247"
               onPress={() => router.back()}
             />
           ),

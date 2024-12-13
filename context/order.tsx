@@ -257,6 +257,8 @@ export const OrderContextProvider = ({
       .from("orders")
       .update(order)
       .eq("id", order.id);
+    alert("Pedido actualizado");
+    router.back();
     if (error) console.error("Update Error", error);
     setLoading(false);
   }

@@ -41,12 +41,13 @@ export default function WaiterLayout() {
             return order.paid ? null : (
               <Button
                 title="Editar"
-                onPress={() =>
+                color="#FF6247"
+                onPress={() => {
                   router.push({
                     pathname: "/add-order",
-                    params: { number: order.id_table },
-                  })
-                }
+                    params: { number: order.id_table, id_order: order.id },
+                  });
+                }}
               />
             );
           },

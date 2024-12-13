@@ -22,7 +22,11 @@ export default function CustomerLayout() {
             presentation: "modal",
             headerShadowVisible: false,
             headerRight: () => (
-              <Button title="Cancelar" onPress={() => router.back()} />
+              <Button
+                title="Cancelar"
+                color="#FF6247"
+                onPress={() => router.back()}
+              />
             ),
           };
         }}

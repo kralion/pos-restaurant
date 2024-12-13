@@ -4,7 +4,7 @@ import { IMeal, IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, set, useForm } from "react-hook-form";
 import { ScrollView, View } from "react-native";
 import {
   Button,
@@ -26,9 +26,10 @@ interface MealWithQuantity extends IMeal {
 }
 
 export default function OrderScreen() {
-  const { number, id_table } = useLocalSearchParams<{
+  const { number, id_table, id_order } = useLocalSearchParams<{
     number: string;
     id_table: string;
+    id_order: string;
   }>();
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<IOrder | null>(null);
@@ -42,16 +43,14 @@ export default function OrderScreen() {
   const [bebidasData, setBebidasData] = useState<IMeal[]>([]);
   const { addOrder, updateOrder } = useOrderContext();
   const [selectedEntradas, setSelectedEntradas] = useState<MealWithQuantity[]>(
-    order?.entradas ? order.entradas : []
+    []
   );
   const [selectedHelados, setSelectedHelados] = useState<MealWithQuantity[]>(
-    order?.helados ? order.helados : []
+    []
   );
-  const [selectedFondos, setSelectedFondos] = useState<MealWithQuantity[]>(
-    order?.fondos ? order.fondos : []
-  );
+  const [selectedFondos, setSelectedFondos] = useState<MealWithQuantity[]>([]);
   const [selectedBebidas, setSelectedBebidas] = useState<MealWithQuantity[]>(
-    order?.bebidas ? order.bebidas : []
+    []
   );
   const { profile } = useAuth();
   const { getCustomers, customers } = useCustomer();
@@ -63,25 +62,35 @@ export default function OrderScreen() {
     setSearchQuery(text);
   }, 300);
 
-  async function getCurrentOrderById(id: string) {
+  async function getOrderById(id: string) {
     const { data, error } = await supabase
       .from("orders")
       .select("*")
       .eq("id", id)
       .single();
-
+    setOrder(data);
+    if (!data) return;
+    const order = data as IOrder;
+    setSelectedEntradas(order?.entradas);
+    setSelectedFondos(order?.fondos);
+    setSelectedBebidas(order?.bebidas);
+    setSelectedHelados(order?.helados);
     if (error) {
       console.error("Error getting order:", error);
       alert("Error al obtener o pedido");
-      return;
     }
-    setOrder(data);
+    return;
   }
 
   useEffect(() => {
     getCustomers();
   }, []);
 
+  useEffect(() => {
+    if (id_order) {
+      getOrderById(id_order);
+    }
+  }, [id_order]);
   const {
     control,
     handleSubmit,
@@ -95,10 +104,10 @@ export default function OrderScreen() {
       id_fixed_customer: order?.id_fixed_customer
         ? order?.id_fixed_customer
         : "",
-      entradas: order?.entradas,
-      fondos: order?.fondos,
-      bebidas: order?.bebidas,
-      helados: order?.helados,
+      entradas: {} as IMeal[],
+      fondos: {} as IMeal[],
+      bebidas: {} as IMeal[],
+      helados: {} as IMeal[],
       paid: order?.paid,
       served: order?.served,
       total: order?.total,
@@ -334,10 +343,6 @@ export default function OrderScreen() {
     };
   }, []); // Empty dependency array means this runs once on component mount
 
-  useEffect(() => {
-    if (!order) return;
-    getCurrentOrderById(order.id ? order.id : "");
-  }, [order]);
   useEffect(() => {
     const selectedCustomer = customers.find(
       (c) => c.id === watch("id_fixed_customer")
@@ -739,7 +744,6 @@ export default function OrderScreen() {
               reset();
               router.back();
             }}
-            loading={loading}
           >
             Cancelar
           </Button>
