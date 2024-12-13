@@ -122,6 +122,9 @@ export default function OrderDetailsScreen() {
               font-size: 24px;
               margin-bottom: 20px;
             }
+            .logo h1 {
+              font-size: 24px;
+            }
             .logo img {
               max-width: 150px;
               height: auto;
@@ -167,13 +170,12 @@ export default function OrderDetailsScreen() {
         </head>
         <body>
           <div class="logo">
-            <img src="https://imagizer.imageshack.com/v2/709x709q70/922/GRG4IC.jpg" alt="Logo Restaurante"/>
+            <h1>RINCONCITO SURCUBAMBINO</h1>
           </div>
 
           <div class="header-info">
-            Rinconcinto Surcubambino<br>
             Av.Huancavelica N°380<br>
-            Tel: 906 424 929
+            Tel: 923 008 282
           </div>
 
           <div class="table-info">
@@ -221,8 +223,7 @@ export default function OrderDetailsScreen() {
           </div>
 
           <div class="footer">
-            RESTAURANTE / GRACIAS POR SU VISITA<br>
-
+            GRACIAS POR SU VISITA<br>
           </div>
         </body>
       </html>
