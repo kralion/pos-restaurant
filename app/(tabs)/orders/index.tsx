@@ -4,27 +4,55 @@ import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import { ActivityIndicator, RefreshControl, ScrollView } from "react-native";
+import { IOrder } from "@/interfaces";
+import { supabase } from "@/utils/supabase";
 
 export default function OrdersScreen() {
   const { search } = useLocalSearchParams<{ search?: string }>();
-  const { orders, getOrders } = useOrderContext();
+  const { getUnpaidOrders } = useOrderContext();
+  const [orders, setOrders] = React.useState<IOrder[]>([]);
   const [refreshing, setRefreshing] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
+
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     setIsLoading(true);
     try {
-      await getOrders();
+      const unpaidOrders = await getUnpaidOrders();
+      setOrders(unpaidOrders);
     } catch (error) {
       console.error("Error refreshing orders:", error);
     } finally {
       setRefreshing(false);
       setIsLoading(false);
     }
-  }, [getOrders]);
+  }, [getUnpaidOrders]);
+
   React.useEffect(() => {
+    // Suscripción a cambios en la tabla orders
+    const subscription = supabase
+      .channel("orders-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        async (payload) => {
+          // Recargar las órdenes cuando haya cambios
+          if (
+            payload.eventType === "INSERT" ||
+            payload.eventType === "UPDATE" ||
+            payload.eventType === "DELETE"
+          ) {
+            await onRefresh();
+          }
+        }
+      )
+      .subscribe();
     onRefresh();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
+
   const filteredOrders = React.useMemo(() => {
     if (!search) return orders;
     const lowercasedSearch = search.toLowerCase();
@@ -35,8 +63,8 @@ export default function OrdersScreen() {
     );
   }, [search, orders]);
 
-  if (!orders) return <ActivityIndicator />;
   if (isLoading && !orders?.length) return <ActivityIndicator />;
+  
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"

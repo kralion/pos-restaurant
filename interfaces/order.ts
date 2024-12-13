@@ -32,4 +32,5 @@ export interface IOrderContextProvider {
   deleteOrder: (id: string) => Promise<void>;
   getOrders: () => Promise<IOrder[]>;
   getDailyPaidOrders: () => Promise<IOrder[]>;
+  getUnpaidOrders: () => Promise<IOrder[]>;
 }

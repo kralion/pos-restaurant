@@ -18,6 +18,7 @@ export const OrderContext = createContext<IOrderContextProvider>({
   updateOrderServedStatus: async () => {},
   paidOrders: [],
   getDailyPaidOrders: async () => [],
+  getUnpaidOrders: async () => [],
 });
 
 export const OrderContextProvider = ({
@@ -273,6 +274,17 @@ export const OrderContextProvider = ({
     return data;
   }
 
+  async function getUnpaidOrders() {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("paid", false);
+    if (error) throw error;
+    setLoading(false);
+    return data;
+  }
+
   return (
     <OrderContext.Provider
       value={{
@@ -289,6 +301,7 @@ export const OrderContextProvider = ({
         updateOrderServedStatus,
         order,
         getDailyPaidOrders,
+        getUnpaidOrders,
       }}
     >
       {children}
