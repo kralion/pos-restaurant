@@ -60,7 +60,7 @@ export default function ProfileScreen() {
         {/* {session.user.email} */}
       </Text>
       <Text className="text-muted-foreground opacity-40   mx-auto text-sm">
-        Versión 2.15.1
+        Versión 1.1.5
       </Text>
 
       <View className="absolute bottom-[200px] right-[-70px] w-[200px] h-[300px] rounded-xl rotate-[-30deg] bg-yellow-400 shadow-lg" />

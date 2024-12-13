@@ -60,6 +60,9 @@ export default function OrderDetailsScreen() {
     }, 0) +
     order.fondos.reduce((acc, item) => {
       return acc + item.price * item.quantity;
+    }, 0) +
+    order.helados.reduce((acc, item) => {
+      return acc + item.price * item.quantity;
     }, 0);
 
   const updatePaidStatus = async (id: string, paid: boolean) => {
@@ -191,7 +194,12 @@ export default function OrderDetailsScreen() {
               <th align="right">Precio</th>
               <th align="right">Total</th>
             </tr>
-            ${[...order.entradas, ...order.fondos, ...order.bebidas]
+            ${[
+              ...order.entradas,
+              ...order.fondos,
+              ...order.bebidas,
+              ...order.helados,
+            ]
               .map(
                 (item) => `
               <tr>
@@ -249,8 +257,21 @@ export default function OrderDetailsScreen() {
         </View>
 
         {order.to_go && (
-          <View className="flex flex-row justify-between">
-            <Text variant="titleSmall">---Orden para llevar---</Text>
+          <View
+            style={{
+              backgroundColor: "gray",
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+              marginBottom: 8,
+            }}
+          >
+            <Text
+              className="uppercase"
+              variant="bodyMedium"
+              style={{ color: "white" }}
+            >
+              Orden para llevar
+            </Text>
           </View>
         )}
         {order.id_fixed_customer && (
@@ -262,13 +283,17 @@ export default function OrderDetailsScreen() {
               marginBottom: 8,
             }}
           >
-            <Text variant="bodyMedium" style={{ color: "white" }}>
+            <Text
+              variant="bodyMedium"
+              className="uppercase"
+              style={{ color: "white" }}
+            >
               Cliente : {order.customers?.full_name}
             </Text>
           </View>
         )}
 
-        <Divider className="border-dashed border-2" />
+        <Divider />
         <View className="flex flex-col gap-4">
           <View className="flex flex-col gap-4">
             <View className="flex flex-row justify-between">
@@ -278,7 +303,14 @@ export default function OrderDetailsScreen() {
               <Text variant="titleSmall">Precio</Text>
               <Text variant="titleSmall">Cantidad</Text>
             </View>
-            <Divider />
+            <View
+              style={{
+                height: 1,
+                borderWidth: 1,
+                borderColor: "gray",
+                borderStyle: "dashed",
+              }}
+            />
             {order.entradas.map((item, index) => (
               <View key={index} className="flex flex-row justify-between">
                 <Text className="w-36">{item.name}</Text>
@@ -306,12 +338,28 @@ export default function OrderDetailsScreen() {
                 <Text>{item.quantity}</Text>
               </View>
             ))}
+            {order.helados.map((item, index) => (
+              <View
+                key={index}
+                className="flex flex-row w-full justify-between"
+              >
+                <Text className="w-36">{item.name}</Text>
+                <Text>S/. {item.price}</Text>
+                <Text>{item.quantity}</Text>
+              </View>
+            ))}
           </View>
         </View>
 
-        <Divider className="border-dashed border-2" />
+        <View
+          style={{
+            height: 1,
+            borderWidth: 1,
+            borderColor: "gray",
+            borderStyle: "dashed",
+          }}
+        />
         <View className="flex flex-col gap-3">
-          <Divider />
           <View className="flex flex-row justify-between">
             <Text variant="titleLarge">Total</Text>
             <Text variant="titleLarge">S/. {total.toFixed(2)}</Text>

@@ -35,12 +35,17 @@ export default function OrderScreen() {
   const [expandedEntradas, setExpandedEntradas] = useState(false);
   const [expandedFondos, setExpandedFondos] = useState(false);
   const [expandedBebidas, setExpandedBebidas] = useState(false);
+  const [expandedHelados, setExpandedHelados] = useState(false);
   const [entradasData, setEntradasData] = useState<IMeal[]>([]);
   const [fondosData, setFondosData] = useState<IMeal[]>([]);
+  const [heladosData, setHeladosData] = useState<IMeal[]>([]);
   const [bebidasData, setBebidasData] = useState<IMeal[]>([]);
   const { addOrder, updateOrder } = useOrderContext();
   const [selectedEntradas, setSelectedEntradas] = useState<MealWithQuantity[]>(
     order?.entradas ? order.entradas : []
+  );
+  const [selectedHelados, setSelectedHelados] = useState<MealWithQuantity[]>(
+    order?.helados ? order.helados : []
   );
   const [selectedFondos, setSelectedFondos] = useState<MealWithQuantity[]>(
     order?.fondos ? order.fondos : []
@@ -93,6 +98,7 @@ export default function OrderScreen() {
       entradas: order?.entradas,
       fondos: order?.fondos,
       bebidas: order?.bebidas,
+      helados: order?.helados,
       paid: order?.paid,
       served: order?.served,
       total: order?.total,
@@ -102,7 +108,7 @@ export default function OrderScreen() {
   const updateMealQuantity = (
     meal: IMeal,
     quantity: number,
-    category: "entradas" | "fondos" | "bebidas"
+    category: "entradas" | "fondos" | "bebidas" | "helados"
   ) => {
     let selectedMeals: MealWithQuantity[];
     let setSelectedMeals: React.Dispatch<
@@ -121,6 +127,10 @@ export default function OrderScreen() {
       case "bebidas":
         selectedMeals = selectedBebidas;
         setSelectedMeals = setSelectedBebidas;
+        break;
+      case "helados":
+        selectedMeals = selectedHelados;
+        setSelectedMeals = setSelectedHelados;
         break;
     }
 
@@ -148,7 +158,9 @@ export default function OrderScreen() {
         ? selectedEntradas
         : category === "fondos"
         ? selectedFondos
-        : selectedBebidas
+        : category === "bebidas"
+        ? selectedBebidas
+        : selectedHelados
     );
   };
 
@@ -193,6 +205,19 @@ export default function OrderScreen() {
       }
     };
 
+    const getHeladosData = async () => {
+      const { data: helados, error } = await supabase
+        .from("meals")
+        .select("*")
+        .eq("category", "Helados");
+      if (error || !helados) {
+        console.error("An error occurred:", error);
+        alert("Algo sucedió mal, vuelve a intentarlo.");
+      } else {
+        setHeladosData(helados);
+      }
+    };
+
     // Real-time subscriptions for selecting data
     const entradasChannel = supabase
       .channel("entradas-channel")
@@ -202,7 +227,7 @@ export default function OrderScreen() {
           event: "*",
           schema: "public",
           table: "meals",
-          filter: "category=eq.entradas",
+          filter: "category=eq.Entradas",
         },
         async (payload) => {
           const { data: updatedEntradas, error } = await supabase
@@ -227,7 +252,7 @@ export default function OrderScreen() {
           event: "*",
           schema: "public",
           table: "meals",
-          filter: "category=eq.fondos",
+          filter: "category=eq.Fondos",
         },
         async (payload) => {
           const { data: updatedFondos, error } = await supabase
@@ -252,7 +277,7 @@ export default function OrderScreen() {
           event: "*",
           schema: "public",
           table: "meals",
-          filter: "category=eq.bebidas",
+          filter: "category=eq.Bebidas",
         },
         async (payload) => {
           const { data: updatedBebidas, error } = await supabase
@@ -269,16 +294,43 @@ export default function OrderScreen() {
       )
       .subscribe();
 
+    const heladosChannel = supabase
+      .channel("helados-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "meals",
+          filter: "category=eq.Helados",
+        },
+        async (payload) => {
+          const { data: updatedHelados, error } = await supabase
+            .from("meals")
+            .select("*")
+            .eq("category", "Helados");
+
+          if (error) {
+            console.error("Error fetching updated helados:", error);
+          } else {
+            setHeladosData(updatedHelados);
+          }
+        }
+      )
+      .subscribe();
+
     // Initial data fetch
     getEntradasData();
     getFondosData();
     getBebidasData();
+    getHeladosData();
 
     // Cleanup subscription on component unmount
     return () => {
       supabase.removeChannel(entradasChannel);
       supabase.removeChannel(fondosChannel);
       supabase.removeChannel(bebidasChannel);
+      supabase.removeChannel(heladosChannel);
     };
   }, []); // Empty dependency array means this runs once on component mount
 
@@ -317,10 +369,12 @@ export default function OrderScreen() {
         id_table: id_table,
         entradas: selectedEntradas,
         fondos: selectedFondos,
+        helados: selectedHelados,
         bebidas: selectedBebidas,
         total: selectedEntradas
           .concat(selectedFondos)
           .concat(selectedBebidas)
+          .concat(selectedHelados)
           .reduce((acc, meal) => acc + meal.price * meal.quantity, 0),
       };
 
@@ -329,6 +383,7 @@ export default function OrderScreen() {
       setSelectedEntradas([]);
       setSelectedFondos([]);
       setSelectedBebidas([]);
+      setSelectedHelados([]);
 
       if (data.free) {
         const selectedCustomer = customers.find(
@@ -368,9 +423,11 @@ export default function OrderScreen() {
         entradas: selectedEntradas,
         fondos: selectedFondos,
         bebidas: selectedBebidas,
+        helados: selectedHelados,
         total: selectedEntradas
           .concat(selectedFondos)
           .concat(selectedBebidas)
+          .concat(selectedHelados)
           .reduce((acc, meal) => acc + meal.price * meal.quantity, 0),
       };
 
@@ -379,6 +436,7 @@ export default function OrderScreen() {
       setSelectedEntradas([]);
       setSelectedFondos([]);
       setSelectedBebidas([]);
+      setSelectedHelados([]);
 
       if (data.free) {
         const selectedCustomer = customers.find(
@@ -404,7 +462,7 @@ export default function OrderScreen() {
 
   const renderMealItem = (
     item: IMeal,
-    category: "entradas" | "fondos" | "bebidas",
+    category: "entradas" | "fondos" | "bebidas" | "helados",
     selectedMeals: MealWithQuantity[]
   ) => {
     const selectedMeal = selectedMeals.find((m) => m.id === item.id);
@@ -649,6 +707,18 @@ export default function OrderScreen() {
             >
               {bebidasData.map((item) =>
                 renderMealItem(item, "bebidas", selectedBebidas)
+              )}
+            </List.Accordion>
+          </List.Section>
+          <Divider />
+          <List.Section>
+            <List.Accordion
+              title="Seleccionar Helados"
+              expanded={expandedHelados}
+              onPress={() => setExpandedHelados(!expandedHelados)}
+            >
+              {heladosData.map((item) =>
+                renderMealItem(item, "helados", selectedHelados)
               )}
             </List.Accordion>
           </List.Section>

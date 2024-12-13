@@ -183,6 +183,13 @@ export default function MenuScreen() {
                       setExpanded(!expanded);
                     }}
                   />
+                  <List.Item
+                    title="Helados"
+                    onPress={() => {
+                      onChange("Helados");
+                      setExpanded(!expanded);
+                    }}
+                  />
                 </List.Accordion>
               </List.Section>
               {errors.category && (

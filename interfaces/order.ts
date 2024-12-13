@@ -2,7 +2,7 @@ import { ICustomer, IMeal, IUser } from "@/interfaces";
 
 export interface IOrder {
   id?: string;
-  id_table: string ;
+  id_table: string;
   date?: Date;
   users?: IUser;
   customers?: ICustomer;
@@ -15,6 +15,7 @@ export interface IOrder {
   entradas: IMeal[];
   fondos: IMeal[];
   bebidas: IMeal[];
+  helados: IMeal[];
   total: number;
 }
 

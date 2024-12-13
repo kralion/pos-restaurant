@@ -46,9 +46,6 @@ export default function OrdersScreen() {
         style={{
           backgroundColor: "#fff",
         }}
-        contentContainerStyle={{
-          backgroundColor: "#fff",
-        }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }

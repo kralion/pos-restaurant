@@ -12,6 +12,11 @@ import {
 import "react-native-reanimated";
 import "../styles/global.css";
 import { CustomerContextProvider } from "@/context/customer";
+import { NAV_THEME } from "@/utils/constants";
+import {
+  ThemeProvider,
+  DefaultTheme as DefaultNavigationTheme,
+} from "@react-navigation/native";
 // Import your global CSS file
 
 export {
@@ -32,6 +37,7 @@ const theme = {
     secondary: "yellow",
   },
 };
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -62,26 +68,39 @@ export default function RootLayout() {
 function RootLayoutNav() {
   return (
     <AuthContextProvider>
-      <PaperProvider theme={theme}>
-        <OrderContextProvider>
-          <MealContextProvider>
-            <CustomerContextProvider>
-              <Stack>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="add-order"
-                  options={{
-                    title: "Agregar Orden",
-                    presentation: "card",
-                    headerShown: false,
-                  }}
-                />
-              </Stack>
-            </CustomerContextProvider>
-          </MealContextProvider>
-        </OrderContextProvider>
-      </PaperProvider>
+      <ThemeProvider
+        value={{
+          ...DefaultNavigationTheme,
+          colors: NAV_THEME,
+        }}
+      >
+        <PaperProvider theme={theme}>
+          <OrderContextProvider>
+            <MealContextProvider>
+              <CustomerContextProvider>
+                <Stack>
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="(auth)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="add-order"
+                    options={{
+                      title: "Agregar Orden",
+                      presentation: "card",
+                      headerShown: false,
+                    }}
+                  />
+                </Stack>
+              </CustomerContextProvider>
+            </MealContextProvider>
+          </OrderContextProvider>
+        </PaperProvider>
+      </ThemeProvider>
     </AuthContextProvider>
   );
 }

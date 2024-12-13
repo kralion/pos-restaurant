@@ -166,11 +166,11 @@ export const OrderContextProvider = ({
           .from("tables")
           .update({ status: false })
           .eq("id", tableId);
-      
+
         if (tableError) {
           console.error("Error updating table status:", tableError);
-        alert("Error al actualizar status da mesa");
-        return;
+          alert("Error al actualizar status da mesa");
+          return;
         }
       }
       setLoading(false);
@@ -184,7 +184,10 @@ export const OrderContextProvider = ({
 
   const getOrders = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("orders").select("*");
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .order("date", { ascending: false });
     if (error) throw error;
     setOrders(data);
     setLoading(false);
@@ -207,7 +210,8 @@ export const OrderContextProvider = ({
     const { data, error } = await supabase
       .from("orders")
       .select("*")
-      .eq("paid", true);
+      .eq("paid", true)
+      .order("date", { ascending: false });
     if (error) throw error;
     setPaidOrders(data);
     setLoading(false);

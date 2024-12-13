@@ -68,6 +68,12 @@ export default function OrderCard({ order }: { order: IOrder }) {
               <Text>{item.quantity}</Text>
             </View>
           ))}
+          {order.helados.map((item, index) => (
+            <View key={index} className="flex flex-row w-full justify-between">
+              <Text className="w-36">{item.name}</Text>
+              <Text>{item.quantity}</Text>
+            </View>
+          ))}
         </View>
       </Card.Content>
     </Card>

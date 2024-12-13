@@ -1,7 +1,7 @@
 import { supabase } from "@/utils/supabase";
 import { Image } from "expo-image";
 import React from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, set, useForm } from "react-hook-form";
 import { AppState, Linking, ScrollView, Text, View } from "react-native";
 import { Button, Dialog, Portal, TextInput } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -26,7 +26,12 @@ export default function SignInScreen() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<TLogin>();
+  } = useForm<TLogin>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
   const onSubmit = async (data: TLogin) => {
     setLoading(true);
@@ -36,11 +41,12 @@ export default function SignInScreen() {
     });
     if (error) {
       setLoading(false);
-      setTimeout(() => setVisible(false), 5000);
-      return;
+      setVisible(true);
+      setTimeout(() => setVisible(false), 3000);
+    } else {
+      reset();
     }
     setLoading(false);
-    reset();
   };
 
   return (
@@ -86,6 +92,10 @@ export default function SignInScreen() {
               )}
               rules={{
                 required: { value: true, message: "Ingrese el email" },
+                pattern: {
+                  value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                  message: "Ingrese un email válido",
+                },
               }}
             />
             <Controller
