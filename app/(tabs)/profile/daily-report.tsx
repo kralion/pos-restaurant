@@ -18,6 +18,10 @@ const calculateOrderTotal = (order: IOrder): number => {
   );
 };
 
+type DayTotals = {
+  [key in 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday']: number;
+};
+
 export default function DailyReportScreen() {
   const { getDailyPaidOrders } = useOrderContext();
   const [dailySales, setDailySales] = useState([
@@ -29,15 +33,6 @@ export default function DailyReportScreen() {
     { value: 0, label: "6 PM", frontColor: "#177AD5" },
     { value: 0, label: "8 PM", frontColor: "#177AD5" },
   ]);
-  const [weeklySales, setWeeklySales] = useState([
-    { value: 0, label: "Lun", frontColor: "#4CAF50" },
-    { value: 0, label: "Mar", frontColor: "#4CAF50" },
-    { value: 0, label: "Mier", frontColor: "#4CAF50" },
-    { value: 0, label: "Juev", frontColor: "#4CAF50" },
-    { value: 0, label: "Vier", frontColor: "#4CAF50" },
-    { value: 0, label: "Sab", frontColor: "#4CAF50" },
-    { value: 0, label: "Dom", frontColor: "#4CAF50" },
-  ]);
   const [totalDailySales, setTotalDailySales] = useState(0);
   const [orderDetails, setOrderDetails] = useState({
     totalOrders: 0,
@@ -45,8 +40,19 @@ export default function DailyReportScreen() {
     peakHour: "",
     totalWeekly: 0,
   });
+  const [dailyTotals, setDailyTotals] = useState<DayTotals>({
+    Monday: 0,
+    Tuesday: 0,
+    Wednesday: 0,
+    Thursday: 0,
+    Friday: 0,
+    Saturday: 0,
+    Sunday: 0,
+  });
+
   useEffect(() => {
     loadDailySales();
+    getWeekDayTotals();
     // Suscribirse a cambios en orders
     const subscription = supabase
       .channel("daily-reports")
@@ -100,6 +106,46 @@ export default function DailyReportScreen() {
       console.error("Error loading daily sales:", error);
     }
   };
+  const getWeekDayTotals = async () => {
+    try {
+      const today = new Date();
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1));
+      startOfWeek.setHours(0, 0, 0, 0);
+
+      const { data: weekOrders, error } = await supabase
+        .from("orders")
+        .select("*")
+        .gte("date", startOfWeek.toISOString())
+        .lte("date", today.toISOString())
+        .eq("paid", true);
+
+      if (error) throw error;
+
+      const totals: DayTotals = {
+        Monday: 0,
+        Tuesday: 0,
+        Wednesday: 0,
+        Thursday: 0,
+        Friday: 0,
+        Saturday: 0,
+        Sunday: 0,
+      };
+
+      weekOrders?.forEach((order: IOrder) => {
+        if (order.date) {
+          const orderDate = new Date(order.date);
+          const dayName = orderDate.toLocaleString('en-US', { weekday: 'long' }) as keyof DayTotals;
+          totals[dayName] += calculateOrderTotal(order);
+        }
+      });
+
+      setDailyTotals(totals);
+    } catch (error) {
+      console.error("Error loading weekly totals:", error);
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
@@ -129,6 +175,21 @@ export default function DailyReportScreen() {
     <Text style={styles.detailText}>
       {title}: {typeof data === "number" ? `${data}` : data}
     </Text>
+  );
+  const WeeklyTotals = () => (
+    <View style={styles.weeklyTotalsContainer}>
+      <Text style={styles.weeklyTotalsTitle}>Totales por día de la semana</Text>
+      {Object.entries(dailyTotals).map(([day, total]) => (
+        <Text key={day} style={styles.weeklyTotalItem}>
+          {day === 'Monday' ? 'Lunes' :
+           day === 'Tuesday' ? 'Martes' :
+           day === 'Wednesday' ? 'Miércoles' :
+           day === 'Thursday' ? 'Jueves' :
+           day === 'Friday' ? 'Viernes' :
+           day === 'Saturday' ? 'Sábado' : 'Domingo'}: S/. {total.toFixed(2)}
+        </Text>
+      ))}
+    </View>
   );
   return (
     <SafeAreaView style={styles.container}>
@@ -163,6 +224,7 @@ export default function DailyReportScreen() {
             <SalesDetails title="Hora pico" data={orderDetails.peakHour} />
           </View>
         </View>
+        <WeeklyTotals />
       </ScrollView>
     </SafeAreaView>
   );
@@ -207,5 +269,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginBottom: 8,
+  },
+  weeklyTotalsContainer: {
+    marginTop: 24,
+    padding: 16,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+  },
+  weeklyTotalsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    color: '#333',
+  },
+  weeklyTotalItem: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+    paddingVertical: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
 });
