@@ -12,15 +12,17 @@ import {
 
 export default function PaymentCard({ order }: { order: IOrder }) {
   if (!order.date) return <ActivityIndicator />;
-  const formattedDate = new Date(order.date).toLocaleDateString("es-ES", {
-    day: "2-digit",
-    month: "short",
-  });
-  const formattedTime = new Date().toLocaleString("es-ES", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
+  const formattedDate = new Date(order.date ?? new Date()).toLocaleString(
+    "es-ES",
+    {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }
+  );
 
   return (
     <Card
@@ -36,7 +38,7 @@ export default function PaymentCard({ order }: { order: IOrder }) {
         title={"Mesa " + order.id_table}
         titleStyle={{ fontWeight: "bold", fontSize: 16 }}
         subtitleStyle={{ fontSize: 12 }}
-        subtitle={`${formattedDate} - ${formattedTime}`}
+        subtitle={formattedDate}
         left={(props) => <Avatar.Icon color="white" {...props} icon="dolby" />}
         right={(props) => (
           <View className="flex flex-row items-center">

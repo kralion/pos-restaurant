@@ -25,7 +25,7 @@ export default function OrderCard({ order }: { order: IOrder }) {
       <Card.Title
       title={"Mesa " + order.id_table}
       titleStyle={{ fontWeight: "bold", fontSize: 16 }}
-      subtitle={`${order.served ? "Servido" : "En espera"} • ${order.paid ? "Pagado" : "Pendiente"}`}
+      subtitle={`${order.served ? "Servido" : "En espera"}`}
       subtitleStyle={{ fontSize: 13 }}
       left={(props) => (
         <Avatar.Icon

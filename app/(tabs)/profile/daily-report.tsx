@@ -81,9 +81,8 @@ export default function DailyReportScreen() {
           const timeIndex = Math.floor((hour - 8) / 2);
 
           if (timeIndex >= 0 && timeIndex < salesByHour.length) {
-            const orderTotal = calculateOrderTotal(order);
-            salesByHour[timeIndex] += orderTotal;
-            total += orderTotal;
+            salesByHour[timeIndex] += order.total;
+            total += order.total;
           }
         }
       });
@@ -136,7 +135,7 @@ export default function DailyReportScreen() {
         if (order.date) {
           const orderDate = new Date(order.date);
           const dayName = orderDate.toLocaleString('en-US', { weekday: 'long' }) as keyof DayTotals;
-          totals[dayName] += calculateOrderTotal(order);
+          totals[dayName] += order.total;
         }
       });
 
