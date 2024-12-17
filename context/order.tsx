@@ -6,17 +6,17 @@ import { router } from "expo-router";
 import { toast } from "sonner-native";
 import { FontAwesome } from "@expo/vector-icons";
 export const OrderContext = createContext<IOrderContextProvider>({
-  addOrder: async () => {},
+  addOrder: async () => { },
   getUnservedOrders: async () => [],
   getOrderById: async (id: string): Promise<IOrder> => ({} as IOrder),
   orders: [],
   order: {} as IOrder,
   loading: false,
   getPaidOrders: async () => [],
-  updateOrder: async () => {},
-  deleteOrder: async () => {},
+  updateOrder: async () => { },
+  deleteOrder: async () => { },
   getOrders: async () => [],
-  updateOrderServedStatus: async () => {},
+  updateOrderServedStatus: async () => { },
   paidOrders: [],
   getDailyPaidOrders: async () => [],
   getUnpaidOrders: async () => [],
@@ -127,6 +127,39 @@ export const OrderContextProvider = ({
         }
       }
       for (const item of order.bebidas) {
+        const { data: mealData, error: mealError } = await supabase
+          .from("meals")
+          .select("quantity")
+          .eq("id", item.id)
+          .single();
+
+        if (mealError) {
+          console.error("Error retrieving meal quantity:", mealError);
+          alert("Error al verificar inventario");
+          return;
+        }
+
+        // Check if there's enough quantity
+        if (mealData.quantity < item.quantity) {
+          toast.error(`${item.name} fuera de stock!`, {
+            icon: <FontAwesome name="times-circle" size={20} color="red" />,
+          });
+          return;
+        }
+
+        // Update meal quantity
+        const { error: updateError } = await supabase
+          .from("meals")
+          .update({ quantity: mealData.quantity - item.quantity })
+          .eq("id", item.id);
+
+        if (updateError) {
+          console.error("Error updating meal quantity:", updateError);
+          alert("Error al actualizar inventario");
+          return;
+        }
+      }
+      for (const item of order.helados) {
         const { data: mealData, error: mealError } = await supabase
           .from("meals")
           .select("quantity")
