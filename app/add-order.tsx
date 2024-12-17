@@ -1,11 +1,14 @@
 import { useAuth, useOrderContext } from "@/context";
+import { useCategoryContext } from "@/context/category";
 import { useCustomer } from "@/context/customer";
+import { useMealContext } from "@/context/meals";
 import { IMeal, IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
+import { FlashList } from "@shopify/flash-list";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Controller, set, useForm } from "react-hook-form";
-import { ScrollView, View } from "react-native";
+import { Controller, useForm } from "react-hook-form";
+import { ScrollView, View, ActivityIndicator } from "react-native";
 import {
   Button,
   Divider,
@@ -21,37 +24,23 @@ import {
 import Animated, { SlideInDown, SlideOutDown } from "react-native-reanimated";
 import { useDebouncedCallback } from "use-debounce";
 
-interface MealWithQuantity extends IMeal {
-  quantity: number;
-}
-
 export default function OrderScreen() {
   const { number, id_table, id_order } = useLocalSearchParams<{
     number: string;
     id_table: string;
     id_order: string;
   }>();
+  const {
+    categories,
+    getCategories,
+    loading: categoriesLoading,
+  } = useCategoryContext();
+  const { getMealsByCategoryId, loading: mealsLoading } = useMealContext();
+  const [mealsByCategory, setMealsByCategory] = useState<IMeal[]>([]);
+  const [itemsSelected, setItemsSelected] = useState<IMeal[]>([]);
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<IOrder | null>(null);
-  const [expandedEntradas, setExpandedEntradas] = useState(false);
-  const [expandedFondos, setExpandedFondos] = useState(false);
-  const [expandedBebidas, setExpandedBebidas] = useState(false);
-  const [expandedHelados, setExpandedHelados] = useState(false);
-  const [entradasData, setEntradasData] = useState<IMeal[]>([]);
-  const [fondosData, setFondosData] = useState<IMeal[]>([]);
-  const [heladosData, setHeladosData] = useState<IMeal[]>([]);
-  const [bebidasData, setBebidasData] = useState<IMeal[]>([]);
   const { addOrder, updateOrder } = useOrderContext();
-  const [selectedEntradas, setSelectedEntradas] = useState<MealWithQuantity[]>(
-    []
-  );
-  const [selectedHelados, setSelectedHelados] = useState<MealWithQuantity[]>(
-    []
-  );
-  const [selectedFondos, setSelectedFondos] = useState<MealWithQuantity[]>([]);
-  const [selectedBebidas, setSelectedBebidas] = useState<MealWithQuantity[]>(
-    []
-  );
   const { profile } = useAuth();
   const { getCustomers, customers } = useCustomer();
   const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -71,10 +60,6 @@ export default function OrderScreen() {
     setOrder(data);
     if (!data) return;
     const order = data as IOrder;
-    setSelectedEntradas(order?.entradas);
-    setSelectedFondos(order?.fondos);
-    setSelectedBebidas(order?.bebidas);
-    setSelectedHelados(order?.helados);
     if (error) {
       console.error("Error getting order:", error);
       alert("Error al obtener o pedido");
@@ -82,8 +67,28 @@ export default function OrderScreen() {
     return;
   }
 
+  const handleQuantityChange = (item: IMeal, quantity: number) => {
+    const newItemsSelected = [...itemsSelected];
+    const index = newItemsSelected.findIndex((i) => i.id === item.id);
+    if (index === -1) {
+      newItemsSelected.push(item);
+    } else {
+      newItemsSelected[index].quantity = quantity;
+    }
+    setItemsSelected(newItemsSelected);
+  };
+
+  const mealsByCategoryHandler = (categoryId: string) => {
+    const category = categories.find((c) => c.id === categoryId);
+    if (!category) return;
+    getMealsByCategoryId(category.id as string).then((meals) => {
+      setMealsByCategory(meals);
+    });
+  };
+
   useEffect(() => {
     getCustomers();
+    getCategories(profile.id_tenant as string);
   }, []);
 
   useEffect(() => {
@@ -104,244 +109,12 @@ export default function OrderScreen() {
       id_fixed_customer: order?.id_fixed_customer
         ? order?.id_fixed_customer
         : "",
-      entradas: {} as IMeal[],
-      fondos: {} as IMeal[],
-      bebidas: {} as IMeal[],
-      helados: {} as IMeal[],
+      items: [] as IMeal[],
       paid: order?.paid,
       served: order?.served,
       total: order?.total,
     },
   });
-
-  const updateMealQuantity = (
-    meal: IMeal,
-    quantity: number,
-    category: "entradas" | "fondos" | "bebidas" | "helados"
-  ) => {
-    let selectedMeals: MealWithQuantity[];
-    let setSelectedMeals: React.Dispatch<
-      React.SetStateAction<MealWithQuantity[]>
-    >;
-
-    switch (category) {
-      case "entradas":
-        selectedMeals = selectedEntradas;
-        setSelectedMeals = setSelectedEntradas;
-        break;
-      case "fondos":
-        selectedMeals = selectedFondos;
-        setSelectedMeals = setSelectedFondos;
-        break;
-      case "bebidas":
-        selectedMeals = selectedBebidas;
-        setSelectedMeals = setSelectedBebidas;
-        break;
-      case "helados":
-        selectedMeals = selectedHelados;
-        setSelectedMeals = setSelectedHelados;
-        break;
-    }
-
-    const existingMealIndex = selectedMeals.findIndex((m) => m.id === meal.id);
-
-    if (existingMealIndex !== -1) {
-      const updatedMeals = [...selectedMeals];
-      if (quantity > 0) {
-        updatedMeals[existingMealIndex].quantity = quantity;
-        setSelectedMeals(updatedMeals);
-      } else {
-        // Remove meal if quantity is 0
-        setSelectedMeals(selectedMeals.filter((m) => m.id !== meal.id));
-      }
-    } else if (quantity > 0) {
-      // Add meal with specified quantity
-      const newMealWithQuantity = { ...meal, quantity };
-      setSelectedMeals([...selectedMeals, newMealWithQuantity]);
-    }
-
-    // Update form values
-    setValue(
-      category,
-      category === "entradas"
-        ? selectedEntradas
-        : category === "fondos"
-        ? selectedFondos
-        : category === "bebidas"
-        ? selectedBebidas
-        : selectedHelados
-    );
-  };
-
-  useEffect(() => {
-    // Initial data fetch
-    const getEntradasData = async () => {
-      const { data: entradas, error } = await supabase
-        .from("meals")
-        .select("*")
-        .eq("category", "Entradas");
-      if (error || !entradas) {
-        console.error("An error occurred:", error);
-        alert("Algo sucedió mal, vuelve a intentarlo.");
-      } else {
-        setEntradasData(entradas);
-      }
-    };
-
-    const getFondosData = async () => {
-      const { data: fondos, error } = await supabase
-        .from("meals")
-        .select("*")
-        .eq("category", "Fondos");
-      if (error || !fondos) {
-        console.error("An error occurred:", error);
-        alert("Algo sucedió mal, vuelve a intentarlo.");
-      } else {
-        setFondosData(fondos);
-      }
-    };
-
-    const getBebidasData = async () => {
-      const { data: bebidas, error } = await supabase
-        .from("meals")
-        .select("*")
-        .eq("category", "Bebidas");
-      if (error || !bebidas) {
-        console.error("An error occurred:", error);
-        alert("Algo sucedió mal, vuelve a intentarlo.");
-      } else {
-        setBebidasData(bebidas);
-      }
-    };
-
-    const getHeladosData = async () => {
-      const { data: helados, error } = await supabase
-        .from("meals")
-        .select("*")
-        .eq("category", "Helados");
-      if (error || !helados) {
-        console.error("An error occurred:", error);
-        alert("Algo sucedió mal, vuelve a intentarlo.");
-      } else {
-        setHeladosData(helados);
-      }
-    };
-
-    // Real-time subscriptions for selecting data
-    const entradasChannel = supabase
-      .channel("entradas-channel")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "meals",
-          filter: "category=eq.Entradas",
-        },
-        async (payload) => {
-          const { data: updatedEntradas, error } = await supabase
-            .from("meals")
-            .select("*")
-            .eq("category", "Entradas");
-
-          if (error) {
-            console.error("Error fetching updated entradas:", error);
-          } else {
-            setEntradasData(updatedEntradas);
-          }
-        }
-      )
-      .subscribe();
-
-    const fondosChannel = supabase
-      .channel("fondos-channel")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "meals",
-          filter: "category=eq.Fondos",
-        },
-        async (payload) => {
-          const { data: updatedFondos, error } = await supabase
-            .from("meals")
-            .select("*")
-            .eq("category", "Fondos");
-
-          if (error) {
-            console.error("Error fetching updated fondos:", error);
-          } else {
-            setFondosData(updatedFondos);
-          }
-        }
-      )
-      .subscribe();
-
-    const bebidasChannel = supabase
-      .channel("bebidas-channel")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "meals",
-          filter: "category=eq.Bebidas",
-        },
-        async (payload) => {
-          const { data: updatedBebidas, error } = await supabase
-            .from("meals")
-            .select("*")
-            .eq("category", "Bebidas");
-
-          if (error) {
-            console.error("Error fetching updated bebidas:", error);
-          } else {
-            setBebidasData(updatedBebidas);
-          }
-        }
-      )
-      .subscribe();
-
-    const heladosChannel = supabase
-      .channel("helados-channel")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "meals",
-          filter: "category=eq.Helados",
-        },
-        async (payload) => {
-          const { data: updatedHelados, error } = await supabase
-            .from("meals")
-            .select("*")
-            .eq("category", "Helados");
-
-          if (error) {
-            console.error("Error fetching updated helados:", error);
-          } else {
-            setHeladosData(updatedHelados);
-          }
-        }
-      )
-      .subscribe();
-
-    // Initial data fetch
-    getEntradasData();
-    getFondosData();
-    getBebidasData();
-    getHeladosData();
-
-    // Cleanup subscription on component unmount
-    return () => {
-      supabase.removeChannel(entradasChannel);
-      supabase.removeChannel(fondosChannel);
-      supabase.removeChannel(bebidasChannel);
-      supabase.removeChannel(heladosChannel);
-    };
-  }, []); // Empty dependency array means this runs once on component mount
 
   useEffect(() => {
     const selectedCustomer = customers.find(
@@ -372,23 +145,11 @@ export default function OrderScreen() {
         id_fixed_customer:
           order?.id_fixed_customer || data.id_fixed_customer || null,
         id_table: id_table,
-        entradas: selectedEntradas,
-        fondos: selectedFondos,
-        helados: selectedHelados,
-        bebidas: selectedBebidas,
-        total: selectedEntradas
-          .concat(selectedFondos)
-          .concat(selectedBebidas)
-          .concat(selectedHelados)
-          .reduce((acc, meal) => acc + meal.price * meal.quantity, 0),
+        total: 100,
       };
 
       await updateOrder(orderData);
       reset();
-      setSelectedEntradas([]);
-      setSelectedFondos([]);
-      setSelectedBebidas([]);
-      setSelectedHelados([]);
 
       if (data.free) {
         const selectedCustomer = customers.find(
@@ -422,27 +183,15 @@ export default function OrderScreen() {
         id_waiter: profile.id,
         paid: false,
         id_table: id_table,
+        items: itemsSelected,
         id_fixed_customer: data.id_fixed_customer
           ? data.id_fixed_customer
           : null,
-        entradas: selectedEntradas,
-        fondos: selectedFondos,
-        bebidas: selectedBebidas,
-        helados: selectedHelados,
-        total: selectedEntradas
-          .concat(selectedFondos)
-          .concat(selectedBebidas)
-          .concat(selectedHelados)
-          .reduce((acc, meal) => acc + meal.price * meal.quantity, 0),
+        total: 100,
       };
-
-      addOrder(orderData, id_table);
+      // addOrder(orderData, id_table);
+      console.log("orderData", JSON.stringify(orderData));
       reset();
-      setSelectedEntradas([]);
-      setSelectedFondos([]);
-      setSelectedBebidas([]);
-      setSelectedHelados([]);
-
       if (data.free) {
         const selectedCustomer = customers.find(
           (c) => c.id === data.id_fixed_customer
@@ -463,52 +212,6 @@ export default function OrderScreen() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const renderMealItem = (
-    item: IMeal,
-    category: "entradas" | "fondos" | "bebidas" | "helados",
-    selectedMeals: MealWithQuantity[]
-  ) => {
-    const selectedMeal = selectedMeals.find((m) => m.id === item.id);
-    const currentQuantity = selectedMeal ? selectedMeal.quantity : 0;
-
-    return (
-      <Surface
-        key={item.id}
-        className="flex-row items-center justify-between p-2  border-b border-gray-200 rounded-t-lg"
-      >
-        <View className="flex-1 ">
-          <Text variant="titleMedium">{item.name}</Text>
-          <Text variant="labelSmall" className="opacity-50">
-            S/. {item.price.toString()}
-          </Text>
-        </View>
-
-        <View className="flex-row items-center gap-2">
-          <IconButton
-            icon="minus"
-            disabled={currentQuantity <= 0}
-            onPress={() =>
-              updateMealQuantity(
-                item,
-                Math.max(0, currentQuantity - 1),
-                category
-              )
-            }
-          />
-
-          <Text variant="bodyMedium">{currentQuantity}</Text>
-
-          <IconButton
-            icon="plus"
-            onPress={() =>
-              updateMealQuantity(item, currentQuantity + 1, category)
-            }
-          />
-        </View>
-      </Surface>
-    );
   };
 
   const filteredCustomers = React.useMemo(
@@ -597,15 +300,15 @@ export default function OrderScreen() {
   );
 
   return (
-    <ScrollView contentInsetAdjustmentBehavior="automatic">
-      <View className="flex flex-col gap-4 w-full items-center p-4">
-        <View className="w-full flex flex-col items-center ">
-          <Text className="text-xl" style={{ fontWeight: "700" }}>
-            Orden Mesa #{number}
-          </Text>
-          <Divider />
-        </View>
-        <View className="w-full rounded-lg overflow-hidden flex flex-col borde bg-white">
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      className="bg-zinc-200"
+    >
+      <View className="flex flex-col w-full items-center p-4 ">
+        <Text className="text-2xl mb-4" style={{ fontWeight: "700" }}>
+          Mesa #{number}
+        </Text>
+        <View className="w-full rounded-2xl overflow-hidden flex flex-col bg-white">
           <Controller
             control={control}
             name="id_fixed_customer"
@@ -643,7 +346,6 @@ export default function OrderScreen() {
           />
           <Divider />
 
-          {/* Show free order switch only when fixed customer has available free orders */}
           {(() => {
             const selectedCustomer = customers.find(
               (c) => c.id === watch("id_fixed_customer")
@@ -680,53 +382,89 @@ export default function OrderScreen() {
             )}
           />
           <Divider />
-          <List.Section>
-            <List.Accordion
-              title="Seleccionar Entradas"
-              expanded={expandedEntradas}
-              onPress={() => setExpandedEntradas(!expandedEntradas)}
-            >
-              {entradasData.map((item) =>
-                renderMealItem(item, "entradas", selectedEntradas)
-              )}
-            </List.Accordion>
-          </List.Section>
-          <Divider />
-          <List.Section>
-            <List.Accordion
-              title="Seleccionar Fondos"
-              expanded={expandedFondos}
-              onPress={() => setExpandedFondos(!expandedFondos)}
-            >
-              {fondosData.map((item) =>
-                renderMealItem(item, "fondos", selectedFondos)
-              )}
-            </List.Accordion>
-          </List.Section>
-          <Divider />
-          <List.Section>
-            <List.Accordion
-              title="Seleccionar Bebidas"
-              expanded={expandedBebidas}
-              onPress={() => setExpandedBebidas(!expandedBebidas)}
-            >
-              {bebidasData.map((item) =>
-                renderMealItem(item, "bebidas", selectedBebidas)
-              )}
-            </List.Accordion>
-          </List.Section>
-          <Divider />
-          <List.Section>
-            <List.Accordion
-              title="Seleccionar Helados"
-              expanded={expandedHelados}
-              onPress={() => setExpandedHelados(!expandedHelados)}
-            >
-              {heladosData.map((item) =>
-                renderMealItem(item, "helados", selectedHelados)
-              )}
-            </List.Accordion>
-          </List.Section>
+          {categoriesLoading && <ActivityIndicator style={{ marginTop: 20 }} />}
+          {categories.map((category, index) => (
+            <List.Section key={category.id}>
+              <List.Accordion
+                style={{
+                  backgroundColor: "white",
+                  paddingTop: 0,
+                  marginTop: 0,
+                }}
+                titleStyle={{
+                  fontWeight: "500",
+                }}
+                title={category.name}
+                onPress={() => mealsByCategoryHandler(category.id as string)}
+              >
+                <Divider />
+                {mealsLoading && (
+                  <ActivityIndicator style={{ marginTop: 20 }} />
+                )}
+                <FlashList
+                  data={mealsByCategory}
+                  estimatedItemSize={74}
+                  renderItem={({ item }) => (
+                    <List.Item
+                      style={{
+                        paddingRight: 0,
+                      }}
+                      title={item.name}
+                      titleStyle={
+                        item.quantity === 0
+                          ? {
+                              textDecorationLine: "line-through",
+                              color: "gray",
+                            }
+                          : { color: "black" }
+                      }
+                      description={`S/. ${item.price.toFixed(2)}`}
+                      right={(props) => (
+                        <View className="flex-row items-center gap-2">
+                          <IconButton
+                            onPress={() =>
+                              handleQuantityChange(
+                                item,
+                                Math.max(item.quantity - 1, 0)
+                              )
+                            }
+                            mode="contained"
+                            icon="minus"
+                            size={18}
+                          />
+                          <Text variant="titleLarge">
+                            {itemsSelected.find((i) => i.id === item.id)
+                              ? itemsSelected.find((i) => i.id === item.id)
+                                  ?.quantity
+                              : item.quantity
+                              ? item.quantity
+                              : 0}
+                          </Text>
+                          <IconButton
+                            onPress={() =>
+                              handleQuantityChange(item, item.quantity + 1)
+                            }
+                            icon="plus"
+                            size={18}
+                            mode="contained"
+                          />
+                        </View>
+                      )}
+                    />
+                  )}
+                  keyExtractor={(item) => item.id}
+                />
+                {mealsByCategory.length === 0 && (
+                  <View className="p-4 items-center">
+                    <Text variant="bodyMedium" style={{ color: "gray" }}>
+                      Sin elementos
+                    </Text>
+                  </View>
+                )}
+              </List.Accordion>
+              {index !== categories.length - 1 && <Divider />}
+            </List.Section>
+          ))}
         </View>
         <View className="flex flex-col justify-center align-middle w-full gap-4">
           <Button
