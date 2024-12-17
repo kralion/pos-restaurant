@@ -2,6 +2,7 @@ import { Session, User } from "@supabase/supabase-js";
 export interface IUser {
   id?: string;
   name?: string;
+  id_tenant?: string;
   last_name?: string;
   image_url?: string;
   role: "waiter" | "chef" | "admin";

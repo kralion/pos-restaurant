@@ -19,6 +19,7 @@ import {
   ThemeProvider,
   DefaultTheme as DefaultNavigationTheme,
 } from "@react-navigation/native";
+import { CategoryContextProvider } from "@/context/category";
 // Import your global CSS file
 
 export {
@@ -79,28 +80,30 @@ function RootLayoutNav() {
         >
           <PaperProvider theme={theme}>
             <OrderContextProvider>
-              <MealContextProvider>
-                <CustomerContextProvider>
-                  <Stack>
-                    <Stack.Screen
-                      name="(tabs)"
-                      options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="(auth)"
-                      options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="add-order"
-                      options={{
-                        title: "Agregar Orden",
-                        presentation: "card",
-                        headerShown: false,
-                      }}
-                    />
-                  </Stack>
-                </CustomerContextProvider>
-              </MealContextProvider>
+              <CategoryContextProvider>
+                <MealContextProvider>
+                  <CustomerContextProvider>
+                    <Stack>
+                      <Stack.Screen
+                        name="(tabs)"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="(auth)"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="add-order"
+                        options={{
+                          title: "Agregar Orden",
+                          presentation: "card",
+                          headerShown: false,
+                        }}
+                      />
+                    </Stack>
+                  </CustomerContextProvider>
+                </MealContextProvider>
+              </CategoryContextProvider>
             </OrderContextProvider>
           </PaperProvider>
           <Toaster />

@@ -37,6 +37,13 @@ export default function ProfileScreen() {
         </Button>
         <Button
           icon="account-heart-outline"
+          onPress={() => router.push("/(tabs)/profile/categories")}
+          mode="text"
+        >
+          Categorías
+        </Button>
+        <Button
+          icon="account-heart-outline"
           onPress={() => router.push("/(tabs)/profile/customers")}
           mode="text"
         >

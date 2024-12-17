@@ -23,6 +23,15 @@ export default function ProfileLayout() {
         }}
       />
       <Stack.Screen
+        name="categories"
+        options={{
+          title: "Categorías",
+          headerLargeTitle: true,
+          headerBackVisible: true,
+          headerShadowVisible: false,
+        }}
+      />
+      <Stack.Screen
         name="customers"
         options={{
           title: "Clientes Fijos",
