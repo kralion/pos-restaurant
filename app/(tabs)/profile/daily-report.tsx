@@ -11,6 +11,7 @@ import { BarChart } from "react-native-gifted-charts";
 import { useOrderContext } from "@/context/order";
 import { IOrder, IMeal } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
+import { FontAwesome } from "@expo/vector-icons";
 const calculateOrderTotal = (order: IOrder): number => {
   const getMealsTotal = (meals: IMeal[]) =>
     meals.reduce(
@@ -42,14 +43,14 @@ type MonthlyTotals = {
 export default function DailyReportScreen() {
   const { getDailyPaidOrders } = useOrderContext();
   const [dailySales, setDailySales] = useState([
-    { value: 0, label: "7 AM", frontColor: "#177AD5" },
-    { value: 0, label: "9 AM", frontColor: "#177AD5" },
-    { value: 0, label: "11 AM", frontColor: "#177AD5" },
-    { value: 0, label: "1 PM", frontColor: "#177AD5" },
-    { value: 0, label: "3 PM", frontColor: "#177AD5" },
-    { value: 0, label: "5 PM", frontColor: "#177AD5" },
-    { value: 0, label: "7 PM", frontColor: "#177AD5" },
-    { value: 0, label: "9 PM", frontColor: "#177AD5" },
+    { value: 0, label: "7 AM", frontColor: "#FF6247" },
+    { value: 0, label: "9 AM", frontColor: "#FF6247" },
+    { value: 0, label: "11 AM", frontColor: "#FF6247" },
+    { value: 0, label: "1 PM", frontColor: "#FF6247" },
+    { value: 0, label: "3 PM", frontColor: "#FF6247" },
+    { value: 0, label: "5 PM", frontColor: "#FF6247" },
+    { value: 0, label: "7 PM", frontColor: "#FF6247" },
+    { value: 0, label: "9 PM", frontColor: "#FF6247" },
   ]);
   const [totalDailySales, setTotalDailySales] = useState(0);
   const [orderDetails, setOrderDetails] = useState({
@@ -209,14 +210,14 @@ export default function DailyReportScreen() {
       if (now.getHours() === 0 && now.getMinutes() === 0) {
         // Reiniciar datos diarios a medianoche
         setDailySales([
-          { value: 0, label: "7 AM", frontColor: "#177AD5" },
-          { value: 0, label: "9 AM", frontColor: "#177AD5" },
-          { value: 0, label: "11 AM", frontColor: "#177AD5" },
-          { value: 0, label: "1 PM", frontColor: "#177AD5" },
-          { value: 0, label: "3 PM", frontColor: "#177AD5" },
-          { value: 0, label: "5 PM", frontColor: "#177AD5" },
-          { value: 0, label: "7 PM", frontColor: "#177AD5" },
-          { value: 0, label: "9 PM", frontColor: "#177AD5" },
+          { value: 0, label: "7 AM", frontColor: "#FF6247" },
+          { value: 0, label: "9 AM", frontColor: "#FF6247" },
+          { value: 0, label: "11 AM", frontColor: "#FF6247" },
+          { value: 0, label: "1 PM", frontColor: "#FF6247" },
+          { value: 0, label: "3 PM", frontColor: "#FF6247" },
+          { value: 0, label: "5 PM", frontColor: "#FF6247" },
+          { value: 0, label: "7 PM", frontColor: "#FF6247" },
+          { value: 0, label: "9 PM", frontColor: "#FF6247" },
         ]);
         setTotalDailySales(0);
       }
@@ -238,22 +239,24 @@ export default function DailyReportScreen() {
     <View style={styles.weeklyTotalsContainer}>
       <Text style={styles.weeklyTotalsTitle}>Totales por día de la semana</Text>
       {Object.entries(dailyTotals).map(([day, total]) => (
-        <Text key={day} style={styles.weeklyTotalItem}>
-          {day === "Monday"
-            ? "Lunes"
-            : day === "Tuesday"
-            ? "Martes"
-            : day === "Wednesday"
-            ? "Miércoles"
-            : day === "Thursday"
-            ? "Jueves"
-            : day === "Friday"
-            ? "Viernes"
-            : day === "Saturday"
-            ? "Sábado"
-            : "Domingo"}
-          : S/. {total.toFixed(2)}
-        </Text>
+        <View key={day} className="flex flex-row justify-between mt-3">
+          <Text className="text-zinc-400">
+            {day === "Monday"
+              ? "Lunes"
+              : day === "Tuesday"
+              ? "Martes"
+              : day === "Wednesday"
+              ? "Miércoles"
+              : day === "Thursday"
+              ? "Jueves"
+              : day === "Friday"
+              ? "Viernes"
+              : day === "Saturday"
+              ? "Sábado"
+              : "Domingo"}
+          </Text>
+          <Text className="text-zinc-500">S/.{total.toFixed(2)}</Text>
+        </View>
       ))}
     </View>
   );
@@ -280,17 +283,17 @@ export default function DailyReportScreen() {
 
     return (
       <View style={styles.monthlyCalendarContainer}>
-        <Text style={styles.weeklyTotalsTitle}>Totales mensuales</Text>
+        <Text style={styles.weeklyTotalsTitle}>Totales calendarizados</Text>
         <View>
-          <View style={styles.monthNavigation}>
+          <View className="flex flex-row justify-between items-center my-4">
             <TouchableOpacity onPress={() => navigateMonth("prev")}>
-              <Text style={styles.navigationButton}>{"<"}</Text>
+              <FontAwesome name="chevron-left" size={24} color="#FF6247" />
             </TouchableOpacity>
             <Text style={styles.monthTitle}>
               {monthName.charAt(0).toUpperCase() + monthName.slice(1)} {year}
             </Text>
             <TouchableOpacity onPress={() => navigateMonth("next")}>
-              <Text style={styles.navigationButton}>{">"}</Text>
+              <FontAwesome name="chevron-right" size={24} color="#FF6247" />
             </TouchableOpacity>
           </View>
           <View style={styles.monthDays}>
@@ -340,17 +343,14 @@ export default function DailyReportScreen() {
         <View style={styles.chartContainer}>
           <Text style={styles.title}>Ventas diarias</Text>
           <Text style={styles.totalSales}>
-            Total: ${totalDailySales.toFixed(2)}
+            Total: S/. {totalDailySales.toFixed(2)}
           </Text>
           <BarChart
             data={dailySales}
             barWidth={30}
-            spacing={20}
-            roundedTop
-            roundedBottom
-            hideRules
-            xAxisThickness={1}
-            yAxisThickness={1}
+            barBorderRadius={6}
+            xAxisThickness={0}
+            yAxisThickness={0}
             yAxisTextStyle={styles.chartText}
             xAxisLabelTextStyle={styles.chartText}
             noOfSections={5}
@@ -384,23 +384,24 @@ const styles = StyleSheet.create({
   chartContainer: {
     marginBottom: 24,
     padding: 16,
+    overflow: "hidden",
     backgroundColor: "#f5f5f5",
     borderRadius: 8,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 14,
     marginBottom: 16,
-    color: "#333",
+    fontWeight: "ultralight",
+    color: "gray",
   },
   chartText: {
-    color: "#333",
+    color: "gray",
     fontSize: 12,
   },
   totalSales: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
-    color: "#177AD5",
+    color: "#FF6247",
     marginBottom: 12,
   },
   detailsContainer: {
@@ -431,8 +432,6 @@ const styles = StyleSheet.create({
     color: "#666",
     marginBottom: 8,
     paddingVertical: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
   },
   monthlyCalendarContainer: {
     marginTop: 24,
@@ -449,7 +448,7 @@ const styles = StyleSheet.create({
   },
   navigationButton: {
     fontSize: 24,
-    color: "#177AD5",
+    color: "#FF6247",
     padding: 8,
   },
   monthDays: {
@@ -488,9 +487,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   calendarDayWithSales: {
-    backgroundColor: "#e6f0ff",
+    backgroundColor: "#FF6247",
     borderWidth: 1,
-    borderColor: "#177AD5",
+    borderColor: "#FF6247",
   },
   calendarDayNumber: {
     fontSize: 16,
@@ -499,7 +498,7 @@ const styles = StyleSheet.create({
   },
   calendarDayTotal: {
     fontSize: 12,
-    color: "#177AD5",
+    color: "white",
     marginTop: 4,
   },
 });
