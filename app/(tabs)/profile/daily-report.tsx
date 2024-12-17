@@ -267,7 +267,18 @@ export default function DailyReportScreen() {
       currentDate.getMonth() + 1,
       0
     ).getDate();
+    
+    // se obtiene el primer día del mes
+    const firstDayOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1
+    ).getDay();
+
+    const emptyDays = Array(firstDayOfMonth).fill(null);
     const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+    const allDays = [...emptyDays, ...days];
+
     const monthName = currentDate.toLocaleString("es-ES", { month: "long" });
     const year = currentDate.getFullYear();
 
@@ -305,14 +316,16 @@ export default function DailyReportScreen() {
           </View>
         </View>
         <View style={styles.calendarGrid}>
-          {days.map((day) => {
+          {allDays.map((day, index) => {
+            if (day === null) {
+              return <View key={`empty-${index}`} style={[styles.calendarDay, styles.emptyDay]} />;
+            }
+
             const date = new Date(
               currentDate.getFullYear(),
               currentDate.getMonth(),
               day
-            )
-              .toISOString()
-              .split("T")[0];
+            ).toISOString().split("T")[0];
             const dayTotal = monthlyTotals[date] || 0;
 
             return (
@@ -323,7 +336,10 @@ export default function DailyReportScreen() {
                   dayTotal > 0 && styles.calendarDayWithSales,
                 ]}
               >
-                <Text style={styles.calendarDayNumber}>{day}</Text>
+                <Text style={[
+                  styles.calendarDayNumber,
+                  dayTotal > 0 && { color: '#fff' }
+                ]}>{day}</Text>
                 {dayTotal > 0 && (
                   <Text style={styles.calendarDayTotal}>
                     {dayTotal.toFixed(0)}
@@ -454,15 +470,14 @@ const styles = StyleSheet.create({
   monthDays: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
     marginBottom: 16,
-    paddingHorizontal: 8,
-    textAlign: "center",
+    width: '100%',
   },
   monthDay: {
     fontSize: 12,
     color: "#333",
     textAlign: "center",
+    width: '14.2%',
   },
   monthTitle: {
     fontSize: 16,
@@ -473,15 +488,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "flex-start",
-    gap: 8,
-    paddingHorizontal: 4,
+    width: '100%',
   },
   calendarDay: {
-    width: "14.2%",
-    aspectRatio: 0.9,
+    width: '14.2%',
+    aspectRatio: 1,
     backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 8,
+    padding: 4,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 8,
@@ -500,5 +513,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "white",
     marginTop: 4,
+  },
+  emptyDay: {
+    backgroundColor: 'transparent',
+    borderWidth: 0,
   },
 });
