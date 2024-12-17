@@ -1,8 +1,9 @@
 import { IMeal, IMealContextProvider } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
+import { FontAwesome } from "@expo/vector-icons";
 import * as React from "react";
 import { createContext, useContext } from "react";
-
+import { toast } from "sonner-native";
 export const MealContext = createContext<IMealContextProvider>({
   addMeal: async () => {},
   getMealById: async (id: string): Promise<IMeal> => ({} as IMeal),
@@ -22,7 +23,17 @@ export const MealContextProvider = ({
   const [meal, setMeal] = React.useState<IMeal>({} as IMeal);
 
   const addMeal = async (Meal: IMeal) => {
-    await supabase.from("meals").insert(Meal);
+    const { error } = await supabase.from("meals").insert(Meal);
+    if (error) {
+      console.error("Error adding meal:", error);
+      toast.error("Error al agregar item!", {
+        icon: <FontAwesome name="times-circle" size={20} color="red" />,
+      });
+      return;
+    }
+    toast.success("Item agregado al menú!", {
+      icon: <FontAwesome name="check-circle" size={20} color="green" />,
+    });
   };
 
   const getDailyMeals = async () => {
@@ -46,11 +57,34 @@ export const MealContextProvider = ({
   };
 
   const changeMealAvailability = async (id: string, quantity: number) => {
-    await supabase.from("meals").update({ quantity }).eq("id", id);
+    const { error } = await supabase
+      .from("meals")
+      .update({ quantity })
+      .eq("id", id);
+    if (error) {
+      console.error("Error updating meal:", error);
+      toast.error("Error al actualizar item!", {
+        icon: <FontAwesome name="times-circle" size={20} color="red" />,
+      });
+      return;
+    }
+    toast.success("Item actualizado!", {
+      icon: <FontAwesome name="check-circle" size={20} color="green" />,
+    });
   };
 
   const deleteMeal = async (id: string) => {
-    await supabase.from("meals").delete().eq("id", id);
+    const { error } = await supabase.from("meals").delete().eq("id", id);
+    if (error) {
+      console.error("Error deleting meal:", error);
+      toast.error("Error al eliminar item!", {
+        icon: <FontAwesome name="times-circle" size={20} color="red" />,
+      });
+      return;
+    }
+    toast.success("Item eliminado!", {
+      icon: <FontAwesome name="check-circle" size={20} color="green" />,
+    });
   };
 
   async function getMealById(id: string) {

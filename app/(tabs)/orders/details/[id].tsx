@@ -1,6 +1,7 @@
 import { useOrderContext } from "@/context";
 import { IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
+import { FontAwesome } from "@expo/vector-icons";
 import * as Print from "expo-print";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
@@ -14,6 +15,7 @@ import {
   Switch,
   Text,
 } from "react-native-paper";
+import { toast } from "sonner-native";
 
 export default function OrderDetailsScreen() {
   const params = useLocalSearchParams<{ id: string }>();
@@ -68,11 +70,20 @@ export default function OrderDetailsScreen() {
   const updatePaidStatus = async (id: string, paid: boolean) => {
     await supabase.from("orders").update({ paid }).eq("id", id).select();
     router.back();
-    await supabase
+    const { error } = await supabase
       .from("tables")
       .update({ status: true })
       .eq("id", order.id_table)
       .select();
+    if (error) {
+      toast.error("Error al actualizar estado de la mesa!", {
+        icon: <FontAwesome name="times-circle" size={20} color="red" />,
+      });
+      return;
+    }
+    toast.success("Estado de la mesa actualizado!", {
+      icon: <FontAwesome name="check-circle" size={20} color="green" />,
+    });
   };
   const handleSwitchChange = () => {
     setModalVisible(!modalVisible);

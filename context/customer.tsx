@@ -1,10 +1,13 @@
 import { ICustomer, ICustomerContextProvider } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
+import { FontAwesome } from "@expo/vector-icons";
 import { createContext, useContext, useState } from "react";
 import { Alert } from "react-native";
+import { toast } from "sonner-native";
 
 const CustomerContext = createContext<ICustomerContextProvider>({
   customer: {} as ICustomer,
+  addCustomer: async () => {},
   customers: [],
   deleteCustomer: async () => {},
   getCustomers: async () => {},
@@ -47,19 +50,37 @@ export function CustomerContextProvider({
     }
   };
 
-  const deleteCustomer = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from("fixed_customers")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
-
-      setCustomers(customers.filter((customer) => customer.id !== id));
-    } catch (err: any) {
-      alert("Error deleting customer: " + err.message);
+  const addCustomer = async (customer: ICustomer) => {
+    setLoading(true);
+    const { error } = await supabase.from("fixed_customers").insert(customer);
+    if (error) {
+      toast.error("Error al agregar cliente!", {
+        icon: <FontAwesome name="times-circle" size={20} color="red" />,
+      });
+      return;
     }
+    toast.success("Cliente agregado!", {
+      icon: <FontAwesome name="check-circle" size={20} color="green" />,
+    });
+    setLoading(false);
+  };
+
+  const deleteCustomer = async (id: string) => {
+    const { error } = await supabase
+      .from("fixed_customers")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      toast.error("Error al eliminar cliente!", {
+        icon: <FontAwesome name="times-circle" size={20} color="red" />,
+      });
+      return;
+    }
+    toast.success("Cliente eliminado!", {
+      icon: <FontAwesome name="check-circle" size={20} color="green" />,
+    });
+    setCustomers(customers.filter((customer) => customer.id !== id));
   };
 
   const getCustomers = async () => {
@@ -81,6 +102,7 @@ export function CustomerContextProvider({
         customer,
         getCustomerById,
         customers,
+        addCustomer,
         deleteCustomer,
         getCustomers,
       }}

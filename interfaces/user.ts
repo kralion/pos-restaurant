@@ -28,6 +28,7 @@ export interface IAuthContextProvider {
 export interface ICustomerContextProvider {
   loading: boolean;
   deleteCustomer: (id: string) => void;
+  addCustomer: (customer: ICustomer) => void;
   getCustomerById: (id: string) => void;
   getCustomers: () => void;
   customers: ICustomer[];

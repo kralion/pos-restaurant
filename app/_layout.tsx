@@ -3,6 +3,7 @@ import { MealContextProvider } from "@/context/meals";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
+import { Toaster } from "sonner-native";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import {
@@ -13,6 +14,7 @@ import "react-native-reanimated";
 import "../styles/global.css";
 import { CustomerContextProvider } from "@/context/customer";
 import { NAV_THEME } from "@/utils/constants";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   ThemeProvider,
   DefaultTheme as DefaultNavigationTheme,
@@ -68,39 +70,42 @@ export default function RootLayout() {
 function RootLayoutNav() {
   return (
     <AuthContextProvider>
-      <ThemeProvider
-        value={{
-          ...DefaultNavigationTheme,
-          colors: NAV_THEME,
-        }}
-      >
-        <PaperProvider theme={theme}>
-          <OrderContextProvider>
-            <MealContextProvider>
-              <CustomerContextProvider>
-                <Stack>
-                  <Stack.Screen
-                    name="(tabs)"
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="(auth)"
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="add-order"
-                    options={{
-                      title: "Agregar Orden",
-                      presentation: "card",
-                      headerShown: false,
-                    }}
-                  />
-                </Stack>
-              </CustomerContextProvider>
-            </MealContextProvider>
-          </OrderContextProvider>
-        </PaperProvider>
-      </ThemeProvider>
+      <GestureHandlerRootView>
+        <ThemeProvider
+          value={{
+            ...DefaultNavigationTheme,
+            colors: NAV_THEME,
+          }}
+        >
+          <PaperProvider theme={theme}>
+            <OrderContextProvider>
+              <MealContextProvider>
+                <CustomerContextProvider>
+                  <Stack>
+                    <Stack.Screen
+                      name="(tabs)"
+                      options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                      name="(auth)"
+                      options={{ headerShown: false }}
+                    />
+                    <Stack.Screen
+                      name="add-order"
+                      options={{
+                        title: "Agregar Orden",
+                        presentation: "card",
+                        headerShown: false,
+                      }}
+                    />
+                  </Stack>
+                </CustomerContextProvider>
+              </MealContextProvider>
+            </OrderContextProvider>
+          </PaperProvider>
+          <Toaster />
+        </ThemeProvider>
+      </GestureHandlerRootView>
     </AuthContextProvider>
   );
 }

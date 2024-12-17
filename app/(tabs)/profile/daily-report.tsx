@@ -1,4 +1,11 @@
-import { View, Text, ScrollView, SafeAreaView, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import { BarChart } from "react-native-gifted-charts";
 import { useOrderContext } from "@/context/order";
@@ -18,7 +25,14 @@ const calculateOrderTotal = (order: IOrder): number => {
 };
 
 type DayTotals = {
-  [key in 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday']: number;
+  [key in
+    | "Monday"
+    | "Tuesday"
+    | "Wednesday"
+    | "Thursday"
+    | "Friday"
+    | "Saturday"
+    | "Sunday"]: number;
 };
 
 type MonthlyTotals = {
@@ -116,7 +130,9 @@ export default function DailyReportScreen() {
     try {
       const today = new Date();
       const startOfWeek = new Date(today);
-      startOfWeek.setDate(today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1));
+      startOfWeek.setDate(
+        today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)
+      );
       startOfWeek.setHours(0, 0, 0, 0);
 
       const { data: weekOrders, error } = await supabase
@@ -141,7 +157,9 @@ export default function DailyReportScreen() {
       weekOrders?.forEach((order: IOrder) => {
         if (order.date) {
           const orderDate = new Date(order.date);
-          const dayName = orderDate.toLocaleString('en-US', { weekday: 'long' }) as keyof DayTotals;
+          const dayName = orderDate.toLocaleString("en-US", {
+            weekday: "long",
+          }) as keyof DayTotals;
           totals[dayName] += order.total;
         }
       });
@@ -171,7 +189,7 @@ export default function DailyReportScreen() {
 
       monthOrders?.forEach((order: IOrder) => {
         if (order.date) {
-          const date = new Date(order.date).toISOString().split('T')[0];
+          const date = new Date(order.date).toISOString().split("T")[0];
           totals[date] = (totals[date] || 0) + calculateOrderTotal(order);
           monthTotal += calculateOrderTotal(order);
         }
@@ -221,55 +239,87 @@ export default function DailyReportScreen() {
       <Text style={styles.weeklyTotalsTitle}>Totales por día de la semana</Text>
       {Object.entries(dailyTotals).map(([day, total]) => (
         <Text key={day} style={styles.weeklyTotalItem}>
-          {day === 'Monday' ? 'Lunes' :
-            day === 'Tuesday' ? 'Martes' :
-              day === 'Wednesday' ? 'Miércoles' :
-                day === 'Thursday' ? 'Jueves' :
-                  day === 'Friday' ? 'Viernes' :
-                    day === 'Saturday' ? 'Sábado' : 'Domingo'}: S/. {total.toFixed(2)}
+          {day === "Monday"
+            ? "Lunes"
+            : day === "Tuesday"
+            ? "Martes"
+            : day === "Wednesday"
+            ? "Miércoles"
+            : day === "Thursday"
+            ? "Jueves"
+            : day === "Friday"
+            ? "Viernes"
+            : day === "Saturday"
+            ? "Sábado"
+            : "Domingo"}
+          : S/. {total.toFixed(2)}
         </Text>
       ))}
     </View>
   );
 
   const MonthlyCalendar = () => {
-    const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+    const daysInMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0
+    ).getDate();
     const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    const monthName = currentDate.toLocaleString('es-ES', { month: 'long' });
+    const monthName = currentDate.toLocaleString("es-ES", { month: "long" });
     const year = currentDate.getFullYear();
 
-    const navigateMonth = (direction: 'prev' | 'next') => {
+    const navigateMonth = (direction: "prev" | "next") => {
       const newDate = new Date(currentDate);
-      newDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1));
+      newDate.setMonth(
+        currentDate.getMonth() + (direction === "next" ? 1 : -1)
+      );
       setCurrentDate(newDate);
       getMonthlyTotals(newDate);
     };
+    const dayNames = ["D", "L", "M", "X", "J", "V", "S"];
 
     return (
       <View style={styles.monthlyCalendarContainer}>
         <Text style={styles.weeklyTotalsTitle}>Totales mensuales</Text>
-        <View style={styles.monthNavigation}>
-          <TouchableOpacity onPress={() => navigateMonth('prev')}>
-            <Text style={styles.navigationButton}>{'<'}</Text>
-          </TouchableOpacity>
-          <Text style={styles.monthTitle}>
-            {monthName.charAt(0).toUpperCase() + monthName.slice(1)} {year}
-          </Text>
-          <TouchableOpacity onPress={() => navigateMonth('next')}>
-            <Text style={styles.navigationButton}>{'>'}</Text>
-          </TouchableOpacity>
+        <View>
+          <View style={styles.monthNavigation}>
+            <TouchableOpacity onPress={() => navigateMonth("prev")}>
+              <Text style={styles.navigationButton}>{"<"}</Text>
+            </TouchableOpacity>
+            <Text style={styles.monthTitle}>
+              {monthName.charAt(0).toUpperCase() + monthName.slice(1)} {year}
+            </Text>
+            <TouchableOpacity onPress={() => navigateMonth("next")}>
+              <Text style={styles.navigationButton}>{">"}</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.monthDays}>
+            {dayNames.map((day, index) => (
+              <Text key={index} style={styles.monthDay}>
+                {day}
+              </Text>
+            ))}
+          </View>
         </View>
         <View style={styles.calendarGrid}>
           {days.map((day) => {
-            const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
-              .toISOString().split('T')[0];
+            const date = new Date(
+              currentDate.getFullYear(),
+              currentDate.getMonth(),
+              day
+            )
+              .toISOString()
+              .split("T")[0];
             const dayTotal = monthlyTotals[date] || 0;
 
             return (
-              <View key={day} style={[
-                styles.calendarDay,
-                dayTotal > 0 && styles.calendarDayWithSales
-              ]}>
+              <View
+                key={day}
+                style={[
+                  styles.calendarDay,
+                  dayTotal > 0 && styles.calendarDayWithSales,
+                ]}
+              >
                 <Text style={styles.calendarDayNumber}>{day}</Text>
                 {dayTotal > 0 && (
                   <Text style={styles.calendarDayTotal}>
@@ -367,76 +417,89 @@ const styles = StyleSheet.create({
   weeklyTotalsContainer: {
     marginTop: 24,
     padding: 16,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 8,
   },
   weeklyTotalsTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 12,
-    color: '#333',
+    color: "#333",
   },
   weeklyTotalItem: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginBottom: 8,
     paddingVertical: 4,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   monthlyCalendarContainer: {
     marginTop: 24,
     padding: 16,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 8,
   },
   monthNavigation: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
     paddingHorizontal: 8,
   },
   navigationButton: {
     fontSize: 24,
-    color: '#177AD5',
+    color: "#177AD5",
     padding: 8,
+  },
+  monthDays: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+    paddingHorizontal: 8,
+    textAlign: "center",
+  },
+  monthDay: {
+    fontSize: 12,
+    color: "#333",
+    textAlign: "center",
   },
   monthTitle: {
     fontSize: 16,
-    fontWeight: 'normal',
-    color: '#333',
+    fontWeight: "normal",
+    color: "#333",
   },
   calendarGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
     gap: 8,
     paddingHorizontal: 4,
   },
   calendarDay: {
-    width: '14.2%',
+    width: "14.2%",
     aspectRatio: 0.9,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 8,
   },
   calendarDayWithSales: {
-    backgroundColor: '#e6f0ff',
+    backgroundColor: "#e6f0ff",
     borderWidth: 1,
-    borderColor: '#177AD5',
+    borderColor: "#177AD5",
   },
   calendarDayNumber: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   calendarDayTotal: {
     fontSize: 12,
-    color: '#177AD5',
+    color: "#177AD5",
     marginTop: 4,
   },
 });

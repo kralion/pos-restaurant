@@ -1,14 +1,14 @@
+import { useCustomer } from "@/context/customer";
 import { ICustomer } from "@/interfaces";
-import { supabase } from "@/utils/supabase";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, Text, View } from "react-native";
 import { Button, TextInput } from "react-native-paper";
 
 export default function AddCustomerScreen() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const { addCustomer, loading } = useCustomer();
   const {
     control,
     handleSubmit,
@@ -17,21 +17,15 @@ export default function AddCustomerScreen() {
   } = useForm<ICustomer>({
     defaultValues: {
       full_name: "",
+      total_free_orders: 0,
+      total_orders: 0,
     },
   });
 
   const onSubmit = async (data: ICustomer) => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.from("fixed_customers").insert(data);
-      if (error) alert(error.message);
-      router.back();
-    } catch (err: any) {
-      console.error("Error:", err);
-      alert(err.message || "Error al crear usuario");
-    } finally {
-      setLoading(false);
-    }
+    addCustomer(data);
+    reset();
+    router.back();
   };
 
   return (
@@ -55,6 +49,46 @@ export default function AddCustomerScreen() {
               {errors.full_name && (
                 <Text className="text-red-500 ml-4">
                   {errors.full_name.message}
+                </Text>
+              )}
+            </View>
+          )}
+        />
+        <Controller
+          control={control}
+          name="total_orders"
+          render={({ field: { onChange, value } }) => (
+            <View className="mb-4">
+              <TextInput
+                label="Total de Ordenes"
+                value={String(value)}
+                onChangeText={onChange}
+                mode="outlined"
+                error={!!errors.total_orders}
+              />
+              {errors.total_orders && (
+                <Text className="text-red-500 ml-4">
+                  {errors.total_orders.message}
+                </Text>
+              )}
+            </View>
+          )}
+        />
+        <Controller
+          control={control}
+          name="total_free_orders"
+          render={({ field: { onChange, value } }) => (
+            <View className="mb-4">
+              <TextInput
+                label="Ordenes Gratis"
+                value={String(value)}
+                onChangeText={onChange}
+                mode="outlined"
+                error={!!errors.total_free_orders}
+              />
+              {errors.total_free_orders && (
+                <Text className="text-red-500 ml-4">
+                  {errors.total_free_orders.message}
                 </Text>
               )}
             </View>

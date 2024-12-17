@@ -1,10 +1,12 @@
 import { supabase } from "@/utils/supabase";
+import { FontAwesome } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import React from "react";
-import { Controller, set, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { AppState, Linking, ScrollView, Text, View } from "react-native";
-import { Button, Dialog, Portal, TextInput } from "react-native-paper";
+import { Button, TextInput } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { toast } from "sonner-native";
 type TLogin = {
   email: string;
   password: string;
@@ -20,7 +22,6 @@ AppState.addEventListener("change", (state) => {
 
 export default function SignInScreen() {
   const [loading, setLoading] = React.useState(false);
-  const [visible, setVisible] = React.useState(false);
   const {
     control,
     handleSubmit,
@@ -40,10 +41,13 @@ export default function SignInScreen() {
       password: data.password,
     });
     if (error) {
-      setLoading(false);
-      setVisible(true);
-      setTimeout(() => setVisible(false), 3000);
+      toast.error("Credenciales incorrectas!", {
+        icon: <FontAwesome name="times-circle" size={20} color="red" />,
+      });
     } else {
+      toast.success("Inicio de sesión exitoso!", {
+        icon: <FontAwesome name="check-circle" size={20} color="green" />,
+      });
       reset();
     }
     setLoading(false);
@@ -149,31 +153,6 @@ export default function SignInScreen() {
             </Text>
           </View>
         </View>
-        <Portal>
-          <Dialog visible={visible} onDismiss={() => setVisible(false)}>
-            <View className="w-full flex flex-row justify-center items-center">
-              <Image
-                source={{
-                  uri: "https://img.icons8.com/?size=100&id=xNgsHu6eqArG&format=png&color=000000",
-                }}
-                style={{ width: 50, height: 50 }}
-              />
-            </View>
-
-            <Dialog.Title>Credenciales Incorrectas</Dialog.Title>
-            <Dialog.Content>
-              <Text>
-                Recuerda que la credenciales son precreadas, solicitalas en el
-                area correspondiente
-              </Text>
-            </Dialog.Content>
-            <Dialog.Actions>
-              <Button textColor="red" onPress={() => setVisible(false)}>
-                Cerrar
-              </Button>
-            </Dialog.Actions>
-          </Dialog>
-        </Portal>
       </SafeAreaView>
     </ScrollView>
   );

@@ -1,9 +1,11 @@
 import { IAuthContextProvider, IUser } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
+import { FontAwesome } from "@expo/vector-icons";
 import { Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Alert } from "react-native";
+import { toast } from "sonner-native";
 
 const AuthContext = createContext<IAuthContextProvider>({
   session: null,
@@ -145,7 +147,15 @@ export function AuthContextProvider({
     try {
       const { error } = await supabaseAdmin.auth.admin.deleteUser(id);
 
-      if (error) throw error;
+      if (error) {
+        toast.error("Error al eliminar usuario!", {
+          icon: <FontAwesome name="times-circle" size={20} color="red" />,
+        });
+        return;
+      }
+      toast.success("Usuario eliminado!", {
+        icon: <FontAwesome name="check-circle" size={20} color="green" />,
+      });
 
       setUsers(users.filter((user) => user.id !== id));
     } catch (err: any) {

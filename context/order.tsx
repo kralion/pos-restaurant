@@ -3,7 +3,8 @@ import { createContext, useContext } from "react";
 import { supabase } from "@/utils/supabase";
 import { IOrder, IOrderContextProvider } from "@/interfaces";
 import { router } from "expo-router";
-
+import { toast } from "sonner-native";
+import { FontAwesome } from "@expo/vector-icons";
 export const OrderContext = createContext<IOrderContextProvider>({
   addOrder: async () => {},
   getUnservedOrders: async () => [],
@@ -74,7 +75,9 @@ export const OrderContextProvider = ({
 
         // Check if there's enough quantity
         if (mealData.quantity < item.quantity) {
-          alert(`No hay en el inventario`);
+          toast.error(`${item.name} fuera de stock!`, {
+            icon: <FontAwesome name="times-circle" size={20} color="red" />,
+          });
           return;
         }
 
@@ -105,7 +108,9 @@ export const OrderContextProvider = ({
 
         // Check if there's enough quantity
         if (mealData.quantity < item.quantity) {
-          alert(`No hay en el inventario`);
+          toast.error(`${item.name} fuera de stock!`, {
+            icon: <FontAwesome name="times-circle" size={20} color="red" />,
+          });
           return;
         }
 
@@ -136,7 +141,9 @@ export const OrderContextProvider = ({
 
         // Check if there's enough quantity
         if (mealData.quantity < item.quantity) {
-          alert(`No hay en el inventario`);
+          toast.error(`${item.name} fuera de stock!`, {
+            icon: <FontAwesome name="times-circle" size={20} color="red" />,
+          });
           return;
         }
 
@@ -175,7 +182,9 @@ export const OrderContextProvider = ({
         }
       }
       setLoading(false);
-      alert("Pedido registrado");
+      toast.success("Pedido agregado!", {
+        icon: <FontAwesome name="check-circle" size={20} color="green" />,
+      });
       router.back();
     } catch (error) {
       console.error("Unexpected error:", error);
@@ -225,6 +234,9 @@ export const OrderContextProvider = ({
       .update({ served: true })
       .eq("id", id);
     if (error) throw error;
+    toast.success("Pedido servido!", {
+      icon: <FontAwesome name="check-circle" size={20} color="green" />,
+    });
     console.log("Order updated", error);
     setLoading(false);
   };
@@ -233,6 +245,9 @@ export const OrderContextProvider = ({
     setLoading(true);
     await supabase.from("orders").delete().eq("id", id);
     setLoading(false);
+    toast.success("Pedido eliminado!", {
+      icon: <FontAwesome name="check-circle" size={20} color="green" />,
+    });
     setOrders((prevOrders) => prevOrders.filter((order) => order.id !== id));
   };
 
@@ -257,7 +272,9 @@ export const OrderContextProvider = ({
       .from("orders")
       .update(order)
       .eq("id", order.id);
-    alert("Pedido actualizado");
+    toast.success("Pedido actualizado!", {
+      icon: <FontAwesome name="check-circle" size={20} color="green" />,
+    });
     router.back();
     if (error) console.error("Update Error", error);
     setLoading(false);
