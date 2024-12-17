@@ -12,10 +12,7 @@ export interface IOrder {
   served: boolean;
   to_go: boolean;
   paid: boolean;
-  entradas: IMeal[];
-  fondos: IMeal[];
-  bebidas: IMeal[];
-  helados: IMeal[];
+  items: IMeal[];
   total: number;
 }
 

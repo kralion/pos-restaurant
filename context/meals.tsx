@@ -9,6 +9,8 @@ export const MealContext = createContext<IMealContextProvider>({
   getMealById: async (id: string): Promise<IMeal> => ({} as IMeal),
   meals: [],
   meal: {} as IMeal,
+  getMealsByCategoryId: async () => [] as IMeal[],
+  loading: false,
   deleteMeal: async () => {},
   getDailyMeals: async () => [] as IMeal[],
   changeMealAvailability: async () => {},
@@ -20,9 +22,11 @@ export const MealContextProvider = ({
   children: React.ReactNode;
 }) => {
   const [meals, setDailyMeals] = React.useState<IMeal[]>([]);
+  const [loading, setLoading] = React.useState(false);
   const [meal, setMeal] = React.useState<IMeal>({} as IMeal);
 
   const addMeal = async (Meal: IMeal) => {
+    setLoading(true);
     const { error } = await supabase.from("meals").insert(Meal);
     if (error) {
       console.error("Error adding meal:", error);
@@ -34,6 +38,7 @@ export const MealContextProvider = ({
     toast.success("Item agregado al menú!", {
       icon: <FontAwesome name="check-circle" size={20} color="green" />,
     });
+    setLoading(false);
   };
 
   const getDailyMeals = async () => {
@@ -85,7 +90,19 @@ export const MealContextProvider = ({
     });
   };
 
+  const getMealsByCategoryId = async (id: string) => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("meals")
+      .select("*")
+      .eq("id_category", id);
+    if (error) throw error;
+    setLoading(false);
+    return data;
+  };
+
   const deleteMeal = async (id: string) => {
+    setLoading(true);
     const { error } = await supabase.from("meals").delete().eq("id", id);
     if (error) {
       console.error("Error deleting meal:", error);
@@ -97,9 +114,11 @@ export const MealContextProvider = ({
     toast.success("Item eliminado!", {
       icon: <FontAwesome name="check-circle" size={20} color="green" />,
     });
+    setLoading(false);
   };
 
   async function getMealById(id: string) {
+    setLoading(true);
     const { data, error } = await supabase
       .from("meals")
       .select("*, users:id_waiter(name)")
@@ -107,6 +126,7 @@ export const MealContextProvider = ({
       .single();
     if (error) throw error;
     setMeal(data);
+    setLoading(false);
     return data;
   }
 
@@ -138,6 +158,8 @@ export const MealContextProvider = ({
       value={{
         meals,
         deleteMeal,
+        loading,
+        getMealsByCategoryId,
         getMealById,
         changeMealAvailability,
         getDailyMeals,
