@@ -22,7 +22,7 @@ export default function OrderDetailsScreen() {
   const [order, setOrder] = useState<IOrder>();
   const [paid, setPaid] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const { getOrderById } = useOrderContext();
+  const { getOrderById, loading } = useOrderContext();
   React.useEffect(() => {
     getOrderById(params.id).then((order) => {
       setOrder(order);
@@ -259,6 +259,12 @@ export default function OrderDetailsScreen() {
       className="p-4 bg-white"
       contentInsetAdjustmentBehavior="automatic"
     >
+      {loading && (
+        <View className="h-screen-safe flex-1 items-center justify-center">
+          <ActivityIndicator size="large" />
+        </View>
+      )}
+
       <View className="flex flex-col gap-12">
         <View className="flex flex-row justify-between">
           <Text variant="titleLarge">

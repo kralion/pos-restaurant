@@ -37,23 +37,35 @@ export const MealContextProvider = ({
   };
 
   const getDailyMeals = async () => {
-    const today = new Date();
-    const startOfDay = new Date(today.setHours(0, 0, 0, 0)); // Start of the day
-    const endOfDay = new Date(today.setHours(23, 59, 59, 999)); // End of the day
-
     const { data, error } = await supabase
       .from("meals")
       .select("*")
-      // TODO: Fix this
-      // .gte("created_at", startOfDay) // Greater than or equal to start of day
-      // .lte("created_at", endOfDay) // Less than or equal to end of day
       .order("created_at", { ascending: false });
+
     if (error) {
       console.error("Error fetching daily meals:", error);
       return null;
     }
-    setDailyMeals(data);
-    return data;
+
+    const mealsToDelete = data.filter((meal) => meal.quantity === 0);
+
+    await Promise.all(
+      mealsToDelete.map(async (meal) => {
+        const { error: deleteError } = await supabase
+          .from("meals")
+          .delete()
+          .eq("id", meal.id);
+
+        if (deleteError) {
+          console.error("Error deleting meal:", deleteError);
+        }
+      })
+    );
+
+    const remainingMeals = data.filter((meal) => meal.quantity > 0);
+    setDailyMeals(remainingMeals);
+
+    return remainingMeals;
   };
 
   const changeMealAvailability = async (id: string, quantity: number) => {

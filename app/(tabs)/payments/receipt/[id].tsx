@@ -230,6 +230,11 @@ export default function ReceiptScreen() {
       className="p-4 bg-white"
       contentInsetAdjustmentBehavior="automatic"
     >
+      {loading && !order && (
+        <View className="h-screen-safe flex-1 items-center justify-center">
+          <ActivityIndicator size="large" />
+        </View>
+      )}
       <View className="flex flex-col gap-12">
         <View className="flex flex-col gap-3">
           <View className="flex flex-row justify-between">

@@ -1,41 +1,38 @@
 import { useMealContext } from "@/context/meals";
 import { IMeal } from "@/interfaces";
 import React from "react";
-import { Button, Card } from "react-native-paper";
+import { Card, IconButton, Text } from "react-native-paper";
 
 export default function MealCard({ meal }: { meal: IMeal }) {
   const { deleteMeal } = useMealContext();
   return (
     <Card
       style={{
-        marginHorizontal: 10,
-        marginVertical: 8,
+        margin: 20,
+        backgroundColor: "white",
       }}
     >
       <Card.Cover
         source={{
           uri: meal.image_url,
         }}
-        style={{
-          height: 150,
-        }}
       />
       <Card.Title
         title={meal.name}
         subtitle={` ${meal.quantity} porciones`}
-        subtitleStyle={{ fontSize: 16 }}
-        right={(props) => <Button mode="text">{`S/. ${meal.price}`}</Button>}
+        subtitleStyle={{ fontSize: 14, color: "gray" }}
       />
-      <Card.Actions>
-        <Button
+      <Card.Content className="flex flex-row justify-between items-center">
+        <Text variant="titleLarge">{`S/. ${meal.price.toFixed(2)}`}</Text>
+        <IconButton
+          mode="contained"
+          icon="delete-outline"
           onPress={() => {
             deleteMeal(meal.id);
             alert("Eliminado");
           }}
-        >
-          Eliminar
-        </Button>
-      </Card.Actions>
+        />
+      </Card.Content>
     </Card>
   );
 }
