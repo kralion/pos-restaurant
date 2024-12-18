@@ -40,7 +40,7 @@ export default function OrderScreen() {
   const [itemsSelected, setItemsSelected] = useState<IMeal[]>([]);
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<IOrder | null>(null);
-  const { addOrder, updateOrder } = useOrderContext();
+  const { addOrder, updateOrder, loading: orderLoading } = useOrderContext();
   const { profile } = useAuth();
   const { getCustomers, customers } = useCustomer();
   const [showCustomerModal, setShowCustomerModal] = useState(false);
@@ -70,14 +70,21 @@ export default function OrderScreen() {
   const handleQuantityChange = (item: IMeal, quantity: number) => {
     const newItemsSelected = [...itemsSelected];
     const index = newItemsSelected.findIndex((i) => i.id === item.id);
-    if (index === -1) {
-      newItemsSelected.push(item);
+
+    if (quantity > 0) {
+      if (index === -1) {
+        newItemsSelected.push({ ...item, quantity });
+      } else {
+        newItemsSelected[index].quantity = quantity;
+      }
     } else {
-      newItemsSelected[index].quantity = quantity;
+      if (index !== -1) {
+        newItemsSelected.splice(index, 1);
+      }
     }
+
     setItemsSelected(newItemsSelected);
   };
-
   const mealsByCategoryHandler = (categoryId: string) => {
     const category = categories.find((c) => c.id === categoryId);
     if (!category) return;
@@ -189,8 +196,8 @@ export default function OrderScreen() {
           : null,
         total: 100,
       };
-      // addOrder(orderData, id_table);
-      console.log("orderData", JSON.stringify(orderData));
+      addOrder(orderData, id_table);
+      // console.log("orderData", JSON.stringify(orderData));
       reset();
       if (data.free) {
         const selectedCustomer = customers.find(
@@ -422,28 +429,34 @@ export default function OrderScreen() {
                       right={(props) => (
                         <View className="flex-row items-center gap-2">
                           <IconButton
-                            onPress={() =>
+                            onPress={() => {
+                              const currentItem = itemsSelected.find(
+                                (i) => i.id === item.id
+                              );
+                              const currentQuantity =
+                                currentItem?.quantity ?? 0;
                               handleQuantityChange(
                                 item,
-                                Math.max(item.quantity - 1, 0)
-                              )
-                            }
+                                Math.max(currentQuantity - 1, 0)
+                              );
+                            }}
                             mode="contained"
                             icon="minus"
                             size={18}
                           />
                           <Text variant="titleLarge">
                             {itemsSelected.find((i) => i.id === item.id)
-                              ? itemsSelected.find((i) => i.id === item.id)
-                                  ?.quantity
-                              : item.quantity
-                              ? item.quantity
-                              : 0}
+                              ?.quantity ?? 0}
                           </Text>
                           <IconButton
-                            onPress={() =>
-                              handleQuantityChange(item, item.quantity + 1)
-                            }
+                            onPress={() => {
+                              const currentItem = itemsSelected.find(
+                                (i) => i.id === item.id
+                              );
+                              const currentQuantity =
+                                currentItem?.quantity ?? 0;
+                              handleQuantityChange(item, currentQuantity + 1);
+                            }}
                             icon="plus"
                             size={18}
                             mode="contained"
@@ -471,7 +484,7 @@ export default function OrderScreen() {
             mode="contained"
             style={{ marginTop: 50 }}
             onPress={order ? handleSubmit(onUpdate) : handleSubmit(onAdd)}
-            loading={loading}
+            loading={orderLoading}
             disabled={isRegisterDisabled}
           >
             {order ? "Editar Orden" : "Registrar Orden"}

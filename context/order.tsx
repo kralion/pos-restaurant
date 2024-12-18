@@ -59,12 +59,17 @@ export const OrderContextProvider = ({
 
   const addOrder = async (order: IOrder, tableId: string) => {
     setLoading(true);
+    const updates = order.items.map((meal) => ({
+      id: meal.id,
+      quantity: meal.quantity - order.items.length,
+    }));
     try {
       const { error } = await supabase.from("orders").insert(order);
       if (error) {
         console.error("Error inserting order:", error);
         return;
       }
+      await supabase.from("meals").upsert(updates);
 
       if (!order.to_go) {
         const { data: tableData, error: tableError } = await supabase
