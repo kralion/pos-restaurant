@@ -35,13 +35,13 @@ export default function ProfileScreen() {
         >
           Usuarios
         </Button>
-        <Button
+        {/* <Button
           icon="account-heart-outline"
           onPress={() => router.push("/(tabs)/profile/categories")}
           mode="text"
         >
           Categorías
-        </Button>
+        </Button> */}
         <Button
           icon="account-heart-outline"
           onPress={() => router.push("/(tabs)/profile/customers")}

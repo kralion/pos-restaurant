@@ -80,6 +80,16 @@ export default function OrderDetailsScreen() {
                 <Text>{item.quantity}</Text>
               </View>
             ))}
+            {order.helados.map((item, index) => (
+              <View
+                key={index}
+                className="flex flex-row w-full justify-between"
+              >
+                <Text className="w-36">{item.name}</Text>
+                <Text>S/. {item.price}</Text>
+                <Text>{item.quantity}</Text>
+              </View>
+            ))}
           </View>
         </View>
         <Divider className="border-dashed border-2" />

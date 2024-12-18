@@ -29,7 +29,6 @@ export default function MealCard({ meal }: { meal: IMeal }) {
           icon="delete-outline"
           onPress={() => {
             deleteMeal(meal.id);
-            alert("Eliminado");
           }}
         />
       </Card.Content>
