@@ -18,7 +18,6 @@ export default function HomeScreen() {
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       keyboardDismissMode="on-drag"
-      className="min-h-screen"
       contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
     >
       <FlashList
