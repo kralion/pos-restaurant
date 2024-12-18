@@ -22,7 +22,7 @@ export default function ProfileLayout() {
           headerShadowVisible: false,
         }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="categories"
         options={{
           title: "Categorías",
@@ -30,7 +30,7 @@ export default function ProfileLayout() {
           headerBackVisible: true,
           headerShadowVisible: false,
         }}
-      />
+      /> */}
       <Stack.Screen
         name="customers"
         options={{
