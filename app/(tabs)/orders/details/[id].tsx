@@ -53,19 +53,9 @@ export default function OrderDetailsScreen() {
   }, []);
   if (!order) return <ActivityIndicator />;
 
-  const total =
-    order.entradas.reduce((acc, item) => {
-      return acc + item.price * item.quantity;
-    }, 0) +
-    order.bebidas.reduce((acc, item) => {
-      return acc + item.price * item.quantity;
-    }, 0) +
-    order.fondos.reduce((acc, item) => {
-      return acc + item.price * item.quantity;
-    }, 0) +
-    order.helados.reduce((acc, item) => {
-      return acc + item.price * item.quantity;
-    }, 0);
+  const total = order.items.reduce((acc, item) => {
+    return acc + item.price * item.quantity;
+  }, 0);
 
   const updatePaidStatus = async (id: string, paid: boolean) => {
     await supabase.from("orders").update({ paid }).eq("id", id).select();
@@ -205,12 +195,7 @@ export default function OrderDetailsScreen() {
               <th align="right">Precio</th>
               <th align="right">Total</th>
             </tr>
-            ${[
-              ...order.entradas,
-              ...order.fondos,
-              ...order.bebidas,
-              ...order.helados,
-            ]
+            ${order.items
               .map(
                 (item) => `
               <tr>
@@ -330,38 +315,8 @@ export default function OrderDetailsScreen() {
                 borderStyle: "dashed",
               }}
             />
-            {order.entradas.map((item, index) => (
+            {order.items.map((item, index) => (
               <View key={index} className="flex flex-row justify-between">
-                <Text className="w-36">{item.name}</Text>
-                <Text>S/. {item.price}</Text>
-                <Text>{item.quantity}</Text>
-              </View>
-            ))}
-            {order.fondos.map((item, index) => (
-              <View
-                key={index}
-                className="flex flex-row w-full justify-between"
-              >
-                <Text className="w-36">{item.name}</Text>
-                <Text>S/. {item.price}</Text>
-                <Text>{item.quantity}</Text>
-              </View>
-            ))}
-            {order.bebidas.map((item, index) => (
-              <View
-                key={index}
-                className="flex flex-row w-full justify-between"
-              >
-                <Text className="w-36">{item.name}</Text>
-                <Text>S/. {item.price}</Text>
-                <Text>{item.quantity}</Text>
-              </View>
-            ))}
-            {order.helados.map((item, index) => (
-              <View
-                key={index}
-                className="flex flex-row w-full justify-between"
-              >
                 <Text className="w-36">{item.name}</Text>
                 <Text>S/. {item.price}</Text>
                 <Text>{item.quantity}</Text>

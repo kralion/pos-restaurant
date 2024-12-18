@@ -8,7 +8,6 @@ import { IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 
 export default function OrdersScreen() {
-  const { search } = useLocalSearchParams<{ search?: string }>();
   const { getUnpaidOrders } = useOrderContext();
   const [orders, setOrders] = React.useState<IOrder[]>([]);
   const [refreshing, setRefreshing] = React.useState(false);
@@ -53,18 +52,8 @@ export default function OrdersScreen() {
     };
   }, []);
 
-  const filteredOrders = React.useMemo(() => {
-    if (!search) return orders;
-    const lowercasedSearch = search.toLowerCase();
-    return orders.filter(
-      (order) =>
-        order.fondos.toString().includes(lowercasedSearch) ||
-        order.entradas.toString().includes(lowercasedSearch)
-    );
-  }, [search, orders]);
-
   if (isLoading && !orders?.length) return <ActivityIndicator />;
-  
+
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
@@ -78,7 +67,7 @@ export default function OrdersScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         renderItem={({ item: order }) => <OrderCard order={order} />}
-        data={filteredOrders}
+        data={orders}
         estimatedItemSize={200}
         horizontal={false}
       />
