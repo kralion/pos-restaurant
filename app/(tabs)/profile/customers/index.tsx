@@ -1,10 +1,10 @@
 import { useCustomer } from "@/context/customer";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { FlashList } from "@shopify/flash-list";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Alert, ScrollView, View } from "react-native";
-import { Button, Card, Divider, FAB, Text } from "react-native-paper";
+import { Card, Divider, FAB, IconButton, Text } from "react-native-paper";
 
 export default function CustomersScreen() {
   const { deleteCustomer, customers, getCustomers } = useCustomer();
@@ -12,12 +12,12 @@ export default function CustomersScreen() {
     getCustomers();
   }, [customers]);
   const router = useRouter();
-  const headerHeight = useHeaderHeight();
 
   const onDelete = (id: string) => {
     Alert.alert("Eliminar", "¿Estás seguro de eliminar este cliente?", [
       {
         text: "Sí",
+        style: "destructive",
         onPress: async () => {
           try {
             await deleteCustomer(id);
@@ -41,41 +41,43 @@ export default function CustomersScreen() {
             <Card
               key={customer.id}
               style={{
-                marginHorizontal: 10,
+                marginHorizontal: 16,
                 marginVertical: 8,
               }}
             >
               <Card.Title
                 title={`${customer.full_name}`}
                 subtitleStyle={{ fontSize: 16 }}
-                // left={(props) => (
-                //   <Image
-                //     style={{
-                //       width: 50,
-                //       height: 50,
-                //       borderRadius: 25,
-                //     }}
-                //     source={{ uri: customer.image_url }}
-                //   />
-                // )}
+                left={(props) => (
+                  <Image
+                    style={{
+                      width: 45,
+                      height: 45,
+                    }}
+                    source={{
+                      uri: "https://img.icons8.com/?size=100&id=n8DrUm77sR3l&format=png&color=FD7E14",
+                    }}
+                  />
+                )}
+                right={(props) => (
+                  <IconButton
+                    {...props}
+                    icon="delete-outline"
+                    onPress={() => onDelete(customer.id || "")}
+                  />
+                )}
               />
               <Card.Content>
                 <Divider className="mb-4" />
-                <Text variant="bodyMedium">
-                  Total Pedidos : {customer.total_orders}
-                </Text>
-                <Text variant="bodyMedium">
-                  Pedidos Gratis : {customer.total_free_orders}
-                </Text>
+                <View className="flex flex-row  justify-between">
+                  <Text variant="bodyMedium" style={{ color: "gray" }}>
+                    Total Pedidos : {customer.total_orders}
+                  </Text>
+                  <Text variant="bodyMedium" style={{ color: "gray" }}>
+                    Pedidos Gratis : {customer.total_free_orders}
+                  </Text>
+                </View>
               </Card.Content>
-              <Card.Actions>
-                <Button
-                  mode="contained"
-                  onPress={() => onDelete(customer.id || "")}
-                >
-                  Eliminar
-                </Button>
-              </Card.Actions>
             </Card>
           )}
           data={customers}

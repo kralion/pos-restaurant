@@ -1,19 +1,15 @@
-import { useAuth } from "@/context/auth";
 import { useCategoryContext } from "@/context/category";
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
 import React from "react";
 import { Alert, ScrollView } from "react-native";
-import { Card, FAB, IconButton } from "react-native-paper";
+import { Card, FAB, IconButton, Text } from "react-native-paper";
 
 export default function CategoriesScreen() {
   const { deleteCategory, getCategories, categories } = useCategoryContext();
-  const { profile } = useAuth();
-
   React.useEffect(() => {
-    if (!profile) return;
-    getCategories(profile.id_tenant as string);
-  }, [profile]);
+    getCategories();
+  }, []);
 
   const onDelete = (id: string) => {
     Alert.alert("Eliminar", "¿Estás seguro de eliminar esta categoría?", [
@@ -40,19 +36,28 @@ export default function CategoriesScreen() {
       <ScrollView contentInsetAdjustmentBehavior="automatic">
         <FlashList
           renderItem={({ item: category }) => (
-            <Card key={category.id} style={{ margin: 8 }}>
+            <Card
+              key={category.id}
+              style={{
+                marginHorizontal: 16,
+                marginVertical: 8,
+              }}
+            >
               <Card.Title
                 title={`${category.name}`}
-                subtitleStyle={{ fontSize: 16 }}
                 right={(props) => (
                   <IconButton
                     {...props}
-                    mode="contained"
                     icon="delete-outline"
                     onPress={() => onDelete(category.id || "")}
                   />
                 )}
               />
+              <Card.Content>
+                <Text variant="bodyMedium" style={{ color: "gray" }}>
+                  {category.description}
+                </Text>
+              </Card.Content>
             </Card>
           )}
           data={categories}

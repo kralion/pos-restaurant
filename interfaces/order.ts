@@ -6,6 +6,7 @@ export interface IOrder {
   date?: Date;
   users?: IUser;
   customers?: ICustomer;
+  id_tenant: string;
   id_fixed_customer?: string | null;
   id_waiter: string;
   free?: boolean;
@@ -17,7 +18,7 @@ export interface IOrder {
 }
 
 export interface IOrderContextProvider {
-  addOrder: (order: IOrder, tableId: string) => Promise<void>;
+  addOrder: (order: IOrder) => Promise<void>;
   updateOrderServedStatus: (id: string) => Promise<void>;
   getUnservedOrders: () => Promise<IOrder[]>;
   getPaidOrders: () => Promise<IOrder[]>;

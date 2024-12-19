@@ -10,6 +10,7 @@ export interface IUser {
 
 export interface ICustomer {
   id?: string;
+  id_tenant: string;
   full_name: string;
   total_orders: number;
   total_free_orders: number;
@@ -23,7 +24,7 @@ export interface IAuthContextProvider {
   signOut: () => void;
   updateProfile: (userData: Partial<IUser>) => void;
   deleteUser: (id: string) => void;
-  getUsers: () => void;
+  getUsers: (id_tenant: string) => void;
   users: IUser[];
 }
 export interface ICustomerContextProvider {

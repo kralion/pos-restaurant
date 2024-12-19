@@ -3,7 +3,7 @@ import { View } from "react-native";
 import { Avatar, Button, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function ProfileScreen() {
-  const { profile: user, signOut, session } = useAuth();
+  const { profile: user, signOut } = useAuth();
   return (
     <SafeAreaView className="bg-white p-4 h-screen-safe">
       <View className="flex flex-col items-center gap-4">

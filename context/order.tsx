@@ -5,6 +5,7 @@ import { IOrder, IOrderContextProvider } from "@/interfaces";
 import { router } from "expo-router";
 import { toast } from "sonner-native";
 import { FontAwesome } from "@expo/vector-icons";
+import { useAuth } from "./auth";
 export const OrderContext = createContext<IOrderContextProvider>({
   addOrder: async () => {},
   getUnservedOrders: async () => [],
@@ -29,6 +30,7 @@ export const OrderContextProvider = ({
 }) => {
   const [orders, setOrders] = React.useState<IOrder[]>([]);
   const [order, setOrder] = React.useState<IOrder>({} as IOrder);
+  const { profile } = useAuth();
   const [paidOrders, setPaidOrders] = React.useState<IOrder[]>([]);
   const [loading, setLoading] = React.useState(false);
 
@@ -57,14 +59,17 @@ export const OrderContextProvider = ({
     };
   }, []);
 
-  const addOrder = async (order: IOrder, tableId: string) => {
+  const addOrder = async (order: IOrder) => {
     setLoading(true);
     const updates = order.items.map((meal) => ({
       id: meal.id,
       quantity: meal.quantity - order.items.length,
     }));
     try {
-      const { error } = await supabase.from("orders").insert(order);
+      const { error } = await supabase.from("orders").insert({
+        ...order,
+        id_tenant: profile.id_tenant,
+      });
       if (error) {
         console.error("Error inserting order:", error);
         return;
@@ -72,16 +77,10 @@ export const OrderContextProvider = ({
       await supabase.from("meals").upsert(updates);
 
       if (!order.to_go) {
-        const { data: tableData, error: tableError } = await supabase
+        await supabase
           .from("tables")
           .update({ status: false })
-          .eq("id", tableId);
-
-        if (tableError) {
-          console.error("Error updating table status:", tableError);
-          alert("Error al actualizar status da mesa");
-          return;
-        }
+          .eq("id", order.id_table);
       }
       setLoading(false);
       toast.success("Pedido agregado!", {
@@ -99,6 +98,7 @@ export const OrderContextProvider = ({
     const { data, error } = await supabase
       .from("orders")
       .select("*")
+      .eq("id_tenant", profile.id_tenant)
       .order("date", { ascending: false });
     if (error) throw error;
     setOrders(data);
@@ -111,6 +111,7 @@ export const OrderContextProvider = ({
     const { data, error } = await supabase
       .from("orders")
       .select("*")
+      .eq("id_tenant", profile.id_tenant)
       .eq("served", false);
     if (error) throw error;
     setLoading(false);
@@ -123,6 +124,7 @@ export const OrderContextProvider = ({
       .from("orders")
       .select("*")
       .eq("paid", true)
+      .eq("id_tenant", profile.id_tenant)
       .order("date", { ascending: false });
     if (error) throw error;
     setPaidOrders(data);
@@ -191,9 +193,9 @@ export const OrderContextProvider = ({
       .from("orders")
       .select("*")
       .eq("paid", true)
+      .eq("id_tenant", profile.id_tenant)
       .gte("date", today.toISOString())
       .order("date");
-
     if (error) throw error;
     setLoading(false);
     return data;
@@ -204,7 +206,8 @@ export const OrderContextProvider = ({
     const { data, error } = await supabase
       .from("orders")
       .select("*")
-      .eq("paid", false);
+      .eq("paid", false)
+      .eq("id_tenant", profile.id_tenant);
     if (error) throw error;
     setLoading(false);
     return data;

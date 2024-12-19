@@ -1,22 +1,24 @@
 import { useAuth } from "@/context";
-import { useHeaderHeight } from "@react-navigation/elements";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { View } from "react-native";
-import { Avatar, Button, Text } from "react-native-paper";
+import { Button, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function ProfileScreen() {
   const { profile: user, signOut } = useAuth();
-  const headerHeight = useHeaderHeight();
   const router = useRouter();
 
   return (
     <SafeAreaView className="bg-white p-4 h-screen-safe">
       <View className="flex flex-col items-center justify-center gap-2">
-        <Avatar.Image
+        <Image
           accessibilityLabel="avatar"
-          size={100}
+          style={{
+            width: 100,
+            height: 100,
+          }}
           source={{
-            uri: "https://cdn-icons-png.freepik.com/256/12165/12165042.png?ga=GA1.1.492447503.1733309013&semt=ais_hybrid",
+            uri: "https://img.icons8.com/?size=100&id=c2egtkdAFOMH&format=png&color=FD7E14",
           }}
         />
 
@@ -36,7 +38,7 @@ export default function ProfileScreen() {
           Usuarios
         </Button>
         <Button
-          icon="account-heart-outline"
+          icon="air-filter"
           onPress={() => router.push("/(tabs)/profile/categories")}
           mode="text"
         >
@@ -57,8 +59,8 @@ export default function ProfileScreen() {
           Reporte Diario
         </Button>
 
-        <Button onPress={signOut} icon="logout" mode="text">
-          Salir
+        <Button onPress={signOut} icon="logout" mode="contained-tonal">
+          Cerrar Sesión
         </Button>
       </View>
 

@@ -45,16 +45,13 @@ export default function SignInScreen() {
         icon: <FontAwesome name="times-circle" size={20} color="red" />,
       });
     } else {
-      toast.success("Inicio de sesión exitoso!", {
-        icon: <FontAwesome name="check-circle" size={20} color="green" />,
-      });
       reset();
     }
     setLoading(false);
   };
 
   return (
-    <ScrollView className="bg-white">
+    <ScrollView className="bg-white ">
       <SafeAreaView className="flex flex-col justify-center align-middle m-4 items-center ">
         <View className="flex flex-col gap-16 w-full items-center">
           <View className="flex flex-col items-center gap-8 mt-20">

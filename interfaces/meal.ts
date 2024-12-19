@@ -3,6 +3,7 @@ export interface IMeal {
   name: string;
   price: number;
   created_at?: Date;
+  id_tenant: string;
   image_url: string;
   id_category: string;
   quantity: number;
@@ -13,7 +14,11 @@ export interface IMealContextProvider {
   getMealById: (id: string) => Promise<IMeal>;
   loading: boolean;
   getMealsByCategoryId: (id: string) => Promise<IMeal[]>;
-  changeMealAvailability: (id: string, quantity: number) => Promise<void>;
+  changeMealAvailability: (
+    id: string,
+    quantity: number,
+    id_tenant: string
+  ) => Promise<void>;
   meals: IMeal[];
   meal: IMeal;
   deleteMeal: (id: string) => Promise<void>;

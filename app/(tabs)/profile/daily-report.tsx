@@ -12,17 +12,14 @@ import { useOrderContext } from "@/context/order";
 import { IOrder, IMeal } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { FontAwesome } from "@expo/vector-icons";
+import { useAuth } from "@/context";
 const calculateOrderTotal = (order: IOrder): number => {
   const getMealsTotal = (meals: IMeal[]) =>
     meals.reduce(
       (sum, meal) => sum + (meal.price || 0) * (meal.quantity || 1),
       0
     );
-  return (
-    getMealsTotal(order.entradas || []) +
-    getMealsTotal(order.fondos || []) +
-    getMealsTotal(order.bebidas || [])
-  );
+  return getMealsTotal(order.items);
 };
 
 type DayTotals = {
@@ -42,6 +39,7 @@ type MonthlyTotals = {
 
 export default function DailyReportScreen() {
   const { getDailyPaidOrders } = useOrderContext();
+  const { profile } = useAuth();
   const [dailySales, setDailySales] = useState([
     { value: 0, label: "7 AM", frontColor: "#FF6247" },
     { value: 0, label: "9 AM", frontColor: "#FF6247" },
@@ -141,7 +139,8 @@ export default function DailyReportScreen() {
         .select("*")
         .gte("date", startOfWeek.toISOString())
         .lte("date", today.toISOString())
-        .eq("paid", true);
+        .eq("paid", true)
+        .eq("id_tenant", profile.id_tenant);
 
       if (error) throw error;
 
@@ -181,7 +180,8 @@ export default function DailyReportScreen() {
         .select("*")
         .gte("date", startOfMonth.toISOString())
         .lte("date", endOfMonth.toISOString())
-        .eq("paid", true);
+        .eq("paid", true)
+        .eq("id_tenant", profile.id_tenant);
 
       if (error) throw error;
 
@@ -267,7 +267,7 @@ export default function DailyReportScreen() {
       currentDate.getMonth() + 1,
       0
     ).getDate();
-    
+
     // se obtiene el primer día del mes
     const firstDayOfMonth = new Date(
       currentDate.getFullYear(),
@@ -318,14 +318,21 @@ export default function DailyReportScreen() {
         <View style={styles.calendarGrid}>
           {allDays.map((day, index) => {
             if (day === null) {
-              return <View key={`empty-${index}`} style={[styles.calendarDay, styles.emptyDay]} />;
+              return (
+                <View
+                  key={`empty-${index}`}
+                  style={[styles.calendarDay, styles.emptyDay]}
+                />
+              );
             }
 
             const date = new Date(
               currentDate.getFullYear(),
               currentDate.getMonth(),
               day
-            ).toISOString().split("T")[0];
+            )
+              .toISOString()
+              .split("T")[0];
             const dayTotal = monthlyTotals[date] || 0;
 
             return (
@@ -336,10 +343,14 @@ export default function DailyReportScreen() {
                   dayTotal > 0 && styles.calendarDayWithSales,
                 ]}
               >
-                <Text style={[
-                  styles.calendarDayNumber,
-                  dayTotal > 0 && { color: '#fff' }
-                ]}>{day}</Text>
+                <Text
+                  style={[
+                    styles.calendarDayNumber,
+                    dayTotal > 0 && { color: "#fff" },
+                  ]}
+                >
+                  {day}
+                </Text>
                 {dayTotal > 0 && (
                   <Text style={styles.calendarDayTotal}>
                     {dayTotal.toFixed(0)}
@@ -471,13 +482,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 16,
-    width: '100%',
+    width: "100%",
   },
   monthDay: {
     fontSize: 12,
     color: "#333",
     textAlign: "center",
-    width: '14.2%',
+    width: "14.2%",
   },
   monthTitle: {
     fontSize: 16,
@@ -488,10 +499,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "flex-start",
-    width: '100%',
+    width: "100%",
   },
   calendarDay: {
-    width: '14.2%',
+    width: "14.2%",
     aspectRatio: 1,
     backgroundColor: "#fff",
     padding: 4,
@@ -515,7 +526,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   emptyDay: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderWidth: 0,
   },
 });

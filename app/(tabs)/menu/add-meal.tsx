@@ -1,13 +1,15 @@
+import { useCategoryContext } from "@/context/category";
+import { useMealContext } from "@/context/meals";
 import { IMeal } from "@/interfaces";
-import { supabase } from "@/utils/supabase";
 import { useHeaderHeight } from "@react-navigation/elements";
-import React, { useState } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, Text, View } from "react-native";
 import { Button, List, TextInput } from "react-native-paper";
 
 export default function MenuScreen() {
-  const [loading, setLoading] = useState(false);
+  const { addMeal, loading } = useMealContext();
+  const { categories } = useCategoryContext();
   const [expanded, setExpanded] = React.useState(false);
   const headerHeight = useHeaderHeight();
   const {
@@ -19,26 +21,22 @@ export default function MenuScreen() {
     defaultValues: {
       name: "",
       price: 0,
-      category: "entradas",
+      id_category: "Seleccionar Categoría",
       quantity: 0,
       image_url: "",
     },
   });
   const onSubmit = async (data: IMeal) => {
-    setLoading(true);
-    try {
-      const response = await supabase.from("meals").insert(data);
-      if (response.error) {
-        console.log(response.error.message);
-      } else {
-        alert("Item agregado");
-        reset();
-      }
-    } catch (err) {
-      console.error("An error occurred:", err);
-      alert("Algo sucedió mal, vuelve a intentarlo.");
-    } finally {
-      setLoading(false);
+    const { id_category } = data;
+    const category = categories.find(
+      (category) => category.name === id_category
+    );
+    if (category) {
+      addMeal({
+        ...data,
+        id_category: category?.id ?? "1",
+      });
+      reset();
     }
   };
 
@@ -150,51 +148,33 @@ export default function MenuScreen() {
         />
         <Controller
           control={control}
-          name="category"
+          name="id_category"
           rules={{
-            required: "Campo requerido",
+            required: "Requerido",
           }}
           render={({ field: { onChange, value } }) => (
             <View className="mb-4">
-              <List.Section title="Categoría">
+              <List.Section>
                 <List.Accordion
                   expanded={expanded}
                   title={value}
                   onPress={() => setExpanded(!expanded)}
                 >
-                  <List.Item
-                    title="Entradas"
-                    onPress={() => {
-                      onChange("Entradas");
-                      setExpanded(!expanded);
-                    }}
-                  />
-                  <List.Item
-                    title="Fondos"
-                    onPress={() => {
-                      onChange("Fondos");
-                      setExpanded(!expanded);
-                    }}
-                  />
-                  <List.Item
-                    title="Bebidas"
-                    onPress={() => {
-                      onChange("Bebidas");
-                      setExpanded(!expanded);
-                    }}
-                  />
-                  <List.Item
-                    title="Helados"
-                    onPress={() => {
-                      onChange("Helados");
-                      setExpanded(!expanded);
-                    }}
-                  />
+                  {categories.map((category) => (
+                    <List.Item
+                      key={category.id}
+                      title={category.name}
+                      onPress={() => {
+                        onChange(category.name);
+                        setExpanded(!expanded);
+                      }}
+                    />
+                  ))}
                 </List.Accordion>
               </List.Section>
-              {errors.category && (
+              {errors.id_category && (
                 <Text className="text-red-500 ml-4">
-                  {errors.category.message}
+                  {errors.id_category.message}
                 </Text>
               )}
             </View>

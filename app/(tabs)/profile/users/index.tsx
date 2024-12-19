@@ -5,22 +5,25 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Alert, ScrollView, View } from "react-native";
-import { Button, Card, FAB } from "react-native-paper";
+import { Button, Card, FAB, IconButton } from "react-native-paper";
 
 export default function UsersScreen() {
-  const { deleteUser, users, getUsers } = useAuth();
+  const { deleteUser, users, getUsers, profile } = useAuth();
 
   React.useEffect(() => {
-    getUsers();
-  }, [users]);
+    if (!profile.id_tenant) return;
+    getUsers(profile.id_tenant);
+    console.log(profile.id_tenant);
+  }, [profile.id_tenant]);
 
   const router = useRouter();
   const headerHeight = useHeaderHeight();
 
   const onDelete = (id: string) => {
-    Alert.alert("Eliminar", "¿Estás seguro?", [
+    Alert.alert("Eliminar", "¿Estás seguro de eliminar este usuario?", [
       {
         text: "Sí",
+        style: "destructive",
         onPress: async () => {
           try {
             await deleteUser(id);
@@ -56,33 +59,29 @@ export default function UsersScreen() {
             <Card
               key={user.id}
               style={{
-                marginHorizontal: 10,
-                marginVertical: 8,
+                margin: 16,
               }}
             >
               <Card.Title
                 title={`${user.name} ${user.last_name}`}
                 subtitle={getRoleLabel(user.role)}
-                subtitleStyle={{ fontSize: 16 }}
+                right={(props) => (
+                  <IconButton
+                    icon="delete-outline"
+                    onPress={() => onDelete(user.id as string)}
+                    {...props}
+                  />
+                )}
                 left={(props) => (
                   <Image
                     style={{
-                      width: 50,
-                      height: 50,
-                      borderRadius: 25,
+                      width: 45,
+                      height: 45,
                     }}
                     source={{ uri: user.image_url }}
                   />
                 )}
               />
-              <Card.Actions>
-                <Button
-                  mode="contained"
-                  onPress={() => onDelete(user.id || "")}
-                >
-                  Eliminar
-                </Button>
-              </Card.Actions>
             </Card>
           )}
           data={users}

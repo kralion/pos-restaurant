@@ -196,8 +196,7 @@ export default function OrderScreen() {
           : null,
         total: 100,
       };
-      addOrder(orderData, id_table);
-      // console.log("orderData", JSON.stringify(orderData));
+      addOrder(orderData);
       reset();
       if (data.free) {
         const selectedCustomer = customers.find(

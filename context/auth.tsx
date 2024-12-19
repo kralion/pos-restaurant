@@ -163,15 +163,14 @@ export function AuthContextProvider({
     }
   };
 
-  const getUsers = async () => {
+  const getUsers = async (id_tenant: string) => {
     const { data, error } = await supabase
       .from("accounts")
       .select("*")
+      .eq("id_tenant", id_tenant)
       .neq("role", "admin")
       .order("name");
-
     if (error) throw error;
-
     setUsers(data);
     return data;
   };

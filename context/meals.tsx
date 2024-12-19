@@ -4,6 +4,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import * as React from "react";
 import { createContext, useContext } from "react";
 import { toast } from "sonner-native";
+import { useAuth } from "./auth";
 export const MealContext = createContext<IMealContextProvider>({
   addMeal: async () => {},
   getMealById: async (id: string): Promise<IMeal> => ({} as IMeal),
@@ -23,11 +24,15 @@ export const MealContextProvider = ({
 }) => {
   const [meals, setDailyMeals] = React.useState<IMeal[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const { profile } = useAuth();
   const [meal, setMeal] = React.useState<IMeal>({} as IMeal);
 
-  const addMeal = async (Meal: IMeal) => {
+  const addMeal = async (meal: IMeal) => {
     setLoading(true);
-    const { error } = await supabase.from("meals").insert(Meal);
+    const { error } = await supabase.from("meals").insert({
+      ...meal,
+      id_tenant: profile.id_tenant,
+    });
     if (error) {
       console.error("Error adding meal:", error);
       toast.error("Error al agregar item!", {
@@ -45,6 +50,7 @@ export const MealContextProvider = ({
     const { data, error } = await supabase
       .from("meals")
       .select("*")
+      .eq("id_tenant", profile.id_tenant)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -95,7 +101,8 @@ export const MealContextProvider = ({
     const { data, error } = await supabase
       .from("meals")
       .select("*")
-      .eq("id_category", id);
+      .eq("id_category", id)
+      .eq("id_tenant", profile.id_tenant);
     if (error) throw error;
     setLoading(false);
     return data;
