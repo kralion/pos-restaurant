@@ -2,14 +2,12 @@ import MealCard from "@/components/meal-card";
 import { useMealContext } from "@/context/meals";
 import { supabase } from "@/utils/supabase";
 import { FlashList } from "@shopify/flash-list";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import React from "react";
 import { RefreshControl, ScrollView, View } from "react-native";
 import { ActivityIndicator, FAB } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function MenuScreen() {
-  const { search } = useLocalSearchParams<{ search?: string }>();
   const { meals, getDailyMeals } = useMealContext();
   const [refreshing, setRefreshing] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -45,16 +43,6 @@ export default function MenuScreen() {
     };
   }, []);
 
-  const filteredMeals = React.useMemo(() => {
-    if (!search) return meals;
-    const lowercasedSearch = search.toLowerCase();
-    return meals.filter(
-      (meals) =>
-        meals.name.toString().includes(lowercasedSearch) ||
-        meals.category.toString().includes(lowercasedSearch)
-    );
-  }, [search, meals]);
-
   if (!meals) return <ActivityIndicator />;
   if (isLoading && !meals?.length) return <ActivityIndicator />;
   return (
@@ -69,7 +57,7 @@ export default function MenuScreen() {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
           renderItem={({ item: meal }) => <MealCard meal={meal} />}
-          data={filteredMeals}
+          data={meals}
           estimatedItemSize={200}
           horizontal={false}
         />

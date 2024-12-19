@@ -6,6 +6,7 @@ export interface IMeal {
   id_tenant: string;
   image_url: string;
   id_category: string;
+  category?: string;
   quantity: number;
 }
 
