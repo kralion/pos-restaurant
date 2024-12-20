@@ -1,24 +1,22 @@
 import { useCustomer } from "@/context/customer";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
-import { useRouter } from "expo-router";
 import React from "react";
 import { Alert, ScrollView, View } from "react-native";
 import {
   ActivityIndicator,
   Card,
   Divider,
-  FAB,
   IconButton,
   Text,
 } from "react-native-paper";
-
 export default function CustomersScreen() {
-  const { deleteCustomer, customers, getCustomers, loading } = useCustomer();
+  const { deleteCustomer, customers, getCustomers, loading, addCustomer } =
+    useCustomer();
+
   React.useEffect(() => {
     getCustomers();
   }, [customers]);
-  const router = useRouter();
 
   const onDelete = (id: string) => {
     Alert.alert("Eliminar", "¿Estás seguro de eliminar este cliente?", [
@@ -27,7 +25,7 @@ export default function CustomersScreen() {
         style: "destructive",
         onPress: async () => {
           try {
-            await deleteCustomer(id);
+            deleteCustomer(id);
           } catch (error: any) {
             alert("Error al eliminar: " + error.message);
           }
@@ -104,18 +102,6 @@ export default function CustomersScreen() {
           </View>
         )}
       </ScrollView>
-
-      <FAB
-        icon="account-multiple-plus-outline"
-        variant="tertiary"
-        style={{
-          position: "absolute",
-          margin: 16,
-          right: 0,
-          bottom: 0,
-        }}
-        onPress={() => router.push("/profile/customers/add-customer")}
-      />
     </View>
   );
 }

@@ -3,7 +3,7 @@ export interface ICategory {
   name: string;
   description: string;
   created_at?: Date;
-  id_tenant: string;
+  id_tenant?: string;
 }
 
 export interface ICategoryContextProvider {
