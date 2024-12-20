@@ -1,5 +1,4 @@
 import { useOrderContext } from "@/context";
-import { IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { FontAwesome } from "@expo/vector-icons";
 import * as Print from "expo-print";
@@ -19,17 +18,16 @@ import { toast } from "sonner-native";
 
 export default function OrderDetailsScreen() {
   const params = useLocalSearchParams<{ id: string }>();
-  const [order, setOrder] = useState<IOrder>();
   const [paid, setPaid] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const { getOrderById, loading } = useOrderContext();
+  const { getOrderById, loading, order } = useOrderContext();
   React.useEffect(() => {
     getOrderById(params.id).then((order) => {
-      setOrder(order);
       if (order) {
         setPaid(order.paid);
       }
     });
+    if (!order) return;
   }, [params.id]);
   React.useEffect(() => {
     const channel = supabase
@@ -51,7 +49,6 @@ export default function OrderDetailsScreen() {
       channel.unsubscribe();
     };
   }, []);
-  if (!order) return <ActivityIndicator />;
 
   const total = order.items.reduce((acc, item) => {
     return acc + item.price * item.quantity;

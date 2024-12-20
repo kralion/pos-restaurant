@@ -1,26 +1,17 @@
 import { useOrderContext } from "@/context";
-import { IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
-import { useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
-import {
-  SafeAreaView,
-  ScrollView,
-  View,
-  ActivityIndicator,
-} from "react-native";
 import * as Print from "expo-print";
+import { useLocalSearchParams } from "expo-router";
+import React from "react";
+import { SafeAreaView, ScrollView, View } from "react-native";
 
-import { Divider, Text, Button } from "react-native-paper";
+import { ActivityIndicator, Button, Divider, Text } from "react-native-paper";
 
 export default function ReceiptScreen() {
   const params = useLocalSearchParams<{ id: string }>();
-  const [order, setOrder] = useState<IOrder>();
-  const { getOrderById, loading } = useOrderContext();
+  const { getOrderById, loading, order } = useOrderContext();
   React.useEffect(() => {
-    getOrderById(params.id).then((order) => {
-      setOrder(order);
-    });
+    getOrderById(params.id);
   }, [params.id]);
   React.useEffect(() => {
     const channel = supabase
@@ -42,7 +33,6 @@ export default function ReceiptScreen() {
       channel.unsubscribe();
     };
   }, []);
-  if (!order) return <ActivityIndicator />;
 
   const generateHTML = () => {
     const now = new Date();
@@ -215,11 +205,6 @@ export default function ReceiptScreen() {
       className="p-4 bg-white"
       contentInsetAdjustmentBehavior="automatic"
     >
-      {loading && !order && (
-        <View className="h-screen-safe flex-1 items-center justify-center">
-          <ActivityIndicator size="large" />
-        </View>
-      )}
       <View className="flex flex-col gap-12">
         <View className="flex flex-col gap-3">
           <View className="flex flex-row justify-between">

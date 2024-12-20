@@ -4,7 +4,8 @@ import { supabaseAdmin } from "@/utils/supabaseAdmin";
 import { FontAwesome } from "@expo/vector-icons";
 import { Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
-import { ActivityIndicator, Alert } from "react-native";
+import { Alert } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
 import { toast } from "sonner-native";
 
 const AuthContext = createContext<IAuthContextProvider>({
@@ -168,7 +169,6 @@ export function AuthContextProvider({
       .from("accounts")
       .select("*")
       .eq("id_tenant", id_tenant)
-      .neq("role", "admin")
       .order("name");
     if (error) throw error;
     setUsers(data);
@@ -176,7 +176,7 @@ export function AuthContextProvider({
   };
 
   if (!isReady) {
-    return <ActivityIndicator />;
+    return <ActivityIndicator style={{ marginTop: 20 }} />;
   }
 
   const user: User | null = session?.user || null;

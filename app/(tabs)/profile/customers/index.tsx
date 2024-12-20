@@ -4,10 +4,17 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Alert, ScrollView, View } from "react-native";
-import { Card, Divider, FAB, IconButton, Text } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Card,
+  Divider,
+  FAB,
+  IconButton,
+  Text,
+} from "react-native-paper";
 
 export default function CustomersScreen() {
-  const { deleteCustomer, customers, getCustomers } = useCustomer();
+  const { deleteCustomer, customers, getCustomers, loading } = useCustomer();
   React.useEffect(() => {
     getCustomers();
   }, [customers]);
@@ -36,6 +43,7 @@ export default function CustomersScreen() {
   return (
     <View className="flex-1">
       <ScrollView contentInsetAdjustmentBehavior="automatic">
+        {loading && <ActivityIndicator className="mt-20" />}
         <FlashList
           renderItem={({ item: customer }) => (
             <Card
@@ -84,6 +92,17 @@ export default function CustomersScreen() {
           estimatedItemSize={200}
           horizontal={false}
         />
+        {customers?.length === 0 && (
+          <View className="flex flex-col gap-4 items-center justify-center mt-20">
+            <Image
+              source={{
+                uri: "https://img.icons8.com/?size=200&id=119481&format=png&color=000000",
+              }}
+              style={{ width: 100, height: 100 }}
+            />
+            <Text style={{ color: "gray" }}>No hay clientes para mostrar</Text>
+          </View>
+        )}
       </ScrollView>
 
       <FAB

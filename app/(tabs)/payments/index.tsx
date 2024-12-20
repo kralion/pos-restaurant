@@ -1,61 +1,41 @@
 import OrderCard from "@/components/payment-card";
 import { useOrderContext } from "@/context";
 import { FlashList } from "@shopify/flash-list";
-import { useLocalSearchParams } from "expo-router";
+import { Image } from "expo-image";
 import React from "react";
-import { ActivityIndicator, RefreshControl, ScrollView } from "react-native";
-
-import { useHeaderHeight } from "@react-navigation/elements";
+import { ScrollView, View } from "react-native";
+import { ActivityIndicator, Text } from "react-native-paper";
 
 export default function HomeScreen() {
-  const { search } = useLocalSearchParams<{ search?: string }>();
-  const {
-    paidOrders: orders,
-    getPaidOrders: getOrders,
-    loading,
-  } = useOrderContext();
-  const [refreshing, setRefreshing] = React.useState(false);
-  const headerHeight = useHeaderHeight();
+  const { paidOrders, getPaidOrders, loading } = useOrderContext();
 
-  const onRefresh = React.useCallback(async () => {
-    setRefreshing(true);
-    try {
-      await getOrders();
-    } catch (error) {
-      console.error("Error refreshing orders:", error);
-    } finally {
-      setRefreshing(false);
-    }
-  }, [getOrders]);
   React.useEffect(() => {
-    onRefresh();
+    getPaidOrders();
   }, []);
-  const filteredOrders = React.useMemo(() => {
-    if (!search) return orders;
-    const lowercasedSearch = search.toLowerCase();
-    return orders.filter(
-      (order) =>
-        order.fondos.toString().includes(lowercasedSearch) ||
-        order.entradas.toString().includes(lowercasedSearch)
-    );
-  }, [search, orders]);
 
-  if (!orders) return <ActivityIndicator />;
-  if (loading && !orders?.length) return <ActivityIndicator />;
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       className=" bg-white flex-1"
     >
+      {loading && <ActivityIndicator style={{ marginTop: 20 }} />}
       <FlashList
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
         renderItem={({ item: order }) => <OrderCard order={order} />}
-        data={filteredOrders}
+        data={paidOrders}
         estimatedItemSize={200}
         horizontal={false}
       />
+      {paidOrders?.length === 0 && (
+        <View className="flex flex-col gap-4 items-center justify-center mt-20">
+          <Image
+            source={{
+              uri: "https://img.icons8.com/?size=200&id=119481&format=png&color=000000",
+            }}
+            style={{ width: 100, height: 100 }}
+          />
+          <Text style={{ color: "gray" }}>No hay items para mostrar</Text>
+        </View>
+      )}
     </ScrollView>
   );
 }

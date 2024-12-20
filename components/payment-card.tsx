@@ -2,16 +2,9 @@ import { IOrder } from "@/interfaces";
 import { router } from "expo-router";
 import React from "react";
 import { View } from "react-native";
-import {
-  ActivityIndicator,
-  Avatar,
-  Card,
-  IconButton,
-  Text,
-} from "react-native-paper";
+import { Avatar, Card, IconButton, Text } from "react-native-paper";
 
 export default function PaymentCard({ order }: { order: IOrder }) {
-  if (!order.date) return <ActivityIndicator />;
   const formattedDate = new Date(order.date ?? new Date()).toLocaleString(
     "es-ES",
     {

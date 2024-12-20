@@ -5,11 +5,16 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Alert, ScrollView, View } from "react-native";
-import { Button, Card, FAB, IconButton } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Card,
+  FAB,
+  IconButton,
+  Text,
+} from "react-native-paper";
 
 export default function UsersScreen() {
-  const { deleteUser, users, getUsers, profile } = useAuth();
-
+  const { deleteUser, users, getUsers, profile, loading } = useAuth();
   React.useEffect(() => {
     if (!profile.id_tenant) return;
     getUsers(profile.id_tenant);
@@ -17,7 +22,6 @@ export default function UsersScreen() {
   }, [profile.id_tenant]);
 
   const router = useRouter();
-  const headerHeight = useHeaderHeight();
 
   const onDelete = (id: string) => {
     Alert.alert("Eliminar", "¿Estás seguro de eliminar este usuario?", [
@@ -25,11 +29,7 @@ export default function UsersScreen() {
         text: "Sí",
         style: "destructive",
         onPress: async () => {
-          try {
-            await deleteUser(id);
-          } catch (error: any) {
-            alert("Error al eliminar: " + error.message);
-          }
+          deleteUser(id);
         },
       },
       {
@@ -50,16 +50,15 @@ export default function UsersScreen() {
 
   return (
     <View className="flex-1">
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={{ marginTop: headerHeight }}
-      >
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
+        {loading && <ActivityIndicator style={{ marginTop: 20 }} />}
         <FlashList
           renderItem={({ item: user }) => (
             <Card
               key={user.id}
               style={{
-                margin: 16,
+                marginHorizontal: 16,
+                marginVertical: 8,
               }}
             >
               <Card.Title
@@ -88,6 +87,17 @@ export default function UsersScreen() {
           estimatedItemSize={200}
           horizontal={false}
         />
+        {users?.length === 0 && (
+          <View className="flex flex-col gap-4 items-center justify-center mt-20">
+            <Image
+              source={{
+                uri: "https://img.icons8.com/?size=200&id=119481&format=png&color=000000",
+              }}
+              style={{ width: 100, height: 100 }}
+            />
+            <Text style={{ color: "gray" }}>No hay usuarios para mostrar</Text>
+          </View>
+        )}
       </ScrollView>
 
       <FAB

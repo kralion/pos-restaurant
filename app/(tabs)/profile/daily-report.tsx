@@ -1,18 +1,20 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
-import React, { useState, useEffect } from "react";
-import { BarChart } from "react-native-gifted-charts";
+import { useAuth } from "@/context";
 import { useOrderContext } from "@/context/order";
-import { IOrder, IMeal } from "@/interfaces";
+import { IMeal, IOrder } from "@/interfaces";
+import { weekDayTotals } from "@/utils/report";
 import { supabase } from "@/utils/supabase";
 import { FontAwesome } from "@expo/vector-icons";
-import { useAuth } from "@/context";
+import React, { useEffect, useState } from "react";
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { BarChart } from "react-native-gifted-charts";
+import { ActivityIndicator } from "react-native-paper";
 const calculateOrderTotal = (order: IOrder): number => {
   const getMealsTotal = (meals: IMeal[]) =>
     meals.reduce(
@@ -38,7 +40,7 @@ type MonthlyTotals = {
 };
 
 export default function DailyReportScreen() {
-  const { getDailyPaidOrders } = useOrderContext();
+  const { getDailyPaidOrders, loading } = useOrderContext();
   const { profile } = useAuth();
   const [dailySales, setDailySales] = useState([
     { value: 0, label: "7 AM", frontColor: "#FF6247" },
@@ -126,48 +128,9 @@ export default function DailyReportScreen() {
     }
   };
   const getWeekDayTotals = async () => {
-    try {
-      const today = new Date();
-      const startOfWeek = new Date(today);
-      startOfWeek.setDate(
-        today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)
-      );
-      startOfWeek.setHours(0, 0, 0, 0);
-
-      const { data: weekOrders, error } = await supabase
-        .from("orders")
-        .select("*")
-        .gte("date", startOfWeek.toISOString())
-        .lte("date", today.toISOString())
-        .eq("paid", true)
-        .eq("id_tenant", profile.id_tenant);
-
-      if (error) throw error;
-
-      const totals: DayTotals = {
-        Monday: 0,
-        Tuesday: 0,
-        Wednesday: 0,
-        Thursday: 0,
-        Friday: 0,
-        Saturday: 0,
-        Sunday: 0,
-      };
-
-      weekOrders?.forEach((order: IOrder) => {
-        if (order.date) {
-          const orderDate = new Date(order.date);
-          const dayName = orderDate.toLocaleString("en-US", {
-            weekday: "long",
-          }) as keyof DayTotals;
-          totals[dayName] += order.total;
-        }
-      });
-
+    weekDayTotals(profile.id_tenant as string).then((totals) => {
       setDailyTotals(totals);
-    } catch (error) {
-      console.error("Error loading weekly totals:", error);
-    }
+    });
   };
 
   const getMonthlyTotals = async (date: Date = currentDate) => {
@@ -366,6 +329,13 @@ export default function DailyReportScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {loading && (
+        <View className="flex flex-col gap-4 mt-24 items-center justify-center ">
+          <ActivityIndicator size="large" />
+          <Text style={{ color: "gray" }}>Cargando datos...</Text>
+        </View>
+      )}
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.chartContainer}>
           <Text style={styles.title}>Ventas diarias</Text>

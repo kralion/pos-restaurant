@@ -8,11 +8,10 @@ import { ActivityIndicator } from "react-native-paper";
 
 export default function HomeScreen() {
   const [orders, setOrders] = React.useState<IOrder[]>();
-  const { getUnservedOrders } = useOrderContext();
+  const { getUnservedOrders, loading } = useOrderContext();
   React.useEffect(() => {
     getUnservedOrders().then((orders) => setOrders(orders));
   }, [orders]);
-  if (!orders) return <ActivityIndicator />;
 
   return (
     <ScrollView
@@ -21,6 +20,7 @@ export default function HomeScreen() {
       className="min-h-screen"
       contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
     >
+      {loading && <ActivityIndicator style={{ marginTop: 20 }} />}
       <FlashList
         renderItem={({ item: order }) => <OrderCard order={order} />}
         data={orders}

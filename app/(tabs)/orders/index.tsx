@@ -1,21 +1,20 @@
 import OrderCard from "@/components/order-card";
 import { useOrderContext } from "@/context";
-import { FlashList } from "@shopify/flash-list";
-import { useLocalSearchParams } from "expo-router";
-import React from "react";
-import { ActivityIndicator, RefreshControl, ScrollView } from "react-native";
 import { IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
+import { FlashList } from "@shopify/flash-list";
+import { Image } from "expo-image";
+import React from "react";
+import { RefreshControl, ScrollView, View } from "react-native";
+import { ActivityIndicator, Text } from "react-native-paper";
 
 export default function OrdersScreen() {
-  const { getUnpaidOrders } = useOrderContext();
+  const { getUnpaidOrders, loading } = useOrderContext();
   const [orders, setOrders] = React.useState<IOrder[]>([]);
   const [refreshing, setRefreshing] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    setIsLoading(true);
     try {
       const unpaidOrders = await getUnpaidOrders();
       setOrders(unpaidOrders);
@@ -23,7 +22,6 @@ export default function OrdersScreen() {
       console.error("Error refreshing orders:", error);
     } finally {
       setRefreshing(false);
-      setIsLoading(false);
     }
   }, [getUnpaidOrders]);
 
@@ -52,13 +50,12 @@ export default function OrdersScreen() {
     };
   }, []);
 
-  if (isLoading && !orders?.length) return <ActivityIndicator />;
-
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
-      className=" bg-white flex-1"
+      className=" bg-white flex-1 "
     >
+      {loading && <ActivityIndicator style={{ marginTop: 20 }} />}
       <FlashList
         style={{
           backgroundColor: "#fff",
@@ -71,6 +68,17 @@ export default function OrdersScreen() {
         estimatedItemSize={200}
         horizontal={false}
       />
+      {orders?.length === 0 && (
+        <View className="flex flex-col gap-4 items-center justify-center mt-20">
+          <Image
+            source={{
+              uri: "https://img.icons8.com/?size=200&id=119481&format=png&color=000000",
+            }}
+            style={{ width: 100, height: 100 }}
+          />
+          <Text style={{ color: "gray" }}>No hay items para mostrar</Text>
+        </View>
+      )}
     </ScrollView>
   );
 }

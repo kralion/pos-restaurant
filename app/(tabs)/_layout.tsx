@@ -165,14 +165,9 @@ export default function TabLayout() {
     );
   };
 
-  // Role-specific tab configurations
-
-  // Determine the correct tab configuration based on user role
-  // Default to an empty array if role is not recognized, which will trigger a redirect
   const tabs =
     tabConfigurations[user.role as keyof typeof tabConfigurations] || [];
 
-  // If no tabs are found for the role, redirect to sign-in
   if (tabs.length === 0) {
     return <Redirect href="/(auth)/sign-in" />;
   }

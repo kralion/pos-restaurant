@@ -5,7 +5,7 @@ import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, Text, View } from "react-native";
-import { ActivityIndicator, Button, List, TextInput } from "react-native-paper";
+import { Button, List, TextInput } from "react-native-paper";
 
 interface IUser {
   name: string;

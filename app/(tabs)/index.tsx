@@ -2,8 +2,8 @@ import { ITable } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { router } from "expo-router";
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { ScrollView, View, ActivityIndicator } from "react-native";
-import { Divider, Text } from "react-native-paper";
+import { ScrollView, View } from "react-native";
+import { Divider, Text, ActivityIndicator } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { G, Polygon, Rect, Svg, Text as SvgText } from "react-native-svg";
 import Animated, {

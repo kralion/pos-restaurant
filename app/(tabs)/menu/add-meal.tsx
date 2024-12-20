@@ -88,10 +88,7 @@ export default function MenuScreen() {
     }
   };
   return (
-    <ScrollView
-      style={{ marginTop: headerHeight }}
-      contentInsetAdjustmentBehavior="automatic"
-    >
+    <ScrollView contentInsetAdjustmentBehavior="automatic">
       <View className="flex flex-col justify-center align-middle w-full p-4">
         <View className="flex flex-col gap-2 mb-8">
           {image_url ? (

@@ -8,7 +8,7 @@ import { FlashList } from "@shopify/flash-list";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ScrollView, View, ActivityIndicator } from "react-native";
+import { ScrollView, View } from "react-native";
 import {
   Button,
   Divider,
@@ -17,9 +17,9 @@ import {
   Modal,
   Portal,
   Searchbar,
-  Surface,
   Switch,
   Text,
+  ActivityIndicator,
 } from "react-native-paper";
 import Animated, { SlideInDown, SlideOutDown } from "react-native-reanimated";
 import { useDebouncedCallback } from "use-debounce";
@@ -38,7 +38,6 @@ export default function OrderScreen() {
   const { getMealsByCategoryId, loading: mealsLoading } = useMealContext();
   const [mealsByCategory, setMealsByCategory] = useState<IMeal[]>([]);
   const [itemsSelected, setItemsSelected] = useState<IMeal[]>([]);
-  const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<IOrder | null>(null);
   const { addOrder, updateOrder, loading: orderLoading } = useOrderContext();
   const { profile } = useAuth();
@@ -95,7 +94,7 @@ export default function OrderScreen() {
 
   useEffect(() => {
     getCustomers();
-    getCategories(profile.id_tenant as string);
+    getCategories();
   }, []);
 
   useEffect(() => {
@@ -140,7 +139,6 @@ export default function OrderScreen() {
   }, [watch("id_fixed_customer"), watch("free")]);
 
   const onUpdate = async (data: IOrder) => {
-    setLoading(true);
     try {
       const orderData: IOrder = {
         ...data,
@@ -174,13 +172,10 @@ export default function OrderScreen() {
     } catch (err) {
       console.error("An error occurred:", err);
       alert("Algo sucedió mal, vuelve a intentarlo.");
-    } finally {
-      setLoading(false);
     }
   };
 
   const onAdd = async (data: IOrder) => {
-    setLoading(true);
     if (!profile.id) return;
 
     try {
@@ -215,8 +210,6 @@ export default function OrderScreen() {
     } catch (err) {
       console.error("An error occurred:", err);
       alert("Algo sucedió mal, vuelve a intentarlo.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -240,17 +233,27 @@ export default function OrderScreen() {
         contentContainerStyle={{
           backgroundColor: "white",
           padding: 16,
-          margin: 16,
-          borderRadius: 8,
+          position: "absolute",
+          top: 40,
+          width: "95%",
+          minHeight: 400,
+          justifyContent: "flex-start",
+          margin: 10,
+          borderRadius: 16,
         }}
       >
         <Animated.View
           entering={SlideInDown}
           exiting={SlideOutDown}
-          className="w-full"
+          className="w-full "
         >
-          <View className="flex-row justify-between items-center mb-4">
-            <Text variant="titleSmall">Seleccionar Cliente</Text>
+          <View className="flex-row justify-between  items-center mb-4">
+            <Text
+              style={{ color: "gray", paddingLeft: 10 }}
+              variant="bodyLarge"
+            >
+              Seleccionar Cliente
+            </Text>
             <IconButton
               icon="close"
               onPress={() => {
@@ -275,26 +278,26 @@ export default function OrderScreen() {
           />
 
           <ScrollView style={{ maxHeight: 400 }}>
-            {filteredCustomers.length > 0 ? (
-              filteredCustomers.map((customer) => (
-                <List.Item
-                  key={customer.id}
-                  title={customer.full_name}
-                  onPress={() => {
-                    setValue("id_fixed_customer", customer.id);
-                    setShowCustomerModal(false);
-                    setSearchText("");
-                    setSearchQuery("");
-                  }}
-                  left={(props) => <List.Icon {...props} icon="account" />}
-                  right={(props) =>
-                    watch("id_fixed_customer") === customer.id ? (
-                      <List.Icon {...props} icon="check" />
-                    ) : null
-                  }
-                />
-              ))
-            ) : (
+            {filteredCustomers.map((customer) => (
+              <List.Item
+                key={customer.id}
+                title={customer.full_name}
+                onPress={() => {
+                  setValue("id_fixed_customer", customer.id);
+                  setShowCustomerModal(false);
+                  setSearchText("");
+                  setSearchQuery("");
+                }}
+                left={(props) => <List.Icon {...props} icon="account" />}
+                right={(props) =>
+                  watch("id_fixed_customer") === customer.id ? (
+                    <List.Icon {...props} icon="check" />
+                  ) : null
+                }
+              />
+            ))}
+
+            {filteredCustomers.length === 0 && (
               <View className="p-4 items-center">
                 <Text variant="bodyMedium">No se encontraron clientes</Text>
               </View>
@@ -490,6 +493,7 @@ export default function OrderScreen() {
           </Button>
           <Button
             mode="outlined"
+            style={{ backgroundColor: "white", borderColor: "#f1f1f1" }}
             onPress={() => {
               reset();
               router.back();
