@@ -45,17 +45,6 @@ function TableSvg({ table, index }: { table: ITable; index: number }) {
     }
   }
 
-  const getStatusColor = () => {
-    switch (table.status) {
-      case true:
-        return "#4CAF50";
-      case false:
-        return "#F44336";
-      default:
-        return "#4CAF50";
-    }
-  };
-
   return (
     <Animated.View style={animatedStyle}>
       <TouchableOpacity onPress={onPress}>

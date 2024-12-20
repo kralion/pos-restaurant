@@ -4,11 +4,12 @@ import { useCustomer } from "@/context/customer";
 import { useMealContext } from "@/context/meals";
 import { IMeal, IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
+import { FontAwesome } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ScrollView, View } from "react-native";
+import { Platform, ScrollView, View } from "react-native";
 import {
   Button,
   Divider,
@@ -20,11 +21,15 @@ import {
   Switch,
   Text,
   ActivityIndicator,
+  Appbar,
+  Menu,
 } from "react-native-paper";
 import Animated, { SlideInDown, SlideOutDown } from "react-native-reanimated";
+import { toast } from "sonner-native";
 import { useDebouncedCallback } from "use-debounce";
+const MORE_ICON = Platform.OS === "ios" ? "dots-horizontal" : "dots-vertical";
 
-export default function OrderScreen() {
+export default function AddOrderScreen() {
   const { number, id_table, id_order } = useLocalSearchParams<{
     number: string;
     id_table: string;
@@ -46,6 +51,7 @@ export default function OrderScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchText, setSearchText] = useState("");
   const [isRegisterDisabled, setIsRegisterDisabled] = useState(false);
+  const [visible, setVisible] = React.useState(false);
   const debouncedSearch = useDebouncedCallback((text: string) => {
     setSearchQuery(text);
   }, 300);
@@ -139,6 +145,14 @@ export default function OrderScreen() {
   }, [watch("id_fixed_customer"), watch("free")]);
 
   const onUpdate = async (data: IOrder) => {
+    if (data.items.length === 0) {
+      toast.error("Orden sin productos", {
+        description: "Debes agregar al menos un producto a la orden",
+        duration: 6000,
+        icon: <FontAwesome name="exclamation-triangle" size={24} />,
+      });
+      return;
+    }
     try {
       const orderData: IOrder = {
         ...data,
@@ -177,6 +191,15 @@ export default function OrderScreen() {
 
   const onAdd = async (data: IOrder) => {
     if (!profile.id) return;
+    if (data.items.length === 0) {
+      toast.error("Orden sin productos", {
+        description:
+          "Debes agregar al menos un producto a la orden para proceder.",
+        duration: 6000,
+        icon: <FontAwesome name="exclamation-triangle" size={24} color="red" />,
+      });
+      return;
+    }
 
     try {
       const orderData: IOrder = {
@@ -309,201 +332,212 @@ export default function OrderScreen() {
   );
 
   return (
-    <ScrollView
-      contentInsetAdjustmentBehavior="automatic"
-      className="bg-zinc-200"
-    >
-      <View className="flex flex-col w-full items-center p-4 ">
-        <Text className="text-2xl mb-4" style={{ fontWeight: "700" }}>
-          Mesa #{number}
-        </Text>
-        <View className="w-full rounded-2xl overflow-hidden flex flex-col bg-white">
-          <Controller
-            control={control}
-            name="id_fixed_customer"
-            render={({ field: { value } }) => (
-              <View className="flex flex-row gap-2 justify-between items-center p-4 w-full">
-                <View>
-                  <Text variant="titleMedium">Cliente Fijo</Text>
-                  {value && (
-                    <Text variant="bodyMedium" className="opacity-60">
-                      {(() => {
-                        const customer = customers.find((c) => c.id === value);
-                        return (
-                          <>
-                            {customer?.full_name} -{" "}
-                            {customer?.total_free_orders} pedidos gratis
-                          </>
-                        );
-                      })()}
-                    </Text>
-                  )}
+    <>
+      <Appbar.Header
+        style={{
+          borderBottomColor: "#f1f1f1",
+          borderBottomWidth: 0.5,
+        }}
+      >
+        <Appbar.BackAction
+          onPress={() => {
+            router.back();
+          }}
+        />
+        <Appbar.Content title={`Mesa #${number}`} />
+        <Appbar.Action
+          icon="backspace-outline"
+          color="red"
+          onPress={() => reset()}
+        />
+      </Appbar.Header>
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        className="bg-zinc-100"
+      >
+        <View className="flex flex-col w-full items-center  ">
+          <View className="w-full  overflow-hidden flex flex-col bg-white">
+            <Controller
+              control={control}
+              name="id_fixed_customer"
+              render={({ field: { value } }) => (
+                <View className="flex flex-row gap-2 justify-between items-center p-4 w-full">
+                  <View>
+                    <Text variant="titleMedium">Cliente Fijo</Text>
+                    {value && (
+                      <Text variant="bodyMedium" className="opacity-60">
+                        {(() => {
+                          const customer = customers.find(
+                            (c) => c.id === value
+                          );
+                          return (
+                            <>
+                              {customer?.full_name} -{" "}
+                              {customer?.total_free_orders} pedidos gratis
+                            </>
+                          );
+                        })()}
+                      </Text>
+                    )}
+                  </View>
+                  <Switch
+                    value={!!value}
+                    onValueChange={(checked) => {
+                      if (checked) {
+                        setShowCustomerModal(true);
+                      } else {
+                        setValue("id_fixed_customer", undefined);
+                        setValue("free", false);
+                      }
+                    }}
+                  />
                 </View>
-                <Switch
-                  value={!!value}
-                  onValueChange={(checked) => {
-                    if (checked) {
-                      setShowCustomerModal(true);
-                    } else {
-                      setValue("id_fixed_customer", undefined);
-                      setValue("free", false);
-                    }
-                  }}
-                />
-              </View>
-            )}
-          />
-          <Divider />
+              )}
+            />
+            <Divider />
 
-          {(() => {
-            const selectedCustomer = customers.find(
-              (c) => c.id === watch("id_fixed_customer")
-            );
-            return (selectedCustomer?.total_free_orders ?? 0) > 0 ? (
-              <>
-                <Controller
-                  control={control}
-                  name="free"
-                  render={({ field: { onChange, value } }) => (
-                    <View className="flex flex-row gap-2 justify-between items-center p-4">
-                      <View>
-                        <Text variant="titleMedium">Orden Gratuita</Text>
+            {(() => {
+              const selectedCustomer = customers.find(
+                (c) => c.id === watch("id_fixed_customer")
+              );
+              return (selectedCustomer?.total_free_orders ?? 0) > 0 ? (
+                <>
+                  <Controller
+                    control={control}
+                    name="free"
+                    render={({ field: { onChange, value } }) => (
+                      <View className="flex flex-row gap-2 justify-between items-center p-4">
+                        <View>
+                          <Text variant="titleMedium">Orden Gratuita</Text>
+                        </View>
+                        <Switch value={value} onValueChange={onChange} />
                       </View>
-                      <Switch value={value} onValueChange={onChange} />
+                    )}
+                  />
+                  <Divider />
+                </>
+              ) : null;
+            })()}
+
+            <Controller
+              control={control}
+              name="to_go"
+              render={({ field: { onChange, value } }) => (
+                <View className="flex flex-row gap-2 justify-between items-center p-4">
+                  <View>
+                    <Text variant="titleMedium">Orden para llevar</Text>
+                  </View>
+                  <Switch value={value} onValueChange={onChange} />
+                </View>
+              )}
+            />
+            <Divider />
+            {categoriesLoading && (
+              <ActivityIndicator style={{ marginTop: 20 }} />
+            )}
+            {categories.map((category, index) => (
+              <List.Section key={category.id}>
+                <List.Accordion
+                  style={{
+                    backgroundColor: "white",
+                    paddingTop: 0,
+                    marginTop: 0,
+                  }}
+                  titleStyle={{
+                    fontWeight: "500",
+                  }}
+                  title={category.name}
+                  onPress={() => mealsByCategoryHandler(category.id as string)}
+                >
+                  <Divider />
+                  {mealsLoading && (
+                    <ActivityIndicator style={{ marginTop: 20 }} />
+                  )}
+                  <FlashList
+                    data={mealsByCategory}
+                    estimatedItemSize={74}
+                    renderItem={({ item }) => (
+                      <List.Item
+                        style={{
+                          paddingRight: 0,
+                        }}
+                        title={item.name}
+                        titleStyle={
+                          item.quantity === 0
+                            ? {
+                                textDecorationLine: "line-through",
+                                color: "gray",
+                              }
+                            : { color: "black" }
+                        }
+                        description={`S/. ${item.price.toFixed(2)}`}
+                        right={(props) => (
+                          <View className="flex-row items-center gap-2">
+                            <IconButton
+                              onPress={() => {
+                                const currentItem = itemsSelected.find(
+                                  (i) => i.id === item.id
+                                );
+                                const currentQuantity =
+                                  currentItem?.quantity ?? 0;
+                                handleQuantityChange(
+                                  item,
+                                  Math.max(currentQuantity - 1, 0)
+                                );
+                              }}
+                              mode="contained"
+                              icon="minus"
+                              size={18}
+                            />
+                            <Text variant="titleLarge">
+                              {itemsSelected.find((i) => i.id === item.id)
+                                ?.quantity ?? 0}
+                            </Text>
+                            <IconButton
+                              onPress={() => {
+                                const currentItem = itemsSelected.find(
+                                  (i) => i.id === item.id
+                                );
+                                const currentQuantity =
+                                  currentItem?.quantity ?? 0;
+                                handleQuantityChange(item, currentQuantity + 1);
+                              }}
+                              icon="plus"
+                              size={18}
+                              mode="contained"
+                            />
+                          </View>
+                        )}
+                      />
+                    )}
+                    keyExtractor={(item) => item.id}
+                  />
+                  {mealsByCategory.length === 0 && (
+                    <View className="p-4 items-center">
+                      <Text variant="bodyMedium" style={{ color: "gray" }}>
+                        Sin elementos
+                      </Text>
                     </View>
                   )}
-                />
-                <Divider />
-              </>
-            ) : null;
-          })()}
-
-          <Controller
-            control={control}
-            name="to_go"
-            render={({ field: { onChange, value } }) => (
-              <View className="flex flex-row gap-2 justify-between items-center p-4">
-                <View>
-                  <Text variant="titleMedium">Orden para llevar</Text>
-                </View>
-                <Switch value={value} onValueChange={onChange} />
-              </View>
-            )}
-          />
-          <Divider />
-          {categoriesLoading && <ActivityIndicator style={{ marginTop: 20 }} />}
-          {categories.map((category, index) => (
-            <List.Section key={category.id}>
-              <List.Accordion
-                style={{
-                  backgroundColor: "white",
-                  paddingTop: 0,
-                  marginTop: 0,
-                }}
-                titleStyle={{
-                  fontWeight: "500",
-                }}
-                title={category.name}
-                onPress={() => mealsByCategoryHandler(category.id as string)}
-              >
-                <Divider />
-                {mealsLoading && (
-                  <ActivityIndicator style={{ marginTop: 20 }} />
-                )}
-                <FlashList
-                  data={mealsByCategory}
-                  estimatedItemSize={74}
-                  renderItem={({ item }) => (
-                    <List.Item
-                      style={{
-                        paddingRight: 0,
-                      }}
-                      title={item.name}
-                      titleStyle={
-                        item.quantity === 0
-                          ? {
-                              textDecorationLine: "line-through",
-                              color: "gray",
-                            }
-                          : { color: "black" }
-                      }
-                      description={`S/. ${item.price.toFixed(2)}`}
-                      right={(props) => (
-                        <View className="flex-row items-center gap-2">
-                          <IconButton
-                            onPress={() => {
-                              const currentItem = itemsSelected.find(
-                                (i) => i.id === item.id
-                              );
-                              const currentQuantity =
-                                currentItem?.quantity ?? 0;
-                              handleQuantityChange(
-                                item,
-                                Math.max(currentQuantity - 1, 0)
-                              );
-                            }}
-                            mode="contained"
-                            icon="minus"
-                            size={18}
-                          />
-                          <Text variant="titleLarge">
-                            {itemsSelected.find((i) => i.id === item.id)
-                              ?.quantity ?? 0}
-                          </Text>
-                          <IconButton
-                            onPress={() => {
-                              const currentItem = itemsSelected.find(
-                                (i) => i.id === item.id
-                              );
-                              const currentQuantity =
-                                currentItem?.quantity ?? 0;
-                              handleQuantityChange(item, currentQuantity + 1);
-                            }}
-                            icon="plus"
-                            size={18}
-                            mode="contained"
-                          />
-                        </View>
-                      )}
-                    />
-                  )}
-                  keyExtractor={(item) => item.id}
-                />
-                {mealsByCategory.length === 0 && (
-                  <View className="p-4 items-center">
-                    <Text variant="bodyMedium" style={{ color: "gray" }}>
-                      Sin elementos
-                    </Text>
-                  </View>
-                )}
-              </List.Accordion>
-              {index !== categories.length - 1 && <Divider />}
-            </List.Section>
-          ))}
+                </List.Accordion>
+                {index !== categories.length - 1 && <Divider />}
+              </List.Section>
+            ))}
+          </View>
+          <View className="flex flex-col justify-center align-middle w-full gap-4 p-4">
+            <Button
+              mode="contained"
+              style={{ marginTop: 40 }}
+              onPress={order ? handleSubmit(onUpdate) : handleSubmit(onAdd)}
+              loading={orderLoading}
+              disabled={isRegisterDisabled}
+            >
+              {order ? "Editar Orden" : "Registrar Orden"}
+            </Button>
+          </View>
         </View>
-        <View className="flex flex-col justify-center align-middle w-full gap-4">
-          <Button
-            mode="contained"
-            style={{ marginTop: 50 }}
-            onPress={order ? handleSubmit(onUpdate) : handleSubmit(onAdd)}
-            loading={orderLoading}
-            disabled={isRegisterDisabled}
-          >
-            {order ? "Editar Orden" : "Registrar Orden"}
-          </Button>
-          <Button
-            mode="outlined"
-            style={{ backgroundColor: "white", borderColor: "#f1f1f1" }}
-            onPress={() => {
-              reset();
-              router.back();
-            }}
-          >
-            Cancelar
-          </Button>
-        </View>
-      </View>
-      {renderCustomerModal()}
-    </ScrollView>
+        {renderCustomerModal()}
+      </ScrollView>
+    </>
   );
 }
