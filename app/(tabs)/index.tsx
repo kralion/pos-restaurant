@@ -1,19 +1,19 @@
 import { ITable } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
-import { router } from "expo-router";
-import React, { useEffect, useState, useCallback, useRef } from "react";
-import { ScrollView, View } from "react-native";
-import { Divider, Text, ActivityIndicator } from "react-native-paper";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { G, Polygon, Rect, Svg, Text as SvgText } from "react-native-svg";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withDelay,
-  Easing,
-} from "react-native-reanimated";
 import { useFocusEffect } from "@react-navigation/native";
+import { Image } from "expo-image";
+import { router } from "expo-router";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Chip, Divider } from "react-native-paper";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withTiming,
+} from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function TableSvg({ table, index }: { table: ITable; index: number }) {
   const rotation = useSharedValue(90);
@@ -58,26 +58,23 @@ function TableSvg({ table, index }: { table: ITable; index: number }) {
 
   return (
     <Animated.View style={animatedStyle}>
-      <Svg width="80" height="120" viewBox="0 0 500 500" onPress={onPress}>
-        <G fill={getStatusColor()}>
-          <Polygon points="407.165,84.97 104.835,84.97 0,175.997 512,175.997" />
-          <Rect y="183.102" width="512" height="31.793" />
-          <Rect y="222.223" width="51.203" height="204.806" />
-          <Rect x="92.448" y="222.223" width="42.67" height="130.918" />
-          <Rect x="460.793" y="222.223" width="51.207" height="204.806" />
-          <Rect x="376.882" y="222.223" width="42.67" height="130.918" />
-        </G>
-        <SvgText
-          x="256"
-          y="30"
-          fontSize="150"
-          fontWeight="bold"
-          textAnchor="middle"
-          alignmentBaseline="middle"
-        >
-          {table.number}
-        </SvgText>
-      </Svg>
+      <TouchableOpacity onPress={onPress}>
+        <View className="flex flex-col items-center justify-center">
+          {table.status ? (
+            <Text className="text-2xl font-bold">{table.number}</Text>
+          ) : (
+            <Chip mode="flat" elevated disabled>
+              Ocupado
+            </Chip>
+          )}
+          <Image
+            source={{
+              uri: "https://cdn-icons-png.flaticon.com/128/12924/12924575.png",
+            }}
+            style={{ width: 100, height: 100 }}
+          />
+        </View>
+      </TouchableOpacity>
     </Animated.View>
   );
 }
@@ -156,7 +153,7 @@ export default function TablesScreen() {
       <Divider style={{ marginTop: 16 }} />
 
       <ScrollView contentContainerStyle={{ paddingVertical: 40 }}>
-        <View className="flex-row flex-wrap justify-center items-center gap-14">
+        <View className="flex-row flex-wrap justify-center items-center  gap-8">
           {tables.map((table, index) => (
             <TableSvg key={table.id} table={table} index={index} />
           ))}

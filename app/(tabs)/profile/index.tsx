@@ -2,7 +2,7 @@ import { useAuth } from "@/context";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Button, Chip, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function ProfileScreen() {
   const { profile: user, signOut } = useAuth();
@@ -18,7 +18,7 @@ export default function ProfileScreen() {
             height: 100,
           }}
           source={{
-            uri: "https://img.icons8.com/?size=100&id=c2egtkdAFOMH&format=png&color=FD7E14",
+            uri: "https://img.icons8.com/?size=200&id=c2egtkdAFOMH&format=png&color=FD7E14",
           }}
         />
 
@@ -26,7 +26,7 @@ export default function ProfileScreen() {
           {user.name} {user.last_name}
         </Text>
 
-        <Text className="text-md">{user.role}</Text>
+        <Chip elevated>{user.role}</Chip>
       </View>
 
       <View className="flex flex-col gap-2 mt-10 items-start ">
