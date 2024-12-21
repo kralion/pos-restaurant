@@ -1,8 +1,7 @@
 # Ordee
 
 A mobile app for restaurants, covering processes for orders, menu, meals, receipts and much more. 
-
-https://github.com/kralion/monedo/assets/66649036/086d0707-254e-45be-ba42-c4f5661349fd
+*https://github.com/kralion/ordee/assets/66649036/086d0707-254e-45be-ba42-c4f5661349fd*
  
 ## Stack
 
