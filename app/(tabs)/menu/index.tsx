@@ -6,7 +6,7 @@ import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React from "react";
-import { Platform, ScrollView, View } from "react-native";
+import { Platform, View } from "react-native";
 import {
   ActivityIndicator,
   Appbar,
@@ -16,7 +16,7 @@ import {
 } from "react-native-paper";
 const MORE_ICON = Platform.OS === "ios" ? "dots-horizontal" : "dots-vertical";
 export default function MenuScreen() {
-  const { getMealsByCategoryId, loading } = useMealContext();
+  const { getMealsByCategoryId, loading, getDailyMeals } = useMealContext();
   const [mealsByCategoryId, setMealsByCategoryId] = React.useState<
     IMeal[] | undefined
   >();
@@ -27,18 +27,11 @@ export default function MenuScreen() {
   React.useEffect(() => {
     getCategories();
   }, []);
-  // const onRefresh = React.useCallback(async () => {
-  //   setRefreshing(true);
-  //   setIsLoading(true);
-  //   try {
-  //     await getDailyMeals();
-  //   } catch (error) {
-  //     console.error("Error refreshing meals:", error);
-  //   } finally {
-  //     setRefreshing(false);
-  //     setIsLoading(false);
-  //   }
-  // }, [getDailyMeals]);
+  async function onRefresh() {
+    setRefreshing(true);
+    await getDailyMeals();
+    setRefreshing(false);
+  }
 
   React.useEffect(() => {
     getMealsByCategoryId(categoryId as string).then((meals) => {
@@ -101,22 +94,15 @@ export default function MenuScreen() {
         </Menu>
       </Appbar.Header>
       <View className="flex-1">
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          className=" bg-white flex-1 h-screen-safe"
-        >
-          {loading && <ActivityIndicator className="mt-20" />}
-          <FlashList
-            contentContainerStyle={{}}
-            // refreshControl={
-            //   <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            // }
-            renderItem={({ item: meal }) => <MealCard meal={meal} />}
-            data={mealsByCategoryId}
-            estimatedItemSize={200}
-            horizontal={false}
-          />
-          {mealsByCategoryId?.length === 0 && (
+        {loading && <ActivityIndicator className="mt-20" />}
+        <FlashList
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          renderItem={({ item: meal }) => <MealCard meal={meal} />}
+          data={mealsByCategoryId}
+          estimatedItemSize={200}
+          horizontal={false}
+          ListEmptyComponent={
             <View className="flex flex-col gap-4 items-center justify-center mt-20">
               <Image
                 source={{
@@ -126,8 +112,20 @@ export default function MenuScreen() {
               />
               <Text style={{ color: "gray" }}>No hay items para mostrar</Text>
             </View>
-          )}
-        </ScrollView>
+          }
+          ListFooterComponent={
+            <Text
+              variant="bodyMedium"
+              style={{
+                opacity: 0.3,
+                margin: 16,
+                textAlign: "center",
+              }}
+            >
+              Items para el menú del día {new Date().toLocaleDateString()}
+            </Text>
+          }
+        />
       </View>
     </>
   );

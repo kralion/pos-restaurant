@@ -26,10 +26,18 @@ export default function ProfileScreen() {
           {user.name} {user.last_name}
         </Text>
 
-        <Chip elevated>{user.role}</Chip>
+        <Chip
+          elevated
+          selectedColor="white"
+          style={{
+            backgroundColor: "#FF6247",
+          }}
+        >
+          {user.role}
+        </Chip>
       </View>
 
-      <View className="flex flex-col gap-2 mt-10 items-start ">
+      <View className="flex flex-col gap-4 mt-10 items-start ">
         <Button
           icon="account-group-outline"
           onPress={() => router.push("/(tabs)/profile/users")}
@@ -38,7 +46,7 @@ export default function ProfileScreen() {
           Usuarios
         </Button>
         <Button
-          icon="air-filter"
+          icon="book-open-page-variant-outline"
           onPress={() => router.push("/(tabs)/profile/categories")}
           mode="text"
         >
@@ -58,13 +66,18 @@ export default function ProfileScreen() {
         >
           Reporte Diario
         </Button>
-
-        <Button onPress={signOut} icon="logout" mode="contained-tonal">
+        <Button
+          onPress={signOut}
+          icon="logout"
+          mode="text"
+          textColor="white"
+          buttonColor="red"
+        >
           Cerrar Sesión
         </Button>
       </View>
 
-      <Text className="text-muted-foreground opacity-40  mt-36 mx-auto ">
+      <Text className="text-muted-foreground opacity-40  mt-28 mx-auto ">
         Logueado
         {/* {session.user.email} */}
       </Text>
@@ -74,9 +87,9 @@ export default function ProfileScreen() {
 
       <View className="absolute bottom-[200px] right-[-70px] w-[200px] h-[300px] rounded-xl rotate-[-30deg] bg-yellow-400 shadow-lg" />
 
-      <View className="absolute bottom-[150px] right-[-70px] w-[200px] h-[300px] rounded-xl rotate-[-40deg] bg-orange-500 shadow-lg" />
+      <View className="absolute bottom-[150px] right-[-70px] w-[200px] h-[300px] rounded-xl rotate-[-40deg] bg-white shadow-lg" />
 
-      <View className="absolute bottom-[100px] right-[-70px] w-[200px] h-[300px] rounded-xl rotate-[-50deg] bg-black shadow-lg" />
+      <View className="absolute bottom-[100px] right-[-70px] w-[200px] h-[300px] rounded-xl rotate-[-50deg] bg-orange-600 shadow-lg" />
     </SafeAreaView>
   );
 }

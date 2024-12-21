@@ -1,16 +1,9 @@
 import { useCategoryContext } from "@/context/category";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
-import { router } from "expo-router";
 import React from "react";
 import { Alert, ScrollView, View } from "react-native";
-import {
-  ActivityIndicator,
-  Card,
-  FAB,
-  IconButton,
-  Text,
-} from "react-native-paper";
+import { ActivityIndicator, Card, IconButton, Text } from "react-native-paper";
 
 export default function CategoriesScreen() {
   const { deleteCategory, getCategories, categories, loading } =
@@ -85,18 +78,6 @@ export default function CategoriesScreen() {
           </View>
         )}
       </ScrollView>
-
-      <FAB
-        icon="book-plus-multiple-outline"
-        variant="tertiary"
-        style={{
-          position: "absolute",
-          margin: 16,
-          right: 0,
-          bottom: 0,
-        }}
-        onPress={() => router.push("/(tabs)/profile/categories/add-category")}
-      />
     </>
   );
 }

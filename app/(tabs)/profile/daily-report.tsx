@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useHeaderHeight } from "@react-navigation/elements";
 import { BarChart } from "react-native-gifted-charts";
 import { ActivityIndicator } from "react-native-paper";
 const calculateOrderTotal = (order: IOrder): number => {
@@ -42,6 +43,7 @@ type MonthlyTotals = {
 export default function DailyReportScreen() {
   const { getDailyPaidOrders, loading } = useOrderContext();
   const { profile } = useAuth();
+  const headerHeight = useHeaderHeight();
   const [dailySales, setDailySales] = useState([
     { value: 0, label: "7 AM", frontColor: "#FF6247" },
     { value: 0, label: "9 AM", frontColor: "#FF6247" },
@@ -328,7 +330,10 @@ export default function DailyReportScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.scrollContent}
+      contentInsetAdjustmentBehavior="automatic"
+    >
       {loading && (
         <View className="flex flex-col gap-4 mt-24 items-center justify-center ">
           <ActivityIndicator size="large" />
@@ -336,38 +341,36 @@ export default function DailyReportScreen() {
         </View>
       )}
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.chartContainer}>
-          <Text style={styles.title}>Ventas diarias</Text>
-          <Text style={styles.totalSales}>
-            Total: S/. {totalDailySales.toFixed(2)}
-          </Text>
-          <BarChart
-            data={dailySales}
-            barWidth={30}
-            barBorderRadius={6}
-            xAxisThickness={0}
-            yAxisThickness={0}
-            yAxisTextStyle={styles.chartText}
-            xAxisLabelTextStyle={styles.chartText}
-            noOfSections={5}
+      <View style={styles.chartContainer}>
+        <Text style={styles.title}>Ventas diarias</Text>
+        <Text style={styles.totalSales}>
+          Total: S/. {totalDailySales.toFixed(2)}
+        </Text>
+        <BarChart
+          data={dailySales}
+          barWidth={30}
+          barBorderRadius={6}
+          xAxisThickness={0}
+          yAxisThickness={0}
+          yAxisTextStyle={styles.chartText}
+          xAxisLabelTextStyle={styles.chartText}
+          noOfSections={5}
+        />
+        <View style={styles.detailsContainer}>
+          <SalesDetails
+            title="Total de pedidos"
+            data={orderDetails.totalOrders}
           />
-          <View style={styles.detailsContainer}>
-            <SalesDetails
-              title="Total de pedidos"
-              data={orderDetails.totalOrders}
-            />
-            <SalesDetails
-              title="Total de ventas"
-              data={`S/. ${orderDetails.totalAmount.toFixed(2)}`}
-            />
-            <SalesDetails title="Hora pico" data={orderDetails.peakHour} />
-          </View>
+          <SalesDetails
+            title="Total de ventas"
+            data={`S/. ${orderDetails.totalAmount.toFixed(2)}`}
+          />
+          <SalesDetails title="Hora pico" data={orderDetails.peakHour} />
         </View>
-        <WeeklyTotals />
-        <MonthlyCalendar />
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+      <WeeklyTotals />
+      <MonthlyCalendar />
+    </ScrollView>
   );
 }
 const styles = StyleSheet.create({

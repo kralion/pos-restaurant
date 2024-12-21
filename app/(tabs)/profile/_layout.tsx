@@ -15,7 +15,8 @@ import React, {
   useState,
 } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Button as NativeButton, View } from "react-native";
+import { Keyboard, Button as NativeButton, View } from "react-native";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { Button, Text } from "react-native-paper";
 
 export default function ProfileLayout() {
@@ -89,7 +90,8 @@ export default function ProfileLayout() {
             title: "Usuarios",
             headerLargeTitle: true,
             headerBackVisible: true,
-            headerShadowVisible: false,
+            headerShadowVisible: true,
+            headerLargeTitleShadowVisible: false,
           }}
         />
         <Stack.Screen
@@ -98,7 +100,9 @@ export default function ProfileLayout() {
             title: "Categorías",
             headerLargeTitle: true,
             headerBackVisible: true,
-            headerShadowVisible: false,
+
+            headerShadowVisible: true,
+            headerLargeTitleShadowVisible: false,
             headerRight: () => (
               <NativeButton
                 title="Agregar"
@@ -113,8 +117,9 @@ export default function ProfileLayout() {
           options={{
             title: "Clientes Fijos",
             headerLargeTitle: true,
+            headerShadowVisible: true,
+            headerLargeTitleShadowVisible: false,
             headerBackVisible: true,
-            headerShadowVisible: false,
             headerRight: () => (
               <NativeButton
                 title="Agregar"
@@ -126,24 +131,20 @@ export default function ProfileLayout() {
         />
         <Stack.Screen
           name="daily-report"
-          options={({ route }) => {
-            const { id } = route.params as { id: string };
-            return {
-              title: "Reporte",
-              headerLargeTitle: true,
-              headerBackVisible: true,
-              headerShadowVisible: false,
-              headerLargeTitleShadowVisible: false,
-            };
+          options={{
+            title: "Reporte",
+            headerLargeTitle: true,
+            headerBackVisible: true,
+            headerShadowVisible: true,
+            headerLargeTitleShadowVisible: false,
           }}
         />
       </Stack>
       <BottomSheet
         ref={customerBottomSheetRef}
-        index={-1}  // Changed from 0 to -1
+        index={-1}
         snapPoints={snapPoints}
         enablePanDownToClose={true}
-        keyboardBehavior="interactive"
         handleIndicatorStyle={{ backgroundColor: "gray" }}
         backgroundStyle={{ backgroundColor: "white" }}
         backdropComponent={renderBackdrop}
@@ -239,15 +240,14 @@ export default function ProfileLayout() {
       </BottomSheet>
       <BottomSheet
         ref={categoryBottomSheetRef}
-        index={-1}  // Changed from 0 to -1
+        index={-1} // Changed from 0 to -1
         snapPoints={snapPoints}
         enablePanDownToClose={true}
-        keyboardBehavior="interactive"
         handleIndicatorStyle={{ backgroundColor: "gray" }}
         backgroundStyle={{ backgroundColor: "white" }}
         backdropComponent={renderBackdrop}
       >
-        <BottomSheetView className="p-4 flex flex-col gap-4 pb-20">
+        <BottomSheetView className="p-4 flex flex-col gap-4">
           <View className="flex flex-col gap-2">
             <Text variant="bodyMedium" style={{ color: "gray" }}>
               Nombre
