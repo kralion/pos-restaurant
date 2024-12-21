@@ -1,8 +1,9 @@
 import { IOrder } from "@/interfaces";
+import { FontAwesome5 } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
 import { View } from "react-native";
-import { Avatar, Card, IconButton, Text } from "react-native-paper";
+import { Card, IconButton, Text } from "react-native-paper";
 
 export default function PaymentCard({ order }: { order: IOrder }) {
   const formattedDate = new Date(order.date ?? new Date()).toLocaleString(
@@ -32,7 +33,9 @@ export default function PaymentCard({ order }: { order: IOrder }) {
         titleStyle={{ fontWeight: "bold", fontSize: 16 }}
         subtitleStyle={{ fontSize: 12 }}
         subtitle={formattedDate}
-        left={(props) => <Avatar.Icon color="white" {...props} icon="dolby" />}
+        left={(props) => (
+          <FontAwesome5 name="file-invoice-dollar" color="#FF6247" {...props} />
+        )}
         right={(props) => (
           <View className="flex flex-row items-center">
             <Text variant="bodyMedium">S/. {order.total.toFixed(2)}</Text>

@@ -10,6 +10,7 @@ export default function PaymentsLayout() {
         options={{
           title: "Pedidos Pagados",
           headerShadowVisible: false,
+          headerShown: false,
           headerLargeTitle: true,
           // headerSearchBarOptions: {
           //   placeholder: "Buscar ...",

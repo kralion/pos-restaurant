@@ -47,7 +47,10 @@ export default function MenuScreen() {
           borderBottomWidth: 0.5,
         }}
       >
-        <Appbar.Content title="Menú del Día" />
+        <Appbar.Content
+          title="Menú del Día"
+          titleStyle={{ fontWeight: "bold" }}
+        />
         <Menu
           visible={visible}
           style={{
@@ -55,6 +58,10 @@ export default function MenuScreen() {
             paddingRight: 10,
             flexDirection: "row",
             justifyContent: "center",
+          }}
+          contentStyle={{
+            backgroundColor: "#fff",
+            borderRadius: 12,
           }}
           onDismiss={() => setVisible(false)}
           anchor={

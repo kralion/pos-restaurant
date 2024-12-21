@@ -12,8 +12,7 @@ export default function WaiterLayout() {
         name="index"
         options={{
           title: "Pedidos",
-          headerLargeTitle: true,
-          headerShadowVisible: false,
+          headerShown: false,
           // headerSearchBarOptions: {
           //   placeholder: "Buscar ...",
           //   hideWhenScrolling: true,

@@ -17,12 +17,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 function TableSvg({ table, index }: { table: ITable; index: number }) {
   const rotation = useSharedValue(90);
-
   useEffect(() => {
     rotation.value = withDelay(
       index * 50,
       withTiming(0, {
-        duration: 300,
+        duration: 200,
         easing: Easing.out(Easing.cubic),
       })
     );
