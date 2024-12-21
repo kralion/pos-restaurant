@@ -140,7 +140,7 @@ export default function ProfileLayout() {
       </Stack>
       <BottomSheet
         ref={customerBottomSheetRef}
-        index={0}
+        index={-1}  // Changed from 0 to -1
         snapPoints={snapPoints}
         enablePanDownToClose={true}
         keyboardBehavior="interactive"
@@ -239,7 +239,7 @@ export default function ProfileLayout() {
       </BottomSheet>
       <BottomSheet
         ref={categoryBottomSheetRef}
-        index={0}
+        index={-1}  // Changed from 0 to -1
         snapPoints={snapPoints}
         enablePanDownToClose={true}
         keyboardBehavior="interactive"
