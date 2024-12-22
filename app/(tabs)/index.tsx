@@ -4,7 +4,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { ActivityIndicator, Chip, Divider } from "react-native-paper";
 import Animated, {
   Easing,
@@ -40,7 +40,18 @@ function TableSvg({ table, index }: { table: ITable; index: number }) {
         params: { number: table.number, id_table: table.id },
       });
     } else {
-      alert("La mesa está ocupada");
+      Alert.alert(
+        "Mesa Ocupada",
+        "No se pueden agregar pedidos a esta mesa",
+        [
+          {
+            text: "Aceptar",
+            onPress: () => {},
+            style: "cancel",
+          },
+        ],
+        { cancelable: false }
+      );
     }
   }
 

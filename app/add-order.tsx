@@ -1,33 +1,16 @@
+import CustomerFinder from "@/components/customer-finder";
+import OrderItemsAccordion from "@/components/items";
 import { useAuth, useOrderContext } from "@/context";
-import { useCategoryContext } from "@/context/category";
 import { useCustomer } from "@/context/customer";
-import { useMealContext } from "@/context/meals";
 import { IMeal, IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
 import { FontAwesome } from "@expo/vector-icons";
-import { FlashList } from "@shopify/flash-list";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Platform, ScrollView, View } from "react-native";
-import {
-  Button,
-  Divider,
-  IconButton,
-  List,
-  Modal,
-  Portal,
-  Searchbar,
-  Switch,
-  Text,
-  ActivityIndicator,
-  Appbar,
-  Menu,
-} from "react-native-paper";
-import Animated, { SlideInDown, SlideOutDown } from "react-native-reanimated";
+import { ScrollView, View } from "react-native";
+import { Appbar, Button, Divider, Switch, Text } from "react-native-paper";
 import { toast } from "sonner-native";
-import { useDebouncedCallback } from "use-debounce";
-const MORE_ICON = Platform.OS === "ios" ? "dots-horizontal" : "dots-vertical";
 
 export default function AddOrderScreen() {
   const { number, id_table, id_order } = useLocalSearchParams<{
@@ -35,26 +18,13 @@ export default function AddOrderScreen() {
     id_table: string;
     id_order: string;
   }>();
-  const {
-    categories,
-    getCategories,
-    loading: categoriesLoading,
-  } = useCategoryContext();
-  const { getMealsByCategoryId, loading: mealsLoading } = useMealContext();
-  const [mealsByCategory, setMealsByCategory] = useState<IMeal[]>([]);
   const [itemsSelected, setItemsSelected] = useState<IMeal[]>([]);
-  const [order, setOrder] = useState<IOrder | null>(null);
+  const [updatingOrder, setUpdatingOrder] = useState<IOrder | null>(null);
   const { addOrder, updateOrder, loading: orderLoading } = useOrderContext();
   const { profile } = useAuth();
   const { getCustomers, customers } = useCustomer();
   const [showCustomerModal, setShowCustomerModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchText, setSearchText] = useState("");
   const [isRegisterDisabled, setIsRegisterDisabled] = useState(false);
-  const [visible, setVisible] = React.useState(false);
-  const debouncedSearch = useDebouncedCallback((text: string) => {
-    setSearchQuery(text);
-  }, 300);
 
   async function getOrderById(id: string) {
     const { data, error } = await supabase
@@ -62,9 +32,8 @@ export default function AddOrderScreen() {
       .select("*")
       .eq("id", id)
       .single();
-    setOrder(data);
+    setUpdatingOrder(data);
     if (!data) return;
-    const order = data as IOrder;
     if (error) {
       console.error("Error getting order:", error);
       alert("Error al obtener o pedido");
@@ -72,35 +41,8 @@ export default function AddOrderScreen() {
     return;
   }
 
-  const handleQuantityChange = (item: IMeal, quantity: number) => {
-    const newItemsSelected = [...itemsSelected];
-    const index = newItemsSelected.findIndex((i) => i.id === item.id);
-
-    if (quantity > 0) {
-      if (index === -1) {
-        newItemsSelected.push({ ...item, quantity });
-      } else {
-        newItemsSelected[index].quantity = quantity;
-      }
-    } else {
-      if (index !== -1) {
-        newItemsSelected.splice(index, 1);
-      }
-    }
-
-    setItemsSelected(newItemsSelected);
-  };
-  const mealsByCategoryHandler = (categoryId: string) => {
-    const category = categories.find((c) => c.id === categoryId);
-    if (!category) return;
-    getMealsByCategoryId(category.id as string).then((meals) => {
-      setMealsByCategory(meals);
-    });
-  };
-
   useEffect(() => {
     getCustomers();
-    getCategories();
   }, []);
 
   useEffect(() => {
@@ -117,32 +59,16 @@ export default function AddOrderScreen() {
     watch,
   } = useForm<IOrder>({
     defaultValues: {
-      id_table: order?.id_table,
-      id_fixed_customer: order?.id_fixed_customer
-        ? order?.id_fixed_customer
+      id_table: updatingOrder?.id_table,
+      id_fixed_customer: updatingOrder?.id_fixed_customer
+        ? updatingOrder?.id_fixed_customer
         : "",
       items: [] as IMeal[],
-      paid: order?.paid,
-      served: order?.served,
-      total: order?.total,
+      paid: updatingOrder?.paid,
+      served: updatingOrder?.served,
+      total: updatingOrder?.total,
     },
   });
-
-  useEffect(() => {
-    const selectedCustomer = customers.find(
-      (c) => c.id === watch("id_fixed_customer")
-    );
-    const isFreeOrderSelected = watch("free");
-    if (
-      selectedCustomer &&
-      selectedCustomer.total_free_orders === 0 &&
-      isFreeOrderSelected
-    ) {
-      setIsRegisterDisabled(true);
-    } else {
-      setIsRegisterDisabled(false);
-    }
-  }, [watch("id_fixed_customer"), watch("free")]);
 
   const onUpdate = async (data: IOrder) => {
     if (data.items.length === 0) {
@@ -156,13 +82,13 @@ export default function AddOrderScreen() {
     try {
       const orderData: IOrder = {
         ...data,
-        served: order?.served || data.served,
-        to_go: order?.to_go || data.to_go,
-        id: order?.id || data.id,
-        id_waiter: order?.id_waiter || data.id_waiter,
-        paid: order?.paid || data.paid,
+        served: updatingOrder?.served || data.served,
+        to_go: updatingOrder?.to_go || data.to_go,
+        id: updatingOrder?.id || data.id,
+        id_waiter: updatingOrder?.id_waiter || data.id_waiter,
+        paid: updatingOrder?.paid || data.paid,
         id_fixed_customer:
-          order?.id_fixed_customer || data.id_fixed_customer || null,
+          updatingOrder?.id_fixed_customer || data.id_fixed_customer || null,
         id_table: id_table,
         total: 100,
       };
@@ -236,120 +162,24 @@ export default function AddOrderScreen() {
     }
   };
 
-  const filteredCustomers = React.useMemo(
-    () =>
-      customers.filter((customer) =>
-        customer.full_name.toLowerCase().includes(searchQuery.toLowerCase())
-      ),
-    [customers, searchQuery]
-  );
-
-  const renderCustomerModal = () => (
-    <Portal>
-      <Modal
-        visible={showCustomerModal}
-        onDismiss={() => {
-          setShowCustomerModal(false);
-          setSearchText("");
-          setSearchQuery("");
-        }}
-        contentContainerStyle={{
-          backgroundColor: "white",
-          padding: 16,
-          position: "absolute",
-          top: 40,
-          width: "95%",
-          minHeight: 400,
-          justifyContent: "flex-start",
-          margin: 10,
-          borderRadius: 16,
-        }}
-      >
-        <Animated.View
-          entering={SlideInDown}
-          exiting={SlideOutDown}
-          className="w-full "
-        >
-          <View className="flex-row justify-between  items-center mb-4">
-            <Text
-              style={{ color: "gray", paddingLeft: 10 }}
-              variant="bodyLarge"
-            >
-              Seleccionar Cliente
-            </Text>
-            <IconButton
-              icon="close"
-              onPress={() => {
-                setShowCustomerModal(false);
-                setSearchText("");
-                setSearchQuery("");
-              }}
-            />
-          </View>
-          <Searchbar
-            placeholder="Buscar cliente..."
-            onChangeText={(text) => {
-              setSearchText(text);
-              debouncedSearch(text);
-            }}
-            value={searchText}
-            onClearIconPress={() => {
-              setSearchText("");
-              setSearchQuery("");
-            }}
-            autoFocus
-          />
-
-          <ScrollView style={{ maxHeight: 400 }}>
-            {filteredCustomers.map((customer) => (
-              <List.Item
-                key={customer.id}
-                title={customer.full_name}
-                onPress={() => {
-                  setValue("id_fixed_customer", customer.id);
-                  setShowCustomerModal(false);
-                  setSearchText("");
-                  setSearchQuery("");
-                }}
-                left={(props) => <List.Icon {...props} icon="account" />}
-                right={(props) =>
-                  watch("id_fixed_customer") === customer.id ? (
-                    <List.Icon {...props} icon="check" />
-                  ) : null
-                }
-              />
-            ))}
-
-            {filteredCustomers.length === 0 && (
-              <View className="p-4 items-center">
-                <Text variant="bodyMedium">No se encontraron clientes</Text>
-              </View>
-            )}
-          </ScrollView>
-        </Animated.View>
-      </Modal>
-    </Portal>
-  );
-
   return (
     <>
       <Appbar.Header
         style={{
-          borderBottomColor: "#f1f1f1",
-          borderBottomWidth: 0.5,
+          backgroundColor: "#FF6247",
         }}
       >
         <Appbar.BackAction
           onPress={() => {
             router.back();
           }}
+          color="white"
         />
-        <Appbar.Content title={`Mesa #${number}`} />
-        <Appbar.Action
-          icon="backspace-outline"
-          color="red"
-          onPress={() => reset()}
+        <Appbar.Content
+          title={`Mesa ${number}`}
+          titleStyle={{ fontWeight: "bold", color: "white" }}
         />
+        <Appbar.Action icon="restore" color="white" onPress={() => reset()} />
       </Appbar.Header>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
@@ -363,7 +193,7 @@ export default function AddOrderScreen() {
               render={({ field: { value } }) => (
                 <View className="flex flex-row gap-2 justify-between items-center p-4 w-full">
                   <View>
-                    <Text variant="titleMedium">Cliente Fijo</Text>
+                    <Text variant="bodyLarge">Cliente Fijo</Text>
                     {value && (
                       <Text variant="bodyMedium" className="opacity-60">
                         {(() => {
@@ -425,118 +255,40 @@ export default function AddOrderScreen() {
               render={({ field: { onChange, value } }) => (
                 <View className="flex flex-row gap-2 justify-between items-center p-4">
                   <View>
-                    <Text variant="titleMedium">Orden para llevar</Text>
+                    <Text variant="bodyLarge">Orden para llevar</Text>
                   </View>
                   <Switch value={value} onValueChange={onChange} />
                 </View>
               )}
             />
             <Divider />
-            {categoriesLoading && (
-              <ActivityIndicator style={{ marginTop: 20 }} />
-            )}
-            {categories.map((category, index) => (
-              <List.Section key={category.id}>
-                <List.Accordion
-                  style={{
-                    backgroundColor: "white",
-                    paddingTop: 0,
-                    marginTop: 0,
-                  }}
-                  titleStyle={{
-                    fontWeight: "500",
-                  }}
-                  title={category.name}
-                  onPress={() => mealsByCategoryHandler(category.id as string)}
-                >
-                  <Divider />
-                  {mealsLoading && (
-                    <ActivityIndicator style={{ marginTop: 20 }} />
-                  )}
-                  <FlashList
-                    data={mealsByCategory}
-                    estimatedItemSize={74}
-                    renderItem={({ item }) => (
-                      <List.Item
-                        style={{
-                          paddingRight: 0,
-                        }}
-                        title={item.name}
-                        titleStyle={
-                          item.quantity === 0
-                            ? {
-                                textDecorationLine: "line-through",
-                                color: "gray",
-                              }
-                            : { color: "black" }
-                        }
-                        description={`S/. ${item.price.toFixed(2)}`}
-                        right={(props) => (
-                          <View className="flex-row items-center gap-2">
-                            <IconButton
-                              onPress={() => {
-                                const currentItem = itemsSelected.find(
-                                  (i) => i.id === item.id
-                                );
-                                const currentQuantity =
-                                  currentItem?.quantity ?? 0;
-                                handleQuantityChange(
-                                  item,
-                                  Math.max(currentQuantity - 1, 0)
-                                );
-                              }}
-                              mode="contained"
-                              icon="minus"
-                              size={18}
-                            />
-                            <Text variant="titleLarge">
-                              {itemsSelected.find((i) => i.id === item.id)
-                                ?.quantity ?? 0}
-                            </Text>
-                            <IconButton
-                              onPress={() => {
-                                const currentItem = itemsSelected.find(
-                                  (i) => i.id === item.id
-                                );
-                                const currentQuantity =
-                                  currentItem?.quantity ?? 0;
-                                handleQuantityChange(item, currentQuantity + 1);
-                              }}
-                              icon="plus"
-                              size={18}
-                              mode="contained"
-                            />
-                          </View>
-                        )}
-                      />
-                    )}
-                    keyExtractor={(item) => item.id}
-                  />
-                  {mealsByCategory.length === 0 && (
-                    <View className="p-4 items-center">
-                      <Text variant="bodyMedium" style={{ color: "gray" }}>
-                        Sin elementos
-                      </Text>
-                    </View>
-                  )}
-                </List.Accordion>
-                {index !== categories.length - 1 && <Divider />}
-              </List.Section>
-            ))}
+            <OrderItemsAccordion
+              items={itemsSelected}
+              setItems={setItemsSelected}
+            />
           </View>
           <View className="flex flex-col justify-center align-middle w-full gap-4 p-4">
             <Button
               mode="contained"
               style={{ marginTop: 40 }}
-              onPress={order ? handleSubmit(onUpdate) : handleSubmit(onAdd)}
+              onPress={
+                updatingOrder ? handleSubmit(onUpdate) : handleSubmit(onAdd)
+              }
               loading={orderLoading}
               disabled={isRegisterDisabled}
             >
-              {order ? "Editar Orden" : "Registrar Orden"}
+              {updatingOrder ? "Editar Orden" : "Registrar Orden"}
             </Button>
           </View>
         </View>
-        {renderCustomerModal()}
+
+        <CustomerFinder
+          watch={watch}
+          setValue={setValue}
+          setIsRegisterDisabled={setIsRegisterDisabled}
+          showCustomerModal={showCustomerModal}
+          setShowCustomerModal={setShowCustomerModal}
+        />
       </ScrollView>
     </>
   );
