@@ -27,9 +27,8 @@ export default function OrderCard({ order }: { order: IOrder }) {
     >
       <Card.Title
         title={"Mesa " + order.id_table}
-        titleStyle={{ fontWeight: "bold", fontSize: 16 }}
         subtitle={`${order.served ? "Servido" : "En espera"}`}
-        subtitleStyle={{ fontSize: 13 }}
+        subtitleStyle={{ fontSize: 13, color: "gray" }}
         left={(props) => (
           <Avatar.Icon
             color="white"
@@ -40,7 +39,9 @@ export default function OrderCard({ order }: { order: IOrder }) {
         right={(props) => (
           <View style={{ flexDirection: "column", alignItems: "flex-start" }}>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text variant="bodyMedium">{formattedDate}</Text>
+              <Text variant="bodyMedium" style={{ fontWeight: "bold" }}>
+                {formattedDate}
+              </Text>
               <IconButton {...props} icon="chevron-right" />
             </View>
             {order.free && (

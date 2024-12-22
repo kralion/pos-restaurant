@@ -148,7 +148,7 @@ export default function TablesScreen() {
       <Text className="text-4xl" style={{ fontWeight: "700" }}>
         Mesas
       </Text>
-      <Text className="opacity-50">Listado de mesas del restaurant</Text>
+      <Text className="opacity-50">Listado de mesas del local</Text>
       <Divider style={{ marginTop: 16 }} />
 
       <ScrollView contentContainerStyle={{ paddingVertical: 40 }}>

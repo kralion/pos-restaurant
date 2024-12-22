@@ -30,15 +30,16 @@ export default function PaymentCard({ order }: { order: IOrder }) {
     >
       <Card.Title
         title={"Mesa " + order.id_table}
-        titleStyle={{ fontWeight: "bold", fontSize: 16 }}
-        subtitleStyle={{ fontSize: 12 }}
+        subtitleStyle={{ fontSize: 12, color: "gray" }}
         subtitle={formattedDate}
         left={(props) => (
           <FontAwesome5 name="file-invoice-dollar" color="#FF6247" {...props} />
         )}
         right={(props) => (
           <View className="flex flex-row items-center">
-            <Text variant="bodyMedium">S/. {order.total.toFixed(2)}</Text>
+            <Text variant="bodyMedium" style={{ fontWeight: "bold" }}>
+              S/. {order.total.toFixed(2)}
+            </Text>
             <IconButton {...props} icon="chevron-right" />
           </View>
         )}

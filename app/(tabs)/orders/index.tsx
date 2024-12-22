@@ -41,7 +41,7 @@ export default function OrdersScreen() {
       <View className="flex-1 ">
         <FlashList
           contentContainerStyle={{
-            paddingVertical: 16,
+            padding: 16,
           }}
           renderItem={({ item: order }) => <OrderCard order={order} />}
           data={orders}
