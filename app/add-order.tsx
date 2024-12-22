@@ -19,6 +19,7 @@ export default function AddOrderScreen() {
     id_order: string;
   }>();
   const [itemsSelected, setItemsSelected] = useState<IMeal[]>([]);
+  const [toGo, setToGo] = useState(false);
   const [updatingOrder, setUpdatingOrder] = useState<IOrder | null>(null);
   const { addOrder, updateOrder, loading: orderLoading } = useOrderContext();
   const { profile } = useAuth();
@@ -249,18 +250,13 @@ export default function AddOrderScreen() {
               ) : null;
             })()}
 
-            <Controller
-              control={control}
-              name="to_go"
-              render={({ field: { onChange, value } }) => (
-                <View className="flex flex-row gap-2 justify-between items-center p-4">
-                  <View>
-                    <Text variant="bodyLarge">Orden para llevar</Text>
-                  </View>
-                  <Switch value={value} onValueChange={onChange} />
-                </View>
-              )}
-            />
+            <View className="flex flex-row gap-2 justify-between items-center p-4">
+              <View>
+                <Text variant="bodyLarge">Orden para llevar</Text>
+              </View>
+              <Switch value={toGo} onValueChange={() => setToGo(!toGo)} />
+            </View>
+
             <Divider />
             <OrderItemsAccordion
               items={itemsSelected}

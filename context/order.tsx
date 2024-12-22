@@ -19,6 +19,7 @@ export const OrderContext = createContext<IOrderContextProvider>({
   getOrders: async () => [],
   updateOrderServedStatus: async () => {},
   paidOrders: [],
+  updatePaidStatus: async () => {},
   getDailyPaidOrders: async () => [],
   getUnpaidOrders: async () => [],
 });
@@ -93,6 +94,23 @@ export const OrderContextProvider = ({
     }
   };
 
+  const updatePaidStatus = async (id: string, paid: boolean) => {
+    await supabase.from("orders").update({ paid }).eq("id", id).select();
+    const { error } = await supabase
+      .from("tables")
+      .update({ status: true })
+      .eq("id", order.id_table)
+      .select();
+    if (error) {
+      toast.error("Error al actualizar estado de la mesa!", {
+        icon: <FontAwesome name="times-circle" size={20} color="red" />,
+      });
+      return;
+    }
+    toast.success("Estado de la mesa actualizado!", {
+      icon: <FontAwesome name="check-circle" size={20} color="green" />,
+    });
+  };
   const getOrders = async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -229,6 +247,7 @@ export const OrderContextProvider = ({
         updateOrderServedStatus,
         order,
         getDailyPaidOrders,
+        updatePaidStatus,
         getUnpaidOrders,
       }}
     >

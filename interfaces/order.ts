@@ -21,6 +21,7 @@ export interface IOrderContextProvider {
   addOrder: (order: IOrder) => Promise<void>;
   updateOrderServedStatus: (id: string) => Promise<void>;
   getUnservedOrders: () => Promise<IOrder[]>;
+  updatePaidStatus: (id: string, paid: boolean) => Promise<void>;
   getPaidOrders: () => Promise<IOrder[]>;
   loading: boolean;
   updateOrder: (order: IOrder) => Promise<void>;
