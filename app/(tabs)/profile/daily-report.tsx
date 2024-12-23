@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import { BarChart } from "react-native-gifted-charts";
 import { ActivityIndicator } from "react-native-paper";
+import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 
 // Función unificada para calcular totales
 const calculateOrderTotal = (order: IOrder): number => {
@@ -20,10 +21,6 @@ const calculateOrderTotal = (order: IOrder): number => {
     (sum, meal) => sum + (meal.price || 0) * (meal.quantity || 1),
     0
   );
-};
-
-type MonthlyTotals = {
-  [key: string]: number;
 };
 
 export default function DailyReportScreen() {
@@ -49,9 +46,9 @@ export default function DailyReportScreen() {
     totalAmount: 0,
     peakHour: "",
   });
-  const [monthlyTotals, setMonthlyTotals] = useState<MonthlyTotals>({});
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [dailyTotals, setDailyTotals] = useState<{ [key: string]: number }>({});
 
   const loadDailySales = async () => {
     try {
@@ -59,6 +56,7 @@ export default function DailyReportScreen() {
       const orders = await getDailyPaidOrders();
       const salesByHour = new Array(12).fill(0);
       let dailyTotal = 0;
+      const newDailyTotals: { [key: string]: number } = {};
 
       orders.forEach((order: IOrder) => {
         if (order.date) {
@@ -69,6 +67,12 @@ export default function DailyReportScreen() {
 
           salesByHour[timeIndex] += orderTotal;
           dailyTotal += orderTotal;
+
+          const orderDateString = orderDate.toISOString().split('T')[0];
+          if (!newDailyTotals[orderDateString]) {
+            newDailyTotals[orderDateString] = 0;
+          }
+          newDailyTotals[orderDateString] += orderTotal;
         }
       });
 
@@ -87,6 +91,7 @@ export default function DailyReportScreen() {
         totalAmount: dailyTotal,
         peakHour: dailySales[peakHourIndex]?.label || "N/A",
       });
+      setDailyTotals(newDailyTotals);
     } catch (error) {
       console.error("Error loading daily sales:", error);
     } finally {
@@ -94,39 +99,8 @@ export default function DailyReportScreen() {
     }
   };
 
-  const getMonthlyTotals = async (date: Date = currentDate) => {
-    try {
-      const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
-      const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-
-      const { data: monthOrders, error } = await supabase
-        .from("orders")
-        .select("*")
-        .gte("date", startOfMonth.toISOString())
-        .lte("date", endOfMonth.toISOString())
-        .eq("paid", true)
-        .eq("id_tenant", profile.id_tenant);
-
-      if (error) throw error;
-
-      const totals: MonthlyTotals = {};
-      monthOrders?.forEach((order: IOrder) => {
-        if (order.date) {
-          const date = new Date(order.date).toISOString().split("T")[0];
-          const orderTotal = calculateOrderTotal(order);
-          totals[date] = (totals[date] || 0) + orderTotal;
-        }
-      });
-
-      setMonthlyTotals(totals);
-    } catch (error) {
-      console.error("Error loading monthly totals:", error);
-    }
-  };
-
   useEffect(() => {
     void loadDailySales();
-    void getMonthlyTotals();
 
     const subscription = supabase
       .channel("daily-reports")
@@ -135,7 +109,6 @@ export default function DailyReportScreen() {
         { event: "*", schema: "public", table: "orders" },
         () => {
           void loadDailySales();
-          void getMonthlyTotals();
         }
       )
       .subscribe();
@@ -143,7 +116,7 @@ export default function DailyReportScreen() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [currentDate]);
+  }, []);
 
   const SalesDetails = ({
     title,
@@ -156,108 +129,6 @@ export default function DailyReportScreen() {
       {title}: {typeof data === "number" ? `${data}` : data}
     </Text>
   );
-
-  const MonthlyCalendar = () => {
-    const daysInMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() + 1,
-      0
-    ).getDate();
-
-    const firstDayOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      1
-    ).getDay();
-
-    const emptyDays = Array(firstDayOfMonth).fill(null);
-    const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    const allDays = [...emptyDays, ...days];
-
-    const monthName = currentDate.toLocaleString("es-ES", { month: "long" });
-    const year = currentDate.getFullYear();
-
-    const navigateMonth = (direction: "prev" | "next") => {
-      const newDate = new Date(currentDate);
-      newDate.setMonth(
-        currentDate.getMonth() + (direction === "next" ? 1 : -1)
-      );
-      setCurrentDate(newDate);
-    };
-
-    const dayNames = ["D", "L", "M", "X", "J", "V", "S"];
-
-    return (
-      <View style={styles.monthlyCalendarContainer}>
-        <Text style={styles.weeklyTotalsTitle}>Totales calendarizados</Text>
-        <View>
-          <View className="flex flex-row justify-between items-center my-4">
-            <TouchableOpacity onPress={() => navigateMonth("prev")}>
-              <FontAwesome name="chevron-left" size={24} color="#FF6247" />
-            </TouchableOpacity>
-            <Text style={styles.monthTitle}>
-              {monthName.charAt(0).toUpperCase() + monthName.slice(1)} {year}
-            </Text>
-            <TouchableOpacity onPress={() => navigateMonth("next")}>
-              <FontAwesome name="chevron-right" size={24} color="#FF6247" />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.monthDays}>
-            {dayNames.map((day, index) => (
-              <Text key={index} style={styles.monthDay}>
-                {day}
-              </Text>
-            ))}
-          </View>
-        </View>
-        <View style={styles.calendarGrid}>
-          {allDays.map((day, index) => {
-            if (day === null) {
-              return (
-                <View
-                  key={`empty-${index}`}
-                  style={[styles.calendarDay, styles.emptyDay]}
-                />
-              );
-            }
-
-            const date = new Date(
-              currentDate.getFullYear(),
-              currentDate.getMonth(),
-              day
-            )
-              .toISOString()
-              .split("T")[0];
-            const dayTotal = monthlyTotals[date] || 0;
-
-            return (
-              <View
-                key={day}
-                style={[
-                  styles.calendarDay,
-                  dayTotal > 0 && styles.calendarDayWithSales,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.calendarDayNumber,
-                    dayTotal > 0 && { color: "#fff" },
-                  ]}
-                >
-                  {day}
-                </Text>
-                {dayTotal > 0 && (
-                  <Text style={styles.calendarDayTotal}>
-                    {dayTotal.toFixed(0)}
-                  </Text>
-                )}
-              </View>
-            );
-          })}
-        </View>
-      </View>
-    );
-  };
 
   return (
     <ScrollView
@@ -298,7 +169,21 @@ export default function DailyReportScreen() {
               <SalesDetails title="Hora pico" data={orderDetails.peakHour} />
             </View>
           </View>
-          <MonthlyCalendar />
+          <Calendar
+            onDayPress={(day : any) => setSelectedDate(day.dateString)}
+            markedDates={{
+              [selectedDate]: { selected: true, marked: true, selectedColor: '#FF6247' },
+              ...Object.keys(dailyTotals).reduce((acc, date) => {
+                acc[date] = { marked: true, dotColor: '#FF6247' };
+                return acc;
+              }, {} as { [key: string]: { marked: boolean, dotColor: string } }),
+            }}
+          />
+          <View style={styles.selectedDateContainer}>
+            <Text style={styles.selectedDateText}>
+              {selectedDate}: S/. {dailyTotals[selectedDate]?.toFixed(2) || '0.00'}
+            </Text>
+          </View>
         </>
       )}
     </ScrollView>
@@ -343,67 +228,16 @@ const styles = StyleSheet.create({
     color: "#666",
     marginBottom: 8,
   },
-  weeklyTotalsTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 12,
-    color: "#333",
-  },
-  monthlyCalendarContainer: {
-    marginTop: 24,
+  selectedDateContainer: {
+    marginVertical: 16,
     padding: 16,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: '#f5f5f5',
     borderRadius: 8,
+    alignItems: 'center',
   },
-  monthDays: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 16,
-    width: "100%",
-  },
-  monthDay: {
-    fontSize: 12,
-    color: "#333",
-    textAlign: "center",
-    width: "14.2%",
-  },
-  monthTitle: {
+  selectedDateText: {
     fontSize: 16,
-    fontWeight: "normal",
-    color: "#333",
-  },
-  calendarGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
-    width: "100%",
-  },
-  calendarDay: {
-    width: "14.2%",
-    aspectRatio: 1,
-    backgroundColor: "#fff",
-    padding: 4,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 8,
-  },
-  calendarDayWithSales: {
-    backgroundColor: "#FF6247",
-    borderWidth: 1,
-    borderColor: "#FF6247",
-  },
-  calendarDayNumber: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#333",
-  },
-  calendarDayTotal: {
-    fontSize: 12,
-    color: "white",
-    marginTop: 4,
-  },
-  emptyDay: {
-    backgroundColor: "transparent",
-    borderWidth: 0,
+    fontWeight: '600',
+    color: '#FF6247',
   },
 });
