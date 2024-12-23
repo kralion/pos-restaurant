@@ -143,8 +143,6 @@ export default function AddOrderScreen() {
           0
         ),
       };
-
-      // console.log(JSON.stringify(orderData));
       addOrder(orderData);
       if (data.free) {
         const selectedCustomer = customers.find(
@@ -185,7 +183,14 @@ export default function AddOrderScreen() {
           title={`Mesa ${number}`}
           titleStyle={{ fontWeight: "bold", color: "white" }}
         />
-        <Appbar.Action icon="restore" color="white" onPress={() => reset()} />
+        <Appbar.Action
+          icon="restore"
+          color="white"
+          onPress={() => {
+            reset();
+            setItemsSelected([]);
+          }}
+        />
       </Appbar.Header>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"

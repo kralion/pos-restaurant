@@ -2,7 +2,7 @@ import { useCategoryContext } from "@/context/category";
 import { useMealContext } from "@/context/meals";
 import { IMeal } from "@/interfaces";
 import { FlashList } from "@shopify/flash-list";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View } from "react-native";
 import {
   ActivityIndicator,
@@ -27,7 +27,6 @@ export default function OrderItemsAccordion({
   } = useCategoryContext();
   const { getMealsByCategoryId, loading: mealsLoading } = useMealContext();
   const [mealsByCategory, setMealsByCategory] = useState<IMeal[]>([]);
-
   const handleQuantityChange = (item: IMeal, quantity: number) => {
     const newItemsSelected = [...items];
     const index = newItemsSelected.findIndex((i) => i.id === item.id);
@@ -72,11 +71,11 @@ export default function OrderItemsAccordion({
             title={category.name}
             onPress={() => mealsByCategoryHandler(category.id as string)}
           >
-            <Divider />
             {mealsLoading && <ActivityIndicator style={{ marginTop: 20 }} />}
             <FlashList
               data={mealsByCategory}
               estimatedItemSize={74}
+              ItemSeparatorComponent={() => <Divider />}
               renderItem={({ item, index }) => (
                 <ItemAccordion
                   item={item}
@@ -107,7 +106,7 @@ export default function OrderItemsAccordion({
 const ItemAccordion = ({
   item,
   index,
-  currentQuantity,
+  currentQuantity = 0,
   onQuantityChange,
 }: {
   item: IMeal;
@@ -116,51 +115,53 @@ const ItemAccordion = ({
   onQuantityChange: (item: IMeal, quantity: number) => void;
 }) => {
   const [orderItemQuantity, setOrderItemQuantity] = useState(currentQuantity);
-
-  // Sync local state with parent state whenever currentQuantity changes
   useEffect(() => {
     setOrderItemQuantity(currentQuantity);
   }, [currentQuantity]);
 
-  const handleQuantityUpdate = (newQuantity: number) => {
-    if (newQuantity >= 0) {
-      setOrderItemQuantity(newQuantity);
-      onQuantityChange(item, newQuantity);
-    }
-  };
+  const handleQuantityUpdate = useCallback(
+    (newQuantity: number) => {
+      const validQuantity = Math.max(0, newQuantity);
+      setOrderItemQuantity(validQuantity);
+      onQuantityChange(item, validQuantity);
+    },
+    [onQuantityChange]
+  );
 
   return (
     <Animated.View entering={FadeInDown.duration(500).delay(index * 100)}>
       <List.Item
         style={{
-          backgroundColor: index % 2 === 0 ? "#F2F2F2" : "white",
+          backgroundColor: index % 2 === 0 ? "#F3F3F3" : "white",
         }}
         title={
-          <View style={{ width: "90%" }}>
-            <Text
-              ellipsizeMode="tail"
-              style={{
-                color: "black",
-              }}
-              variant="titleMedium"
-            >
-              {item.name}
+          <View>
+            <Text>{item.name}</Text>
+          </View>
+        }
+        description={
+          <View className="flex-row items-center gap-2">
+            <Text variant="labelSmall" style={{ color: "gray" }}>
+              S/. {item.price.toFixed(2)}
+            </Text>
+            <Text variant="labelSmall" style={{ color: "gray" }}>
+              - {item.quantity} porciones
             </Text>
           </View>
         }
-        description={`S/. ${item.price.toFixed(2)}`}
         right={(props) => (
           <View className="flex-row items-center gap-2">
             <IconButton
               onPress={() => handleQuantityUpdate(orderItemQuantity - 1)}
-              mode="contained"
+              disabled={orderItemQuantity === 0}
+              mode="contained-tonal"
               icon="minus"
             />
             <Text variant="titleLarge">{orderItemQuantity}</Text>
             <IconButton
+              mode="contained-tonal"
               onPress={() => handleQuantityUpdate(orderItemQuantity + 1)}
               icon="plus"
-              mode="contained"
             />
           </View>
         )}
