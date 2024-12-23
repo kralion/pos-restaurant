@@ -27,15 +27,15 @@ export default function OrderItemsAccordion({
   } = useCategoryContext();
   const { getMealsByCategoryId, loading: mealsLoading } = useMealContext();
   const [mealsByCategory, setMealsByCategory] = useState<IMeal[]>([]);
+
   const handleQuantityChange = (item: IMeal, quantity: number) => {
     const newItemsSelected = [...items];
     const index = newItemsSelected.findIndex((i) => i.id === item.id);
-
     if (quantity > 0) {
       if (index === -1) {
         newItemsSelected.push({ ...item, quantity });
       } else {
-        newItemsSelected[index].quantity = quantity;
+        newItemsSelected[index] = { ...newItemsSelected[index], quantity };
       }
     } else {
       if (index !== -1) {
@@ -45,6 +45,7 @@ export default function OrderItemsAccordion({
 
     setItems(newItemsSelected);
   };
+
   const mealsByCategoryHandler = (categoryId: string) => {
     const category = categories.find((c) => c.id === categoryId);
     if (!category) return;
@@ -56,6 +57,7 @@ export default function OrderItemsAccordion({
   useEffect(() => {
     getCategories();
   }, []);
+
   return (
     <>
       {categoriesLoading && <ActivityIndicator style={{ marginTop: 20 }} />}
@@ -76,7 +78,14 @@ export default function OrderItemsAccordion({
               data={mealsByCategory}
               estimatedItemSize={74}
               renderItem={({ item, index }) => (
-                <ItemAccordion item={item} index={index} />
+                <ItemAccordion
+                  item={item}
+                  index={index}
+                  currentQuantity={
+                    items.find((i) => i.id === item.id)?.quantity || 0
+                  }
+                  onQuantityChange={handleQuantityChange}
+                />
               )}
               ListEmptyComponent={
                 <View className="p-4 items-center">
@@ -95,23 +104,45 @@ export default function OrderItemsAccordion({
   );
 }
 
-const ItemAccordion = ({ item, index }: { item: IMeal; index: number }) => {
-  const [orderItemQuantity, setOrderItemQuantity] = useState(0);
-  const quantity = item.quantity - orderItemQuantity;
+const ItemAccordion = ({
+  item,
+  index,
+  currentQuantity,
+  onQuantityChange,
+}: {
+  item: IMeal;
+  index: number;
+  currentQuantity: number;
+  onQuantityChange: (item: IMeal, quantity: number) => void;
+}) => {
+  const [orderItemQuantity, setOrderItemQuantity] = useState(currentQuantity);
+
+  // Sync local state with parent state whenever currentQuantity changes
+  useEffect(() => {
+    setOrderItemQuantity(currentQuantity);
+  }, [currentQuantity]);
+
+  const handleQuantityUpdate = (newQuantity: number) => {
+    if (newQuantity >= 0) {
+      setOrderItemQuantity(newQuantity);
+      onQuantityChange(item, newQuantity);
+    }
+  };
+
   return (
-    <Animated.View entering={FadeInDown.duration(1000)}>
+    <Animated.View entering={FadeInDown.duration(500).delay(index * 100)}>
       <List.Item
         style={{
-          paddingRight: 2,
           backgroundColor: index % 2 === 0 ? "#F2F2F2" : "white",
         }}
         title={
-          <View style={{ width: "95%" }}>
+          <View style={{ width: "90%" }}>
             <Text
               ellipsizeMode="tail"
               style={{
                 color: "black",
               }}
+              variant="titleMedium"
             >
               {item.name}
             </Text>
@@ -121,20 +152,14 @@ const ItemAccordion = ({ item, index }: { item: IMeal; index: number }) => {
         right={(props) => (
           <View className="flex-row items-center gap-2">
             <IconButton
-              onPress={() => {
-                setOrderItemQuantity((prev) => prev - 1);
-              }}
+              onPress={() => handleQuantityUpdate(orderItemQuantity - 1)}
               mode="contained"
               icon="minus"
-              size={18}
             />
             <Text variant="titleLarge">{orderItemQuantity}</Text>
             <IconButton
-              onPress={() => {
-                setOrderItemQuantity((prev) => prev + 1);
-              }}
+              onPress={() => handleQuantityUpdate(orderItemQuantity + 1)}
               icon="plus"
-              size={18}
               mode="contained"
             />
           </View>
