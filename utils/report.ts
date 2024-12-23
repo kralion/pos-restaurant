@@ -13,44 +13,7 @@ type DayTotals = {
 type MonthlyTotals = {
   [key: string]: number;
 };
-export const weekDayTotals = async (id_tenant: string) => {
-  const today = new Date();
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(
-    today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)
-  );
-  startOfWeek.setHours(0, 0, 0, 0);
 
-  const { data } = await supabase
-    .from("orders")
-    .select("*")
-    .gte("date", startOfWeek.toISOString())
-    .lte("date", today.toISOString())
-    .eq("paid", true)
-    .eq("id_tenant", id_tenant);
-
-  const totals: DayTotals = {
-    Monday: 0,
-    Tuesday: 0,
-    Wednesday: 0,
-    Thursday: 0,
-    Friday: 0,
-    Saturday: 0,
-    Sunday: 0,
-  };
-
-  data?.forEach((order: IOrder) => {
-    if (order.date) {
-      const orderDate = new Date(order.date);
-      const dayName = orderDate.toLocaleString("en-US", {
-        weekday: "long",
-      }) as keyof DayTotals;
-      totals[dayName] += order.total;
-    }
-  });
-
-  return totals;
-};
 
 const calculateOrderTotal = (order: IOrder): number => {
   const getMealsTotal = (meals: IMeal[]) =>

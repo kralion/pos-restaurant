@@ -1,39 +1,25 @@
 import { useAuth } from "@/context";
 import { useOrderContext } from "@/context/order";
 import { IMeal, IOrder } from "@/interfaces";
-import { weekDayTotals } from "@/utils/report";
 import { supabase } from "@/utils/supabase";
 import { FontAwesome } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { useHeaderHeight } from "@react-navigation/elements";
 import { BarChart } from "react-native-gifted-charts";
 import { ActivityIndicator } from "react-native-paper";
-const calculateOrderTotal = (order: IOrder): number => {
-  const getMealsTotal = (meals: IMeal[]) =>
-    meals.reduce(
-      (sum, meal) => sum + (meal.price || 0) * (meal.quantity || 1),
-      0
-    );
-  return getMealsTotal(order.items);
-};
 
-type DayTotals = {
-  [key in
-    | "Monday"
-    | "Tuesday"
-    | "Wednesday"
-    | "Thursday"
-    | "Friday"
-    | "Saturday"
-    | "Sunday"]: number;
+// Función unificada para calcular totales
+const calculateOrderTotal = (order: IOrder): number => {
+  return order.items.reduce(
+    (sum, meal) => sum + (meal.price || 0) * (meal.quantity || 1),
+    0
+  );
 };
 
 type MonthlyTotals = {
@@ -41,98 +27,71 @@ type MonthlyTotals = {
 };
 
 export default function DailyReportScreen() {
-  const { getDailyPaidOrders, loading } = useOrderContext();
+  const { getDailyPaidOrders } = useOrderContext();
   const { profile } = useAuth();
-  const headerHeight = useHeaderHeight();
   const [dailySales, setDailySales] = useState([
-    { value: 0, label: "7 AM", frontColor: "#FF6247" },
-    { value: 0, label: "9 AM", frontColor: "#FF6247" },
-    { value: 0, label: "11 AM", frontColor: "#FF6247" },
-    { value: 0, label: "1 PM", frontColor: "#FF6247" },
-    { value: 0, label: "3 PM", frontColor: "#FF6247" },
-    { value: 0, label: "5 PM", frontColor: "#FF6247" },
-    { value: 0, label: "7 PM", frontColor: "#FF6247" },
-    { value: 0, label: "9 PM", frontColor: "#FF6247" },
+    { value: 0, label: "12 AM", frontColor: "#FF6247" },
+    { value: 0, label: "2 AM", frontColor: "#FF6247" },
+    { value: 0, label: "4 AM", frontColor: "#FF6247" },
+    { value: 0, label: "6 AM", frontColor: "#FF6247" },
+    { value: 0, label: "8 AM", frontColor: "#FF6247" },
+    { value: 0, label: "10 AM", frontColor: "#FF6247" },
+    { value: 0, label: "12 PM", frontColor: "#FF6247" },
+    { value: 0, label: "2 PM", frontColor: "#FF6247" },
+    { value: 0, label: "4 PM", frontColor: "#FF6247" },
+    { value: 0, label: "6 PM", frontColor: "#FF6247" },
+    { value: 0, label: "8 PM", frontColor: "#FF6247" },
+    { value: 0, label: "10 PM", frontColor: "#FF6247" },
   ]);
   const [totalDailySales, setTotalDailySales] = useState(0);
   const [orderDetails, setOrderDetails] = useState({
     totalOrders: 0,
     totalAmount: 0,
     peakHour: "",
-    totalWeekly: 0,
-  });
-  const [dailyTotals, setDailyTotals] = useState<DayTotals>({
-    Monday: 0,
-    Tuesday: 0,
-    Wednesday: 0,
-    Thursday: 0,
-    Friday: 0,
-    Saturday: 0,
-    Sunday: 0,
   });
   const [monthlyTotals, setMonthlyTotals] = useState<MonthlyTotals>({});
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    loadDailySales();
-    getWeekDayTotals();
-    getMonthlyTotals();
-    // Suscribirse a cambios en orders
-    const subscription = supabase
-      .channel("daily-reports")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "orders" },
-        () => {
-          loadDailySales(); // Recargar datos cuando haya cambios
-        }
-      )
-      .subscribe();
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
   const loadDailySales = async () => {
     try {
+      setLoading(true);
       const orders = await getDailyPaidOrders();
+      const salesByHour = new Array(12).fill(0);
+      let dailyTotal = 0;
 
-      const salesByHour = new Array(8).fill(0); // Updated to 8 slots
-      let total = 0;
       orders.forEach((order: IOrder) => {
         if (order.date) {
           const orderDate = new Date(order.date);
           const hour = orderDate.getHours();
-          const timeIndex = Math.floor((hour - 7) / 2); // Changed from 8 to 7
+          const timeIndex = Math.floor(hour / 2);
+          const orderTotal = calculateOrderTotal(order);
 
-          if (timeIndex >= 0 && timeIndex < salesByHour.length) {
-            salesByHour[timeIndex] += order.total;
-            total += order.total;
-          }
+          salesByHour[timeIndex] += orderTotal;
+          dailyTotal += orderTotal;
         }
       });
+
       setDailySales((prev) =>
         prev.map((item, index) => ({
           ...item,
           value: salesByHour[index],
         }))
       );
-      setTotalDailySales(total);
-      // Calcular detalles adicionales
+
       const peakHourIndex = salesByHour.indexOf(Math.max(...salesByHour));
+      
+      setTotalDailySales(dailyTotal);
       setOrderDetails({
         totalOrders: orders.length,
-        totalAmount: total,
+        totalAmount: dailyTotal,
         peakHour: dailySales[peakHourIndex]?.label || "N/A",
-        totalWeekly: orderDetails.totalWeekly + total, // Acumular total diario en total semanal
       });
     } catch (error) {
       console.error("Error loading daily sales:", error);
+    } finally {
+      setLoading(false);
     }
-  };
-  const getWeekDayTotals = async () => {
-    weekDayTotals(profile.id_tenant as string).then((totals) => {
-      setDailyTotals(totals);
-    });
   };
 
   const getMonthlyTotals = async (date: Date = currentDate) => {
@@ -151,44 +110,41 @@ export default function DailyReportScreen() {
       if (error) throw error;
 
       const totals: MonthlyTotals = {};
-      let monthTotal = 0;
-
       monthOrders?.forEach((order: IOrder) => {
         if (order.date) {
           const date = new Date(order.date).toISOString().split("T")[0];
-          totals[date] = (totals[date] || 0) + calculateOrderTotal(order);
-          monthTotal += calculateOrderTotal(order);
+          const orderTotal = calculateOrderTotal(order);
+          totals[date] = (totals[date] || 0) + orderTotal;
         }
       });
 
       setMonthlyTotals(totals);
-      return monthTotal;
     } catch (error) {
       console.error("Error loading monthly totals:", error);
-      return 0;
     }
   };
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date();
-      if (now.getHours() === 0 && now.getMinutes() === 0) {
-        // Reiniciar datos diarios a medianoche
-        setDailySales([
-          { value: 0, label: "7 AM", frontColor: "#FF6247" },
-          { value: 0, label: "9 AM", frontColor: "#FF6247" },
-          { value: 0, label: "11 AM", frontColor: "#FF6247" },
-          { value: 0, label: "1 PM", frontColor: "#FF6247" },
-          { value: 0, label: "3 PM", frontColor: "#FF6247" },
-          { value: 0, label: "5 PM", frontColor: "#FF6247" },
-          { value: 0, label: "7 PM", frontColor: "#FF6247" },
-          { value: 0, label: "9 PM", frontColor: "#FF6247" },
-        ]);
-        setTotalDailySales(0);
-      }
-    }, 60000); // Verificar cada minuto
-    return () => clearInterval(interval);
-  }, []);
+    void loadDailySales();
+    void getMonthlyTotals();
+
+    const subscription = supabase
+      .channel("daily-reports")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        () => {
+          void loadDailySales();
+          void getMonthlyTotals();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [currentDate]);
+
   const SalesDetails = ({
     title,
     data,
@@ -200,31 +156,6 @@ export default function DailyReportScreen() {
       {title}: {typeof data === "number" ? `${data}` : data}
     </Text>
   );
-  const WeeklyTotals = () => (
-    <View style={styles.weeklyTotalsContainer}>
-      <Text style={styles.weeklyTotalsTitle}>Totales por día de la semana</Text>
-      {Object.entries(dailyTotals).map(([day, total]) => (
-        <View key={day} className="flex flex-row justify-between mt-3">
-          <Text className="text-zinc-400">
-            {day === "Monday"
-              ? "Lunes"
-              : day === "Tuesday"
-              ? "Martes"
-              : day === "Wednesday"
-              ? "Miércoles"
-              : day === "Thursday"
-              ? "Jueves"
-              : day === "Friday"
-              ? "Viernes"
-              : day === "Saturday"
-              ? "Sábado"
-              : "Domingo"}
-          </Text>
-          <Text className="text-zinc-500">S/.{total.toFixed(2)}</Text>
-        </View>
-      ))}
-    </View>
-  );
 
   const MonthlyCalendar = () => {
     const daysInMonth = new Date(
@@ -233,7 +164,6 @@ export default function DailyReportScreen() {
       0
     ).getDate();
 
-    // se obtiene el primer día del mes
     const firstDayOfMonth = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
@@ -253,8 +183,8 @@ export default function DailyReportScreen() {
         currentDate.getMonth() + (direction === "next" ? 1 : -1)
       );
       setCurrentDate(newDate);
-      getMonthlyTotals(newDate);
     };
+
     const dayNames = ["D", "L", "M", "X", "J", "V", "S"];
 
     return (
@@ -334,50 +264,48 @@ export default function DailyReportScreen() {
       contentContainerStyle={styles.scrollContent}
       contentInsetAdjustmentBehavior="automatic"
     >
-      {loading && (
-        <View className="flex flex-col gap-4 mt-24 items-center justify-center ">
+      {loading ? (
+        <View className="flex flex-col gap-4 mt-24 items-center justify-center">
           <ActivityIndicator size="large" />
           <Text style={{ color: "gray" }}>Cargando datos...</Text>
         </View>
+      ) : (
+        <>
+          <View style={styles.chartContainer}>
+            <Text style={styles.title}>Ventas diarias</Text>
+            <Text style={styles.totalSales}>
+              Total: S/. {totalDailySales.toFixed(2)}
+            </Text>
+            <BarChart
+              data={dailySales}
+              barWidth={30}
+              barBorderRadius={6}
+              xAxisThickness={0}
+              yAxisThickness={0}
+              yAxisTextStyle={styles.chartText}
+              xAxisLabelTextStyle={styles.chartText}
+              noOfSections={5}
+            />
+            <View style={styles.detailsContainer}>
+              <SalesDetails
+                title="Total de pedidos"
+                data={orderDetails.totalOrders}
+              />
+              <SalesDetails
+                title="Total de ventas"
+                data={`S/. ${orderDetails.totalAmount.toFixed(2)}`}
+              />
+              <SalesDetails title="Hora pico" data={orderDetails.peakHour} />
+            </View>
+          </View>
+          <MonthlyCalendar />
+        </>
       )}
-
-      <View style={styles.chartContainer}>
-        <Text style={styles.title}>Ventas diarias</Text>
-        <Text style={styles.totalSales}>
-          Total: S/. {totalDailySales.toFixed(2)}
-        </Text>
-        <BarChart
-          data={dailySales}
-          barWidth={30}
-          barBorderRadius={6}
-          xAxisThickness={0}
-          yAxisThickness={0}
-          yAxisTextStyle={styles.chartText}
-          xAxisLabelTextStyle={styles.chartText}
-          noOfSections={5}
-        />
-        <View style={styles.detailsContainer}>
-          <SalesDetails
-            title="Total de pedidos"
-            data={orderDetails.totalOrders}
-          />
-          <SalesDetails
-            title="Total de ventas"
-            data={`S/. ${orderDetails.totalAmount.toFixed(2)}`}
-          />
-          <SalesDetails title="Hora pico" data={orderDetails.peakHour} />
-        </View>
-      </View>
-      <WeeklyTotals />
-      <MonthlyCalendar />
     </ScrollView>
   );
 }
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
   scrollContent: {
     padding: 16,
   },
@@ -415,41 +343,17 @@ const styles = StyleSheet.create({
     color: "#666",
     marginBottom: 8,
   },
-  weeklyTotalsContainer: {
-    marginTop: 24,
-    padding: 16,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-  },
   weeklyTotalsTitle: {
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 12,
     color: "#333",
   },
-  weeklyTotalItem: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 8,
-    paddingVertical: 4,
-  },
   monthlyCalendarContainer: {
     marginTop: 24,
     padding: 16,
     backgroundColor: "#f5f5f5",
     borderRadius: 8,
-  },
-  monthNavigation: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-    paddingHorizontal: 8,
-  },
-  navigationButton: {
-    fontSize: 24,
-    color: "#FF6247",
-    padding: 8,
   },
   monthDays: {
     flexDirection: "row",
