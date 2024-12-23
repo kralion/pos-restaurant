@@ -118,7 +118,7 @@ export default function AddOrderScreen() {
 
   const onAdd = async (data: IOrder) => {
     if (!profile.id) return;
-    if (data.items.length === 0) {
+    if (itemsSelected.length === 0) {
       toast.error("Orden sin productos", {
         description:
           "Debes agregar al menos un producto a la orden para proceder.",
@@ -127,7 +127,6 @@ export default function AddOrderScreen() {
       });
       return;
     }
-
     try {
       const orderData: IOrder = {
         ...data,
@@ -139,10 +138,14 @@ export default function AddOrderScreen() {
         id_fixed_customer: data.id_fixed_customer
           ? data.id_fixed_customer
           : null,
-        total: 100,
+        total: itemsSelected.reduce(
+          (acc, item) => acc + item.quantity * item.price,
+          0
+        ),
       };
+
+      // console.log(JSON.stringify(orderData));
       addOrder(orderData);
-      reset();
       if (data.free) {
         const selectedCustomer = customers.find(
           (c) => c.id === data.id_fixed_customer
@@ -157,6 +160,8 @@ export default function AddOrderScreen() {
             .eq("id", selectedCustomer.id);
         }
       }
+      reset();
+      setItemsSelected([]);
     } catch (err) {
       console.error("An error occurred:", err);
       alert("Algo sucedió mal, vuelve a intentarlo.");
@@ -256,7 +261,6 @@ export default function AddOrderScreen() {
               </View>
               <Switch value={toGo} onValueChange={() => setToGo(!toGo)} />
             </View>
-
             <Divider />
             <OrderItemsAccordion
               items={itemsSelected}
