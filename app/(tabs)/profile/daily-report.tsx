@@ -15,7 +15,7 @@ import { BarChart } from "react-native-gifted-charts";
 import { ActivityIndicator } from "react-native-paper";
 import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 
-// Función unificada para calcular totales
+// Esta es la función que tiene que calcular el total tanto para el diario como el mensual
 const calculateOrderTotal = (order: IOrder): number => {
   return order.items.reduce(
     (sum, meal) => sum + (meal.price || 0) * (meal.quantity || 1),
@@ -84,12 +84,16 @@ export default function DailyReportScreen() {
       );
 
       const peakHourIndex = salesByHour.indexOf(Math.max(...salesByHour));
-      
+      const peakHourLabel = [
+        "12 AM", "2 AM", "4 AM", "6 AM", "8 AM", "10 AM",
+        "12 PM", "2 PM", "4 PM", "6 PM", "8 PM", "10 PM"
+      ][peakHourIndex];
+
       setTotalDailySales(dailyTotal);
       setOrderDetails({
         totalOrders: orders.length,
         totalAmount: dailyTotal,
-        peakHour: dailySales[peakHourIndex]?.label || "N/A",
+        peakHour: peakHourLabel || "N/A",
       });
       setDailyTotals(newDailyTotals);
     } catch (error) {

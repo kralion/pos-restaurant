@@ -6,6 +6,7 @@ import { Image } from "expo-image";
 import React from "react";
 import { View } from "react-native";
 import { Appbar, Text } from "react-native-paper";
+import { supabase } from "@/utils/supabase";
 
 export default function OrdersScreen() {
   const { getUnpaidOrders, loading } = useOrderContext();
@@ -21,6 +22,19 @@ export default function OrdersScreen() {
     getUnpaidOrders().then((orders) => {
       setOrders(orders);
     });
+    const subscription = supabase
+      .channel("orders")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "orders" },
+        (payload) => {
+          setOrders((prevOrders) => [payload.new as IOrder, ...prevOrders]);
+        }
+      )
+      .subscribe();
+      return () => {
+        subscription.unsubscribe();
+      }
   }, []);
 
   return (
