@@ -189,10 +189,10 @@ export default function DailyReportScreen() {
               }, {} as { [key: string]: { marked: boolean; dotColor: string } }),
             }}
           />
-          <View style={styles.selectedDateContainer}>
+          <View className="flex flex-row justify-between bg-zinc-100 p-4 rounded-lg">
+            <Text style={styles.selectedDateText}>{selectedDate} </Text>
             <Text style={styles.selectedDateText}>
-              {selectedDate}: S/.{" "}
-              {dailyTotals[selectedDate]?.toFixed(2) || "0.00"}
+              S/.{dailyTotals[selectedDate]?.toFixed(2) || "0.00"}
             </Text>
           </View>
         </>

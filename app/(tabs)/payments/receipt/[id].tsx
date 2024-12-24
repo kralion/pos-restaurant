@@ -5,7 +5,13 @@ import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import { SafeAreaView, ScrollView, View } from "react-native";
 
-import { ActivityIndicator, Button, Divider, Text } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Button,
+  Chip,
+  Divider,
+  Text,
+} from "react-native-paper";
 
 export default function ReceiptScreen() {
   const params = useLocalSearchParams<{ id: string }>();
@@ -201,55 +207,82 @@ export default function ReceiptScreen() {
     );
 
   return (
-    <ScrollView
-      className="p-4 bg-white"
-      contentInsetAdjustmentBehavior="automatic"
-    >
-      <View className="flex flex-col gap-12">
-        <View className="flex flex-col gap-3">
-          <View className="flex flex-row justify-between">
-            <Text>Atendido por: </Text>
-            <Text>{order.users?.name}</Text>
-          </View>
-          <Divider />
-        </View>
+    <>
+      <ScrollView
+        className="p-4 bg-white"
+        contentInsetAdjustmentBehavior="automatic"
+      >
+        <View className="flex flex-col gap-12">
+          <View className="flex flex-col gap-3">
+            <View className="flex flex-row gap-2">
+              <Chip
+                style={{
+                  backgroundColor: "#e7e5e4",
+                }}
+              >
+                {order.users?.name}
+              </Chip>
 
-        <View className="flex flex-col gap-4">
-          <Text variant="titleMedium">Orden</Text>
-          <Divider />
-          <View className="flex flex-row justify-between">
-            <Text variant="bodySmall" className="w-48">
-              Item
-            </Text>
-            <Text variant="bodySmall">Precio</Text>
-            <Text variant="bodySmall">Cantidad</Text>
-          </View>
-          {order.items.map((item, index) => (
-            <View key={index} className="flex flex-row justify-between">
-              <Text className="w-36">{item.name}</Text>
-              <Text>S/. {item.price}</Text>
-              <Text>{item.quantity}</Text>
+              <Chip
+                style={{
+                  backgroundColor: "#e7e5e4",
+                }}
+              >
+                {order.to_go ? "Para llevar" : "Para mesa"}
+              </Chip>
             </View>
-          ))}
-        </View>
-        <View
-          style={{
-            height: 1,
-            borderWidth: 1,
-            borderColor: "gray",
-            borderStyle: "dashed",
-          }}
-        />
-        <View className="flex flex-col gap-3">
-          <View className="flex flex-row justify-between">
-            <Text variant="titleLarge">Total</Text>
-            <Text variant="titleLarge">S/. {total.toFixed(2)}</Text>
+            <Divider />
+          </View>
+
+          <View className="flex flex-col gap-4">
+            <View className="flex flex-row justify-between">
+              <Text variant="titleSmall" className="w-60">
+                Items de la Orden
+              </Text>
+              <Text variant="titleSmall">Precio/u</Text>
+              <Text variant="titleSmall">Cantidad</Text>
+            </View>
+            {order.items.map((item, index) => (
+              <View key={index} className="flex flex-row justify-between">
+                <Text className="w-36">{item.name}</Text>
+                <Text>S/. {item.price}</Text>
+                <Text>{item.quantity}</Text>
+              </View>
+            ))}
+          </View>
+          <View
+            style={{
+              height: 1,
+              borderWidth: 1,
+              borderColor: "gray",
+              borderStyle: "dashed",
+            }}
+          />
+          <View className="flex flex-col gap-3">
+            <View className="flex flex-row justify-between">
+              <Text variant="titleLarge">Total</Text>
+              <Text variant="titleLarge" style={{ fontWeight: "bold" }}>
+                S/. {total.toFixed(2)}
+              </Text>
+            </View>
           </View>
         </View>
-        <Button mode="contained" onPress={() => printOrder()}>
-          Imprimir Boleta
-        </Button>
-      </View>
-    </ScrollView>
+      </ScrollView>
+      <Button
+        mode="contained"
+        onPress={() => printOrder()}
+        style={{
+          position: "absolute",
+          bottom: 0,
+          margin: 20,
+          zIndex: 10,
+          padding: 5,
+          borderRadius: 32,
+          width: "90%",
+        }}
+      >
+        Imprimir Boleta
+      </Button>
+    </>
   );
 }

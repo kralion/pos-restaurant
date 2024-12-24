@@ -338,10 +338,8 @@ export default function OrderDetailsScreen() {
         style={{
           position: "absolute",
           bottom: 0,
-          right: 0,
           margin: 20,
           zIndex: 10,
-          backgroundColor: "#FF6247",
           padding: 5,
           borderRadius: 32,
           width: "90%",
