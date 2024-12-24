@@ -109,10 +109,10 @@ export const OrderContextProvider = ({
         return;
       }
 
-      if (!order.to_go) {
+      if (order.to_go) {
         const { error: tableError } = await supabase
           .from("tables")
-          .update({ status: false })
+          .update({ status: true })
           .eq("id", order.id_table);
 
         if (tableError) {

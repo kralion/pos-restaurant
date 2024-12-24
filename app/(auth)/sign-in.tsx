@@ -1,6 +1,8 @@
+import { useAuth } from "@/context";
 import { supabase } from "@/utils/supabase";
 import { FontAwesome } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import { router } from "expo-router";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { AppState, Linking, ScrollView, Text, View } from "react-native";
@@ -22,6 +24,7 @@ AppState.addEventListener("change", (state) => {
 
 export default function SignInScreen() {
   const [loading, setLoading] = React.useState(false);
+  const { getProfile } = useAuth();
   const {
     control,
     handleSubmit,
@@ -36,7 +39,7 @@ export default function SignInScreen() {
 
   const onSubmit = async (data: TLogin) => {
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error, data: user } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
@@ -47,13 +50,15 @@ export default function SignInScreen() {
     } else {
       reset();
     }
+    getProfile(user?.user?.id as string);
     setLoading(false);
+    router.push("/(tabs)");
   };
 
   return (
     <ScrollView className="bg-white ">
       <SafeAreaView className="flex flex-col justify-center align-middle m-4 items-center ">
-        <View className="flex flex-col gap-16 w-full items-center">
+        <View className="flex flex-col gap-10 w-full items-center">
           <View className="flex flex-col items-center gap-8 mt-20">
             <Image
               style={{
@@ -65,7 +70,14 @@ export default function SignInScreen() {
             <View className="flex flex-col gap-1 items-center">
               <Text className="text-4xl font-bold"> Inicia Sesión</Text>
               <Text className="text-center ">
-                Ingresa las credenciales de tu cuenta
+                No tienes credenciales?
+                <Text
+                  className=" text-orange-500"
+                  onPress={() => router.push("/(auth)/sign-up")}
+                >
+                  {" "}
+                  Crea una cuenta
+                </Text>
               </Text>
             </View>
           </View>
@@ -138,7 +150,7 @@ export default function SignInScreen() {
             <Text className="text-muted-foreground text-zinc-400   mx-auto">
               Desarrollado por
               <Text
-                className="font-bold text-orange-500"
+                className=" text-orange-500"
                 onPress={() => Linking.openURL("https://grobles.netlify.app")}
               >
                 {" "}

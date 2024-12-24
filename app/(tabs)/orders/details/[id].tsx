@@ -1,5 +1,6 @@
 import { useOrderContext } from "@/context";
 import { IOrder } from "@/interfaces";
+import { supabase } from "@/utils/supabase";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import * as Print from "expo-print";
 import { useLocalSearchParams } from "expo-router";
@@ -17,6 +18,7 @@ import {
 export default function OrderDetailsScreen() {
   const params = useLocalSearchParams<{ id: string }>();
   const [order, setOrder] = useState<IOrder>({} as IOrder);
+  const [companyLogo, setCompanyLogo] = useState<string>("");
   const [modalVisible, setModalVisible] = useState(false);
   const { getOrderById, loading, updatePaidStatus } = useOrderContext();
   React.useEffect(() => {
@@ -31,6 +33,15 @@ export default function OrderDetailsScreen() {
     }
     printOrder();
     setModalVisible(false);
+  };
+
+  const getCompany = async () => {
+    const { data: tenantData } = await supabase
+      .from("tenants")
+      .select("*")
+      .eq("id_tenant", order?.id_tenant)
+      .single();
+    setCompanyLogo(tenantData.logo);
   };
   const generateHTML = () => {
     const now = new Date();
@@ -120,6 +131,7 @@ export default function OrderDetailsScreen() {
         <body>
           <div class="logo">
             <h1>RINCONCITO SURCUBAMBINO</h1>
+            <img src="${companyLogo}" alt="logo" width="100px" height="100px" />
           </div>
 
           <div class="header-info">

@@ -11,7 +11,7 @@ export default function TabLayout() {
   const { profile: user, isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return <ActivityIndicator style={{ marginTop: 20 }} />;
+    return <ActivityIndicator color="tomato" />;
   }
 
   if (!isAuthenticated) {

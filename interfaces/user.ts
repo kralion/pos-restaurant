@@ -20,6 +20,7 @@ export interface IAuthContextProvider {
   user: User | null;
   isAuthenticated: boolean;
   profile: IUser;
+  getProfile: (userId: string) => void;
   loading: boolean;
   signOut: () => void;
   updateProfile: (userData: Partial<IUser>) => void;

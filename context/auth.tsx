@@ -3,9 +3,8 @@ import { supabase } from "@/utils/supabase";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
 import { FontAwesome } from "@expo/vector-icons";
 import { Session, User } from "@supabase/supabase-js";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { Alert } from "react-native";
-import { ActivityIndicator } from "react-native-paper";
 import { toast } from "sonner-native";
 
 const AuthContext = createContext<IAuthContextProvider>({
@@ -14,6 +13,7 @@ const AuthContext = createContext<IAuthContextProvider>({
   isAuthenticated: false,
   signOut: async () => {},
   updateProfile: async () => {},
+  getProfile: async () => {},
   deleteUser: async () => {},
   getUsers: async () => {},
   users: [],
@@ -27,76 +27,28 @@ export function AuthContextProvider({
   children: React.ReactNode;
 }) {
   const [session, setSession] = useState<Session | null>(null);
-  const [isReady, setIsReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<IUser | null>(null);
   const [users, setUsers] = useState<IUser[]>([]);
 
-  const fetchUserProfile = async (userId: string) => {
+  const getProfile = async (userId: string) => {
     try {
       setLoading(true);
-      const { data, error, status } = await supabase
+      const { data, error } = await supabase
         .from("accounts")
         .select("*")
         .eq("id", userId)
         .single();
-
-      if (error && status !== 406) throw error;
-
-      if (data) {
-        setProfile(data);
-        return data;
-      }
-      return null;
+      if (error) throw console.log("PROFILE ERROR", error);
+      setProfile(data);
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert("Profile Fetch Error", error.message);
       }
-      return null;
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    // Initial session check and setup
-    async function initializeAuth() {
-      const {
-        data: { session: initialSession },
-      } = await supabase.auth.getSession();
-      setSession(initialSession);
-
-      // If there's a session, immediately try to fetch the user profile
-      if (initialSession?.user) {
-        await fetchUserProfile(initialSession.user.id);
-      }
-
-      setIsReady(true);
-    }
-
-    // Subscribe to auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (_event, newSession) => {
-        if (_event === "SIGNED_OUT") {
-          // Clear all user data on sign-out
-          setSession(null);
-          setProfile(null);
-        } else if (newSession?.user) {
-          // Handle signed-in state
-          setSession(newSession);
-          await fetchUserProfile(newSession.user.id);
-        }
-      }
-    );
-
-    // Initialize authentication
-    initializeAuth();
-
-    // Cleanup subscription
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
 
   async function signOut() {
     try {
@@ -105,8 +57,6 @@ export function AuthContextProvider({
       if (error) {
         throw new Error(error.message);
       }
-
-      // Clear session and profile explicitly
       setSession(null);
       setProfile(null);
     } catch (error) {
@@ -133,8 +83,6 @@ export function AuthContextProvider({
       const { error } = await supabase.from("accounts").upsert(updates);
 
       if (error) throw error;
-
-      await fetchUserProfile(session.user.id);
     } catch (error) {
       if (error instanceof Error) {
         Alert.alert("Update Error", error.message);
@@ -175,10 +123,6 @@ export function AuthContextProvider({
     return data;
   };
 
-  if (!isReady) {
-    return <ActivityIndicator style={{ marginTop: 20 }} />;
-  }
-
   const user: User | null = session?.user || null;
 
   return (
@@ -190,6 +134,7 @@ export function AuthContextProvider({
         user,
         isAuthenticated: !!session?.user,
         signOut,
+        getProfile,
         updateProfile,
         deleteUser,
         getUsers,
