@@ -70,10 +70,17 @@ export const OrderContextProvider = ({
       });
 
       if (orderError) {
+        if(orderError.code === 'P0001'){
+          console.error('Error:', orderError.message);
+          alert('Límite de 100 órdenes por día alcanzado para este negocio.');
+        }
+        else {
         console.error("Error inserting order:", orderError);
         alert("Error inserting order");
+        }
         setLoading(false);
         return;
+        
       }
 
       const updates = await Promise.all(

@@ -2,7 +2,7 @@ import { useAuth } from "@/context";
 import { supabase } from "@/utils/supabase";
 import { supabaseAdmin } from "@/utils/supabaseAdmin";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, Text, View } from "react-native";
 import { Button, List, TextInput } from "react-native-paper";
@@ -20,7 +20,7 @@ export default function AddUserScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = React.useState(false);
-  const { getUsers } = useAuth();
+  const { getUsers, profile } = useAuth();
 
   const {
     control,
@@ -36,6 +36,8 @@ export default function AddUserScreen() {
       role: "Administrador",
     },
   });
+  
+    
 
   const onSubmit = async (data: IUser) => {
     setLoading(true);
@@ -59,6 +61,8 @@ export default function AddUserScreen() {
       if (!authData.user?.id) {
         throw new Error("No se pudo crear el usuario");
       }
+      const { data: tenantData, error: tenantError } = await supabase.from("tenants").select("id").eq("id", "id_tenant").single();
+      console.log("awawaa",tenantData);
 
       // Create user profile
       const { error: profileError } = await supabase.from("accounts").insert({
@@ -67,6 +71,7 @@ export default function AddUserScreen() {
         last_name: data.last_name,
         role: data.role,
         image_url: data.image_url,
+        id_tenant: profile.id_tenant,
       });
 
       if (profileError) throw profileError;
