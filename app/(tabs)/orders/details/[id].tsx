@@ -1,5 +1,6 @@
 import { useOrderContext } from "@/context";
 import { IOrder } from "@/interfaces";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import * as Print from "expo-print";
 import { useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
@@ -197,87 +198,95 @@ export default function OrderDetailsScreen() {
           </View>
         )}
 
-        <View className="flex flex-col gap-10">
-          <View className="flex flex-col gap-4">
-            <View className="flex flex-row gap-2">
-              <Chip
-                style={{
-                  backgroundColor: "#e7e5e4",
-                }}
-              >
-                {order.to_go ? "Para llevar" : "Para mesa"}
-              </Chip>
-
-              <Chip
-                style={{
-                  backgroundColor: "#e7e5e4",
-                }}
-                disabled={!order.served}
-              >
-                {order.served ? "Servido" : "En espera"}
-              </Chip>
-
-              {order.free && (
+        <View className="flex flex-col justify-between min-h-[450px]">
+          <View className="flex flex-col gap-10">
+            <View className="flex flex-col gap-4">
+              <View className="flex flex-row gap-2">
                 <Chip
                   style={{
                     backgroundColor: "#e7e5e4",
                   }}
                 >
-                  Gratis
+                  {order.to_go ? "Para llevar" : "Para mesa"}
                 </Chip>
+
+                <Chip
+                  style={{
+                    backgroundColor: "#e7e5e4",
+                  }}
+                  disabled={!order.served}
+                >
+                  {order.served ? "Servido" : "En espera"}
+                </Chip>
+
+                {order.free && (
+                  <Chip
+                    style={{
+                      backgroundColor: "#e7e5e4",
+                    }}
+                  >
+                    Gratis
+                  </Chip>
+                )}
+              </View>
+              {order.id_fixed_customer && (
+                <View className="flex flex-col gap-1 items-start">
+                  <Text style={{ color: "gray" }}>Cliente:</Text>
+                  <Text style={{ fontWeight: "bold" }}>
+                    {order.customers?.full_name}
+                  </Text>
+                </View>
               )}
             </View>
-            {order.id_fixed_customer && (
-              <View className="flex flex-col gap-1 items-start">
-                <Text style={{ color: "gray" }}>Cliente:</Text>
-                <Text style={{ fontWeight: "bold" }}>
-                  {order.customers?.full_name}
-                </Text>
-              </View>
-            )}
-          </View>
 
-          <View className="flex flex-col gap-4">
             <View className="flex flex-col gap-4">
-              <View className="flex flex-row justify-between">
-                <Text variant="titleSmall" className="w-60">
-                  Items de la Orden
-                </Text>
-                <Text variant="titleSmall">Precio/u</Text>
-                <Text variant="titleSmall">Cantidad</Text>
-              </View>
-              <View
-                style={{
-                  height: 1,
-                  borderWidth: 1,
-                  borderColor: "#e7e5e4",
-                  borderStyle: "dashed",
-                }}
-              />
-              {order?.items?.map((item, index) => (
-                <View key={index} className="flex flex-row justify-between">
-                  <Text className="w-44">{item?.name.toLocaleLowerCase()}</Text>
-                  <Text>S/. {item.price}</Text>
-                  <Text>{item.quantity}</Text>
+              <View className="flex flex-col gap-4">
+                <View className="flex flex-row justify-between">
+                  <Text variant="titleSmall" className="w-60">
+                    Items de la Orden
+                  </Text>
+                  <Text variant="titleSmall">Precio/u</Text>
+                  <Text variant="titleSmall">Cantidad</Text>
                 </View>
-              ))}
+                <View
+                  style={{
+                    height: 1,
+                    borderWidth: 1,
+                    borderColor: "#e7e5e4",
+                    borderStyle: "dashed",
+                  }}
+                />
+                {order?.items?.map((item, index) => (
+                  <View key={index} className="flex flex-row justify-between">
+                    <View className="flex flex-row items-center gap-2">
+                      <AntDesign name="check" size={20} color="green" />
+                      <Text className="w-44">
+                        {item?.name.toLocaleLowerCase()}
+                      </Text>
+                    </View>
+                    <Text>S/. {item.price}</Text>
+                    <Text>{item.quantity}</Text>
+                  </View>
+                ))}
+              </View>
             </View>
           </View>
+          <View className="flex flex-col gap-4">
+            <View
+              style={{
+                height: 1,
+                borderWidth: 1,
+                borderColor: "#e7e5e4",
+                borderStyle: "dashed",
+              }}
+            />
 
-          <View
-            style={{
-              height: 1,
-              borderWidth: 1,
-              borderColor: "#e7e5e4",
-              borderStyle: "dashed",
-            }}
-          />
-
-          <View className="flex flex-row justify-between">
-            <Text variant="titleMedium">Importe Total</Text>
-            <Text variant="titleLarge" style={{ fontWeight: "bold" }}>
-              S/. {order?.total?.toFixed(2)}
-            </Text>
+            <View className="flex flex-row justify-between">
+              <Text variant="titleMedium">Importe Total</Text>
+              <Text variant="titleLarge" style={{ fontWeight: "bold" }}>
+                S/. {order?.total?.toFixed(2)}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -344,6 +353,7 @@ export default function OrderDetailsScreen() {
           borderRadius: 32,
           width: "90%",
         }}
+        icon="file-download-outline"
         onPress={() => {
           setModalVisible(true);
         }}

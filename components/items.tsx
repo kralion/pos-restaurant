@@ -48,6 +48,7 @@ export default function OrderItemsAccordion({
   const mealsByCategoryHandler = (categoryId: string) => {
     const category = categories.find((c) => c.id === categoryId);
     if (!category) return;
+    //FIX: Add real time strictly to this useEffect
     getMealsByCategoryId(category.id as string).then((meals) => {
       setMealsByCategory(meals);
     });
@@ -80,6 +81,7 @@ export default function OrderItemsAccordion({
                 <ItemAccordion
                   item={item}
                   index={index}
+                  mealQuantity={item.quantity}
                   currentQuantity={
                     items.find((i) => i.id === item.id)?.quantity || 0
                   }
@@ -108,11 +110,13 @@ const ItemAccordion = ({
   index,
   currentQuantity = 0,
   onQuantityChange,
+  mealQuantity,
 }: {
   item: IMeal;
   index: number;
   currentQuantity: number;
   onQuantityChange: (item: IMeal, quantity: number) => void;
+  mealQuantity: number;
 }) => {
   const [orderItemQuantity, setOrderItemQuantity] = useState(currentQuantity);
   useEffect(() => {
@@ -160,6 +164,7 @@ const ItemAccordion = ({
             <Text variant="titleLarge">{orderItemQuantity}</Text>
             <IconButton
               mode="contained-tonal"
+              disabled={orderItemQuantity === mealQuantity}
               onPress={() => handleQuantityUpdate(orderItemQuantity + 1)}
               icon="plus"
             />

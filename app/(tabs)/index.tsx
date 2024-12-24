@@ -62,7 +62,11 @@ function TableSvg({ table, index }: { table: ITable; index: number }) {
           {table.status ? (
             <Text className="text-2xl font-bold">{table.number}</Text>
           ) : (
-            <Chip mode="flat" elevated disabled>
+            <Chip
+              mode="flat"
+              style={{ backgroundColor: "#ef4444" }}
+              selectedColor="#fecaca"
+            >
               Ocupado
             </Chip>
           )}

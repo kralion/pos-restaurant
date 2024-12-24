@@ -23,7 +23,7 @@ export default function TabLayout() {
       {
         name: "index",
         title: "Mesas",
-        icon: ["mingcute:album-2-fill.svg", "mingcute:album-2-line.svg"],
+        icon: ["mingcute:board-fill.svg", "mmingcute:board-line.svg"],
       },
       {
         name: "menu",
@@ -34,7 +34,10 @@ export default function TabLayout() {
         name: "payments",
         title: "Pagos",
         href: null,
-        icon: ["mingcute:inbox-2-fill.svg", "mingcute:inbox-2-line.svg"],
+        icon: [
+          "mingcute:currency-dollar-fill.svg",
+          "mingcute:currency-dollar-line.svg",
+        ],
       },
       {
         name: "chef-order",
@@ -44,7 +47,7 @@ export default function TabLayout() {
       {
         name: "my-profile",
         title: "Mi Perfil",
-        icon: ["mingcute:user-2-fill.svg", "mingcute:user-2-line.svg"],
+        icon: ["mingcute:user-3-fill.svg", "mingcute:user-3-line.svg"],
       },
       {
         name: "orders",
@@ -56,14 +59,14 @@ export default function TabLayout() {
         name: "profile",
         title: "Mi Perfil",
         href: null,
-        icon: ["mingcute:user-2-fill.svg", "mingcute:user-2-line.svg"],
+        icon: ["mingcute:user-3-fill.svg", "mingcute:user-3-line.svg"],
       },
     ],
     admin: [
       {
         name: "index",
         title: "Mesas",
-        icon: ["mingcute:album-2-fill.svg", "mingcute:album-2-line.svg"],
+        icon: ["mingcute:board-fill.svg", "mingcute:board-line.svg"],
       },
       {
         name: "menu",
@@ -73,7 +76,10 @@ export default function TabLayout() {
       {
         name: "payments",
         title: "Pagos",
-        icon: ["mingcute:inbox-2-fill.svg", "mingcute:inbox-2-line.svg"],
+        icon: [
+          "mingcute:currency-dollar-fill.svg",
+          "mingcute:currency-dollar-line.svg",
+        ],
       },
       {
         name: "chef-order",
@@ -90,19 +96,19 @@ export default function TabLayout() {
         name: "my-profile",
         title: "Mi Perfil",
         href: null,
-        icon: ["mingcute:user-2-fill.svg", "mingcute:user-2-line.svg"],
+        icon: ["mingcute:user-3-fill.svg", "mingcute:user-3-line.svg"],
       },
       {
         name: "profile",
         title: "Mi Perfil",
-        icon: ["mingcute:user-2-fill.svg", "mingcute:user-2-line.svg"],
+        icon: ["mingcute:user-3-fill.svg", "mingcute:user-3-line.svg"],
       },
     ],
     waiter: [
       {
         name: "index",
         title: "Mesas",
-        icon: ["mingcute:album-2-fill.svg", "mingcute:album-2-line.svg"],
+        icon: ["mingcute:board-fill.svg", "mingcute:board-line.svg"],
       },
       {
         name: "orders",
@@ -112,7 +118,7 @@ export default function TabLayout() {
       {
         name: "my-profile",
         title: "Mi Perfil",
-        icon: ["mingcute:user-2-fill.svg", "mingcute:user-2-line.svg"],
+        icon: ["mingcute:user-3-fill.svg", "mingcute:user-3-line.svg"],
       },
       {
         name: "menu",
@@ -124,7 +130,10 @@ export default function TabLayout() {
         name: "payments",
         title: "Pagos",
         href: null,
-        icon: ["mingcute:inbox-2-fill.svg", "mingcute:inbox-2-line.svg"],
+        icon: [
+          "mingcute:currency-dollar-fill.svg",
+          "mingcute:currency-dollar-line.svg",
+        ],
       },
       {
         name: "chef-order",
@@ -136,7 +145,7 @@ export default function TabLayout() {
         name: "profile",
         title: "Mi Perfil",
         href: null,
-        icon: ["mingcute:user-2-fill.svg", "mingcute:user-2-line.svg"],
+        icon: ["mingcute:user-3-fill.svg", "mingcute:user-3-line.svg"],
       },
     ],
   };

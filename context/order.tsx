@@ -62,35 +62,77 @@ export const OrderContextProvider = ({
 
   const addOrder = async (order: IOrder) => {
     setLoading(true);
-    const updates = order.items.map((meal) => ({
-      id: meal.id,
-      quantity: meal.quantity - order.items.length,
-    }));
+
     try {
-      const { error } = await supabase.from("orders").insert({
+      const { error: orderError } = await supabase.from("orders").insert({
         ...order,
         id_tenant: profile.id_tenant,
       });
-      if (error) {
-        console.error("Error inserting order:", error);
+
+      if (orderError) {
+        console.error("Error inserting order:", orderError);
+        alert("Error inserting order");
+        setLoading(false);
         return;
       }
-      await supabase.from("meals").upsert(updates);
+
+      const updates = await Promise.all(
+        order.items.map(async (meal) => {
+          const { data: currentMeal, error: fetchError } = await supabase
+            .from("meals")
+            .select("quantity")
+            .eq("id", meal.id)
+            .eq("id_tenant", profile.id_tenant)
+            .single();
+          if (fetchError) {
+            console.error("Error fetching meal quantity:", fetchError);
+            alert("Error fetching meal quantity");
+            return null;
+          }
+          const newQuantity = currentMeal.quantity - meal.quantity;
+          return {
+            id: meal.id,
+            quantity: newQuantity,
+            id_tenant: profile.id_tenant,
+          };
+        })
+      );
+
+      const validUpdates = updates.filter((update) => update !== null);
+
+      const { error: mealsError } = await supabase
+        .from("meals")
+        .upsert(validUpdates);
+      if (mealsError) {
+        console.error("Error updating meals:", mealsError);
+        setLoading(false);
+        return;
+      }
 
       if (!order.to_go) {
-        await supabase
+        const { error: tableError } = await supabase
           .from("tables")
           .update({ status: false })
           .eq("id", order.id_table);
+
+        if (tableError) {
+          console.error("Error updating table status:", tableError);
+          setLoading(false);
+          return;
+        }
       }
-      setLoading(false);
+
       toast.success("Pedido agregado!", {
         icon: <FontAwesome name="check-circle" size={20} color="green" />,
       });
       router.back();
     } catch (error) {
       console.error("Unexpected error:", error);
-      alert("Error al procesar pedido");
+      toast.success("Error al procesar pedido", {
+        icon: <FontAwesome name="times-circle" size={20} color="red" />,
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
