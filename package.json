@@ -20,6 +20,7 @@
     "@shopify/flash-list": "1.7.1",
     "@supabase/supabase-js": "^2.46.2",
     "cloudinary-react-native": "^1.0.0",
+    "date-fns-tz": "^3.2.0",
     "expo": "~52.0.20",
     "expo-font": "~13.0.1",
     "expo-image": "~2.0.3",

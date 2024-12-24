@@ -6,6 +6,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { BarChart } from "react-native-gifted-charts";
 import { ActivityIndicator } from "react-native-paper";
+import { toZonedTime, format } from "date-fns-tz";
 
 const calculateOrderTotal = (order: IOrder): number => {
   return order.items.reduce(
@@ -13,6 +14,8 @@ const calculateOrderTotal = (order: IOrder): number => {
     0
   );
 };
+
+const timeZone = 'America/Lima';
 
 export default function DailyReportScreen() {
   const { getDailyPaidOrders } = useOrderContext();
@@ -52,7 +55,7 @@ export default function DailyReportScreen() {
 
       orders.forEach((order: IOrder) => {
         if (order.date) {
-          const orderDate = new Date(order.date);
+          const orderDate = toZonedTime(new Date(order.date), timeZone);
           const hour = orderDate.getHours();
           const timeIndex = Math.floor(hour / 2);
           const orderTotal = calculateOrderTotal(order);
@@ -60,7 +63,7 @@ export default function DailyReportScreen() {
           salesByHour[timeIndex] += orderTotal;
           dailyTotal += orderTotal;
 
-          const orderDateString = orderDate.toISOString().split("T")[0];
+          const orderDateString = format(orderDate, 'yyyy-MM-dd', { timeZone });
           if (!newDailyTotals[orderDateString]) {
             newDailyTotals[orderDateString] = 0;
           }
@@ -105,8 +108,46 @@ export default function DailyReportScreen() {
     }
   };
 
+  const loadPreviousOrders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("date, total")
+        .order("date", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching previous orders:", error);
+        throw error;
+      }
+
+
+      const newDailyTotals: { [key: string]: number } = {};
+
+      data.forEach((order: { date: string; total: number }) => {
+        if (order.date) {
+          const orderDate = toZonedTime(new Date(order.date), timeZone);
+          const orderDateString = format(orderDate, 'yyyy-MM-dd', { timeZone });
+
+          if (!newDailyTotals[orderDateString]) {
+            newDailyTotals[orderDateString] = 0;
+          }
+          newDailyTotals[orderDateString] += order.total;
+        }
+      });
+
+      setDailyTotals(newDailyTotals);
+    } catch (error) {
+      console.error("Error loading previous orders:", error);
+    }
+  };
+
   useEffect(() => {
-    void loadDailySales();
+    const loadData = async () => {
+      await loadDailySales();
+      await loadPreviousOrders();
+    };
+
+    loadData();
 
     const subscription = supabase
       .channel("daily-reports")
@@ -114,7 +155,7 @@ export default function DailyReportScreen() {
         "postgres_changes",
         { event: "*", schema: "public", table: "orders" },
         () => {
-          void loadDailySales();
+          loadData();
         }
       )
       .subscribe();
@@ -142,7 +183,7 @@ export default function DailyReportScreen() {
       contentInsetAdjustmentBehavior="automatic"
     >
       {loading ? (
-        <View className="flex flex-col gap-4 mt-24 items-center justify-center">
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 24 }}>
           <ActivityIndicator size="large" />
           <Text style={{ color: "gray" }}>Cargando datos...</Text>
         </View>
@@ -189,7 +230,7 @@ export default function DailyReportScreen() {
               }, {} as { [key: string]: { marked: boolean; dotColor: string } }),
             }}
           />
-          <View className="flex flex-row justify-between bg-zinc-100 p-4 rounded-lg">
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', backgroundColor: '#f5f5f5', padding: 16, borderRadius: 8 }}>
             <Text style={styles.selectedDateText}>{selectedDate} </Text>
             <Text style={styles.selectedDateText}>
               S/.{dailyTotals[selectedDate]?.toFixed(2) || "0.00"}
@@ -215,7 +256,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14,
     marginBottom: 16,
-    fontWeight: "ultralight",
+    fontWeight: "300",
     color: "gray",
   },
   chartText: {
@@ -238,13 +279,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginBottom: 8,
-  },
-  selectedDateContainer: {
-    marginVertical: 16,
-    padding: 16,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    alignItems: "center",
   },
   selectedDateText: {
     fontSize: 16,
