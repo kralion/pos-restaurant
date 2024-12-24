@@ -272,20 +272,16 @@ export default function AddOrderScreen() {
               setItems={setItemsSelected}
             />
           </View>
-          <View className="flex flex-col justify-center align-middle w-full gap-4 p-4">
-            <Button
-              mode="contained"
-              style={{ marginTop: 40 }}
-              onPress={
-                updatingOrder ? handleSubmit(onUpdate) : handleSubmit(onAdd)
-              }
-              loading={orderLoading}
-              disabled={isRegisterDisabled}
-            >
-              {updatingOrder ? "Editar Orden" : "Registrar Orden"}
-            </Button>
-          </View>
         </View>
+        <Button
+          mode="contained"
+          style={{ marginTop: 40, marginHorizontal: 20 }}
+          onPress={updatingOrder ? handleSubmit(onUpdate) : handleSubmit(onAdd)}
+          loading={orderLoading}
+          disabled={isRegisterDisabled}
+        >
+          {updatingOrder ? "Editar Orden" : "Registrar Orden"}
+        </Button>
 
         <CustomerFinder
           watch={watch}

@@ -1,21 +1,12 @@
-import { useAuth } from "@/context";
 import { useOrderContext } from "@/context/order";
-import { IMeal, IOrder } from "@/interfaces";
+import { IOrder } from "@/interfaces";
 import { supabase } from "@/utils/supabase";
-import { FontAwesome } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Calendar } from "react-native-calendars";
 import { BarChart } from "react-native-gifted-charts";
 import { ActivityIndicator } from "react-native-paper";
-import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 
-// Esta es la función que tiene que calcular el total tanto para el diario como el mensual
 const calculateOrderTotal = (order: IOrder): number => {
   return order.items.reduce(
     (sum, meal) => sum + (meal.price || 0) * (meal.quantity || 1),
@@ -25,7 +16,6 @@ const calculateOrderTotal = (order: IOrder): number => {
 
 export default function DailyReportScreen() {
   const { getDailyPaidOrders } = useOrderContext();
-  const { profile } = useAuth();
   const [dailySales, setDailySales] = useState([
     { value: 0, label: "12 AM", frontColor: "#FF6247" },
     { value: 0, label: "2 AM", frontColor: "#FF6247" },
@@ -47,7 +37,9 @@ export default function DailyReportScreen() {
     peakHour: "",
   });
   const [loading, setLoading] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
   const [dailyTotals, setDailyTotals] = useState<{ [key: string]: number }>({});
 
   const loadDailySales = async () => {
@@ -68,7 +60,7 @@ export default function DailyReportScreen() {
           salesByHour[timeIndex] += orderTotal;
           dailyTotal += orderTotal;
 
-          const orderDateString = orderDate.toISOString().split('T')[0];
+          const orderDateString = orderDate.toISOString().split("T")[0];
           if (!newDailyTotals[orderDateString]) {
             newDailyTotals[orderDateString] = 0;
           }
@@ -85,8 +77,18 @@ export default function DailyReportScreen() {
 
       const peakHourIndex = salesByHour.indexOf(Math.max(...salesByHour));
       const peakHourLabel = [
-        "12 AM", "2 AM", "4 AM", "6 AM", "8 AM", "10 AM",
-        "12 PM", "2 PM", "4 PM", "6 PM", "8 PM", "10 PM"
+        "12 AM",
+        "2 AM",
+        "4 AM",
+        "6 AM",
+        "8 AM",
+        "10 AM",
+        "12 PM",
+        "2 PM",
+        "4 PM",
+        "6 PM",
+        "8 PM",
+        "10 PM",
       ][peakHourIndex];
 
       setTotalDailySales(dailyTotal);
@@ -174,18 +176,23 @@ export default function DailyReportScreen() {
             </View>
           </View>
           <Calendar
-            onDayPress={(day : any) => setSelectedDate(day.dateString)}
+            onDayPress={(day: any) => setSelectedDate(day.dateString)}
             markedDates={{
-              [selectedDate]: { selected: true, marked: true, selectedColor: '#FF6247' },
+              [selectedDate]: {
+                selected: true,
+                marked: true,
+                selectedColor: "#FF6247",
+              },
               ...Object.keys(dailyTotals).reduce((acc, date) => {
-                acc[date] = { marked: true, dotColor: '#FF6247' };
+                acc[date] = { marked: true, dotColor: "#FF6247" };
                 return acc;
-              }, {} as { [key: string]: { marked: boolean, dotColor: string } }),
+              }, {} as { [key: string]: { marked: boolean; dotColor: string } }),
             }}
           />
           <View style={styles.selectedDateContainer}>
             <Text style={styles.selectedDateText}>
-              {selectedDate}: S/. {dailyTotals[selectedDate]?.toFixed(2) || '0.00'}
+              {selectedDate}: S/.{" "}
+              {dailyTotals[selectedDate]?.toFixed(2) || "0.00"}
             </Text>
           </View>
         </>
@@ -235,13 +242,13 @@ const styles = StyleSheet.create({
   selectedDateContainer: {
     marginVertical: 16,
     padding: 16,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   selectedDateText: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#FF6247',
+    fontWeight: "600",
+    color: "#FF6247",
   },
 });

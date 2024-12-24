@@ -186,159 +186,172 @@ export default function OrderDetailsScreen() {
     });
   };
   return (
-    <ScrollView
-      className="p-4 bg-white"
-      contentInsetAdjustmentBehavior="automatic"
-    >
-      {loading && (
-        <View className="h-screen-safe flex-1 items-center justify-center">
-          <ActivityIndicator size="large" />
-        </View>
-      )}
+    <>
+      <ScrollView
+        className="p-4 bg-white"
+        contentInsetAdjustmentBehavior="automatic"
+      >
+        {loading && (
+          <View className="h-screen-safe flex-1 items-center justify-center">
+            <ActivityIndicator size="large" />
+          </View>
+        )}
 
-      <View className="flex flex-col gap-10">
-        <View className="flex flex-col gap-4">
-          <View className="flex flex-row gap-2">
-            <Chip
-              style={{
-                backgroundColor: "#e7e5e4",
-              }}
-            >
-              {order.to_go ? "Para llevar" : "Para mesa"}
-            </Chip>
-
-            <Chip
-              style={{
-                backgroundColor: "#e7e5e4",
-              }}
-              disabled={!order.served}
-            >
-              {order.served ? "Servido" : "En espera"}
-            </Chip>
-
-            {order.free && (
+        <View className="flex flex-col gap-10">
+          <View className="flex flex-col gap-4">
+            <View className="flex flex-row gap-2">
               <Chip
                 style={{
                   backgroundColor: "#e7e5e4",
                 }}
               >
-                Gratis
+                {order.to_go ? "Para llevar" : "Para mesa"}
               </Chip>
+
+              <Chip
+                style={{
+                  backgroundColor: "#e7e5e4",
+                }}
+                disabled={!order.served}
+              >
+                {order.served ? "Servido" : "En espera"}
+              </Chip>
+
+              {order.free && (
+                <Chip
+                  style={{
+                    backgroundColor: "#e7e5e4",
+                  }}
+                >
+                  Gratis
+                </Chip>
+              )}
+            </View>
+            {order.id_fixed_customer && (
+              <View className="flex flex-col gap-1 items-start">
+                <Text style={{ color: "gray" }}>Cliente:</Text>
+                <Text style={{ fontWeight: "bold" }}>
+                  {order.customers?.full_name}
+                </Text>
+              </View>
             )}
           </View>
-          {order.id_fixed_customer && (
-            <View className="flex flex-col gap-1 items-start">
-              <Text style={{ color: "gray" }}>Cliente:</Text>
-              <Text style={{ fontWeight: "bold" }}>
-                {order.customers?.full_name}
-              </Text>
-            </View>
-          )}
-        </View>
 
-        <View className="flex flex-col gap-4">
           <View className="flex flex-col gap-4">
-            <View className="flex flex-row justify-between">
-              <Text variant="titleSmall" className="w-60">
-                Items de la Orden
-              </Text>
-              <Text variant="titleSmall">Precio/u</Text>
-              <Text variant="titleSmall">Cantidad</Text>
-            </View>
-            <View
-              style={{
-                height: 1,
-                borderWidth: 1,
-                borderColor: "#e7e5e4",
-                borderStyle: "dashed",
-              }}
-            />
-            {order?.items?.map((item, index) => (
-              <View key={index} className="flex flex-row justify-between">
-                <Text className="w-44">{item?.name.toLocaleLowerCase()}</Text>
-                <Text>S/. {item.price}</Text>
-                <Text>{item.quantity}</Text>
+            <View className="flex flex-col gap-4">
+              <View className="flex flex-row justify-between">
+                <Text variant="titleSmall" className="w-60">
+                  Items de la Orden
+                </Text>
+                <Text variant="titleSmall">Precio/u</Text>
+                <Text variant="titleSmall">Cantidad</Text>
               </View>
-            ))}
+              <View
+                style={{
+                  height: 1,
+                  borderWidth: 1,
+                  borderColor: "#e7e5e4",
+                  borderStyle: "dashed",
+                }}
+              />
+              {order?.items?.map((item, index) => (
+                <View key={index} className="flex flex-row justify-between">
+                  <Text className="w-44">{item?.name.toLocaleLowerCase()}</Text>
+                  <Text>S/. {item.price}</Text>
+                  <Text>{item.quantity}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
 
-        <View
-          style={{
-            height: 1,
-            borderWidth: 1,
-            borderColor: "#e7e5e4",
-            borderStyle: "dashed",
-          }}
-        />
-
-        <View className="flex flex-row justify-between">
-          <Text variant="titleMedium">Importe Total</Text>
-          <Text variant="titleLarge" style={{ fontWeight: "bold" }}>
-            S/. {order?.total?.toFixed(2)}
-          </Text>
-        </View>
-
-        <Button
-          mode="contained"
-          onPress={() => {
-            setModalVisible(true);
-          }}
-        >
-          Imprimir Comprobante
-        </Button>
-      </View>
-      <Portal>
-        <Modal
-          visible={modalVisible}
-          onDismiss={() => setModalVisible(false)}
-          contentContainerStyle={{
-            borderRadius: 16,
-            padding: 16,
-            marginHorizontal: 16,
-            display: "flex",
-            gap: 10,
-            backgroundColor: "#fff",
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 5,
-          }}
-        >
-          <Image
+          <View
             style={{
-              width: 50,
-              height: 50,
-            }}
-            source={{
-              uri: "https://img.icons8.com/?size=100&id=VQOfeAx5KWTK&format=png&color=000000",
+              height: 1,
+              borderWidth: 1,
+              borderColor: "#e7e5e4",
+              borderStyle: "dashed",
             }}
           />
 
-          <View className="flex flex-col gap-1">
+          <View className="flex flex-row justify-between">
+            <Text variant="titleMedium">Importe Total</Text>
             <Text variant="titleLarge" style={{ fontWeight: "bold" }}>
-              Imprimir Comprobante
-            </Text>
-            <Text>
-              Estás seguro de proceder con esta operación ? La order ahora se
-              registrará como pagada.
+              S/. {order?.total?.toFixed(2)}
             </Text>
           </View>
+        </View>
 
-          <View className="flex flex-col gap-4  mt-10">
-            <Button mode="contained" onPress={confirmUpdate}>
-              Aceptar
-            </Button>
-            <Button mode="outlined" onPress={() => setModalVisible(false)}>
-              Cancelar
-            </Button>
-          </View>
-        </Modal>
-      </Portal>
-    </ScrollView>
+        <Portal>
+          <Modal
+            visible={modalVisible}
+            onDismiss={() => setModalVisible(false)}
+            contentContainerStyle={{
+              borderRadius: 16,
+              padding: 16,
+              marginHorizontal: 16,
+              display: "flex",
+              gap: 10,
+              backgroundColor: "#fff",
+              shadowColor: "#000",
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              elevation: 5,
+            }}
+          >
+            <Image
+              style={{
+                width: 50,
+                height: 50,
+              }}
+              source={{
+                uri: "https://img.icons8.com/?size=100&id=VQOfeAx5KWTK&format=png&color=000000",
+              }}
+            />
+
+            <View className="flex flex-col gap-1">
+              <Text variant="titleLarge" style={{ fontWeight: "bold" }}>
+                Imprimir Comprobante
+              </Text>
+              <Text>
+                Estás seguro de proceder con esta operación ? La order ahora se
+                registrará como pagada.
+              </Text>
+            </View>
+
+            <View className="flex flex-col gap-4  mt-10">
+              <Button mode="contained" onPress={confirmUpdate}>
+                Aceptar
+              </Button>
+              <Button mode="outlined" onPress={() => setModalVisible(false)}>
+                Cancelar
+              </Button>
+            </View>
+          </Modal>
+        </Portal>
+      </ScrollView>
+      <Button
+        mode="contained"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          right: 0,
+          margin: 20,
+          zIndex: 10,
+          backgroundColor: "#FF6247",
+          padding: 5,
+          borderRadius: 32,
+          width: "90%",
+        }}
+        onPress={() => {
+          setModalVisible(true);
+        }}
+      >
+        Imprimir Comprobante
+      </Button>
+    </>
   );
 }
